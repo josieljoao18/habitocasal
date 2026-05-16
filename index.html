@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitFlow Casal - Hábitos para dois</title>
+    
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React via CDN - Versão CORRETA -->
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    
+    <!-- Babel para JSX -->
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #09090b;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #18181b;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 9999px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.02);
+            transition: transform 0.2s ease;
+        }
+        
+        .tab-active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.3);
+        }
+        
+        .tab-inactive {
+            background: #27272a;
+        }
+        
+        .edit-icon:hover {
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        // Utilitários
+        const getToday = () => new Date().toISOString().split('T')[0];
+        
+        const calculateStreak = (dates) => {
+            if (!dates || dates.length === 0) return 0;
+            const sorted = [...dates].sort().reverse();
+            let streak = 1;
+            let current = new Date(sorted[0]);
+            
+            for (let i = 1; i < sorted.length; i++) {
+                const prev = new Date(sorted[i]);
+                const diffDays = Math.floor((current - prev) / (1000 * 60 * 60 * 24));
+                if (diffDays === 1) {
+                    streak++;
+                    current = prev;
+                } else {
+                    break;
+                }
+            }
+            return streak;
+        };
+        
+        // Dados iniciais para cada pessoa
+        const getInitialHabits = (personId) => {
+            const commonHabits = [
+                {
+                    id: `${personId}_1`,
+                    title: 'Beber Água',
+                    description: 'Beber 2 litros de água por dia',
+                    completedDates: [getToday()],
+                    icon: '💧',
+                    streak: 5,
+                    targetDays: 30
+                },
+                {
+                    id: `${personId}_2`,
+                    title: 'Meditar',
+                    description: '10 minutos de meditação',
+                    completedDates: [getToday()],
+                    icon: '🧘',
+                    streak: 3,
+                    targetDays: 20
+                },
+                {
+                    id: `${personId}_3`,
+                    title: 'Ler',
+                    description: 'Ler 20 páginas por dia',
+                    completedDates: [],
+                    icon: '📚',
+                    streak: 0,
+                    targetDays: 15
+                }
+            ];
+            
+            if (personId === 'josiel') {
+                return [
+                    ...commonHabits,
+                    {
+                        id: `${personId}_4`,
+                        title: 'Exercitar',
+                        description: '30 minutos de academia',
+                        completedDates: [getToday()],
+                        icon: '🏋️',
+                        streak: 7,
+                        targetDays: 25
+                    },
+                    {
+                        id: `${personId}_5`,
+                        title: 'Estudar Programação',
+                        description: '1 hora de estudos',
+                        completedDates: [],
+                        icon: '💻',
+                        streak: 0,
+                        targetDays: 20
+                    }
+                ];
+            } else {
+                return [
+                    ...commonHabits,
+                    {
+                        id: `${personId}_4`,
+                        title: 'Yoga',
+                        description: '30 minutos de yoga',
+                        completedDates: [getToday()],
+                        icon: '🧘‍♀️',
+                        streak: 6,
+                        targetDays: 25
+                    },
+                    {
+                        id: `${personId}_5`,
+                        title: 'Cozinhar Saudável',
+                        description: 'Preparar refeições nutritivas',
+                        completedDates: [],
+                        icon: '🥗',
+                        streak: 0,
+                        targetDays: 20
+                    }
+                ];
+            }
+        };
+        
+        // Componente StatCard
+        const StatCard = ({ title, value, icon, trend }) => {
+            return (
+                <div className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 hover:shadow-lg transition-all">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-zinc-400 text-sm">{title}</p>
+                            <p className="text-3xl font-bold mt-1">{value}</p>
+                            {trend !== undefined && (
+                                <p className={`text-xs mt-2 ${trend >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                    {trend >= 0 ? '↑' : '↓'} {Math.abs(trend)}% essa semana
+                                </p>
+                            )}
+                        </div>
+                        <div className="text-green-400 text-2xl">{icon}</div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Componente HabitCard
+        const HabitCard = ({ habit, onToggle }) => {
+            const today = getToday();
+            const completedToday = habit.completedDates?.includes(today) || false;
+            const progress = ((habit.completedDates?.length || 0) / (habit.targetDays || 7)) * 100;
+            
+            return (
+                <div className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-3xl p-6 hover:border-zinc-700 transition-all duration-300 hover-scale">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                            <span className="text-3xl">{habit.icon}</span>
+                            <h3 className="text-xl font-semibold">{habit.title}</h3>
+                        </div>
+                        <div className="flex items-center gap-1 text-orange-400">
+                            <span>🔥</span>
+                            <span className="text-sm font-medium">{habit.streak || 0} dias</span>
+                        </div>
+                    </div>
+                    
+                    {habit.description && (
+                        <p className="text-zinc-400 text-sm mb-4">{habit.description}</p>
+                    )}
+                    
+                    <div className="mt-4 space-y-2">
+                        <div className="flex justify-between text-xs text-zinc-500">
+                            <span>Progresso</span>
+                            <span>{habit.completedDates?.length || 0}/{habit.targetDays || 7} dias</span>
+                        </div>
+                        <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
+                            <div 
+                                className="bg-gradient-to-r from-green-500 to-emerald-500 h-full rounded-full transition-all duration-500"
+                                style={{ width: `${Math.min(progress, 100)}%` }}
+                            />
+                        </div>
+                    </div>
+                    
+                    <button
+                        onClick={() => onToggle(habit.id, today)}
+                        className={`mt-6 w-full py-3 rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                            completedToday
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg hover:shadow-green-500/30'
+                        }`}
+                    >
+                        <span>{completedToday ? '✅' : '○'}</span>
+                        <span>{completedToday ? 'Concluído hoje' : 'Marcar conclusão'}</span>
+                    </button>
+                </div>
+            );
+        };
+        
+        // Componente de Nome Editável
+        const EditableName = ({ name, onSave }) => {
+            const [isEditing, setIsEditing] = React.useState(false);
+            const [editValue, setEditValue] = React.useState(name);
+            
+            const handleSave = () => {
+                if (editValue.trim()) {
+                    onSave(editValue.trim());
+                }
+                setIsEditing(false);
+            };
+            
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter') {
+                    handleSave();
+                }
+            };
+            
+            if (isEditing) {
+                return (
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="text"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={handleSave}
+                            onKeyPress={handleKeyPress}
+                            className="text-2xl font-bold bg-zinc-800 border border-green-500 rounded-xl px-3 py-1 text-white focus:outline-none"
+                            autoFocus
+                        />
+                        <button onClick={handleSave} className="p-1 hover:bg-zinc-700 rounded-lg transition">
+                            ✅
+                        </button>
+                    </div>
+                );
+            }
+            
+            return (
+                <div className="flex items-center gap-2 group">
+                    <h2 className="text-2xl font-bold">{name}</h2>
+                    <button
+                        onClick={() => setIsEditing(true)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-zinc-800 rounded-lg"
+                    >
+                        ✏️
+                    </button>
+                </div>
+            );
+        };
+        
+        // Dashboard de uma pessoa
+        const PersonDashboard = ({ personId, personName, onNameChange, habits, onToggleHabit, onNewHabit }) => {
+            const totalHabits = habits.length;
+            const totalCompletedToday = habits.filter(h => h.completedDates?.includes(getToday())).length;
+            const totalStreak = habits.reduce((acc, h) => acc + (h.streak || 0), 0);
+            const completionRate = totalHabits > 0 ? Math.round((totalCompletedToday / totalHabits) * 100) : 0;
+            
+            const gradientClass = personId === 'josiel' 
+                ? 'from-blue-500 to-cyan-500' 
+                : 'from-pink-500 to-rose-500';
+            
+            const stats = [
+                { title: 'Total de Hábitos', value: totalHabits, icon: '🎯', trend: 12 },
+                { title: 'Concluídos Hoje', value: `${totalCompletedToday}/${totalHabits}`, icon: '✅', trend: 8 },
+                { title: 'Streak Total', value: totalStreak, icon: '🔥', trend: 5 },
+                { title: 'Taxa de Conclusão', value: `${completionRate}%`, icon: '📈', trend: 3 }
+            ];
+            
+            return (
+                <div className="animate-fade-in">
+                    <div className={`bg-gradient-to-r ${gradientClass} bg-opacity-10 rounded-3xl p-6 mb-8 border border-${personId === 'josiel' ? 'blue' : 'pink'}-500/20`}>
+                        <EditableName 
+                            name={personName} 
+                            onSave={(newName) => onNameChange(personId, newName)}
+                        />
+                        <p className="text-zinc-400 mt-2">
+                            {personId === 'josiel' ? '💪 Continue forte!' : '🌸 Continue brilhando!'}
+                        </p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        {stats.map((stat, idx) => (
+                            <StatCard key={idx} {...stat} />
+                        ))}
+                    </div>
+                    
+                    <div>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-2xl font-semibold">Meus Hábitos</h3>
+                            <button
+                                onClick={() => onNewHabit(personId)}
+                                className={`bg-gradient-to-r ${gradientClass} text-white px-4 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-2`}
+                            >
+                                <span>+</span>
+                                <span>Novo Hábito</span>
+                            </button>
+                        </div>
+                        
+                        {habits.length === 0 ? (
+                            <div className="text-center py-20 bg-zinc-900/30 rounded-3xl border border-zinc-800">
+                                <p className="text-zinc-400">Nenhum hábito ainda.</p>
+                                <button
+                                    onClick={() => onNewHabit(personId)}
+                                    className="mt-4 text-green-400 hover:text-green-300"
+                                >
+                                    Criar seu primeiro hábito →
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {habits.map(habit => (
+                                    <HabitCard key={habit.id} habit={habit} onToggle={onToggleHabit} />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+        
+        // Modal para novo hábito
+        const NewHabitModal = ({ isOpen, onClose, onAdd, personName }) => {
+            const [title, setTitle] = React.useState('');
+            const [description, setDescription] = React.useState('');
+            const [icon, setIcon] = React.useState('💪');
+            const [targetDays, setTargetDays] = React.useState(7);
+            
+            const icons = ['💪', '💧', '📚', '🏃', '🧘', '🥗', '😴', '🎯', '💻', '🎨', '🎵', '🧠'];
+            
+            if (!isOpen) return null;
+            
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!title.trim()) return;
+                
+                onAdd({
+                    id: `habit_${Date.now()}`,
+                    title: title.trim(),
+                    description: description.trim(),
+                    completedDates: [],
+                    icon: icon,
+                    streak: 0,
+                    targetDays: targetDays
+                });
+                
+                setTitle('');
+                setDescription('');
+                setIcon('💪');
+                setTargetDays(7);
+                onClose();
+            };
+            
+            return (
+                <div 
+                    className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+                    onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+                >
+                    <div className="bg-zinc-900 rounded-3xl p-6 max-w-md w-full border border-zinc-800 animate-fade-in">
+                        <h3 className="text-2xl font-bold mb-2">Novo Hábito para {personName}</h3>
+                        <p className="text-zinc-400 text-sm mb-4">Crie um novo hábito para sua rotina</p>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm text-zinc-400 mb-1">Ícone</label>
+                                <div className="flex gap-2 flex-wrap max-h-24 overflow-y-auto">
+                                    {icons.map(ic => (
+                                        <button
+                                            key={ic}
+                                            type="button"
+                                            onClick={() => setIcon(ic)}
+                                            className={`text-2xl p-2 rounded-xl transition ${icon === ic ? 'bg-green-500/20 border border-green-500/30' : 'bg-zinc-800 hover:bg-zinc-700'}`}
+                                        >
+                                            {ic}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm text-zinc-400 mb-1">Título</label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    placeholder="Ex: Beber água"
+                                    className="w-full p-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-green-500 transition"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm text-zinc-400 mb-1">Descrição (opcional)</label>
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="Descreva seu hábito..."
+                                    rows="2"
+                                    className="w-full p-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-green-500 transition"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm text-zinc-400 mb-1">Meta (dias por mês)</label>
+                                <input
+                                    type="number"
+                                    value={targetDays}
+                                    onChange={(e) => setTargetDays(Number(e.target.value))}
+                                    min="1"
+                                    max="31"
+                                    className="w-full p-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-green-500 transition"
+                                />
+                            </div>
+                            
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="flex-1 py-3 rounded-xl bg-zinc-800 text-white font-semibold hover:bg-zinc-700 transition"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold hover:shadow-lg transition"
+                                >
+                                    Criar Hábito
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Componente Principal
+        const App = () => {
+            const [activeTab, setActiveTab] = React.useState('josiel');
+            const [names, setNames] = React.useState({
+                josiel: 'Josiel',
+                zipora: 'Zipora'
+            });
+            const [habitsData, setHabitsData] = React.useState({
+                josiel: [],
+                zipora: []
+            });
+            const [modalState, setModalState] = React.useState({
+                isOpen: false,
+                personId: null
+            });
+            
+            React.useEffect(() => {
+                const savedNames = localStorage.getItem('couple_names');
+                if (savedNames) {
+                    setNames(JSON.parse(savedNames));
+                }
+                
+                const savedHabits = localStorage.getItem('couple_habits');
+                if (savedHabits) {
+                    setHabitsData(JSON.parse(savedHabits));
+                } else {
+                    setHabitsData({
+                        josiel: getInitialHabits('josiel'),
+                        zipora: getInitialHabits('zipora')
+                    });
+                }
+            }, []);
+            
+            React.useEffect(() => {
+                localStorage.setItem('couple_names', JSON.stringify(names));
+            }, [names]);
+            
+            React.useEffect(() => {
+                localStorage.setItem('couple_habits', JSON.stringify(habitsData));
+            }, [habitsData]);
+            
+            const handleNameChange = (personId, newName) => {
+                setNames(prev => ({ ...prev, [personId]: newName }));
+                showToast(`✨ Nome atualizado para ${newName}!`);
+            };
+            
+            const showToast = (message) => {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg animate-fade-in z-50';
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            };
+            
+            const addHabit = (personId, habit) => {
+                const newHabit = { ...habit, id: `${personId}_${Date.now()}` };
+                setHabitsData(prev => ({
+                    ...prev,
+                    [personId]: [...prev[personId], newHabit]
+                }));
+                showToast(`✅ Hábito "${habit.title}" criado!`);
+            };
+            
+            const toggleHabit = (habitId, date) => {
+                const updatedHabits = habitsData[activeTab].map(habit => {
+                    if (habit.id !== habitId) return habit;
+                    const alreadyCompleted = habit.completedDates?.includes(date) || false;
+                    const newCompletedDates = alreadyCompleted
+                        ? habit.completedDates.filter(d => d !== date)
+                        : [...(habit.completedDates || []), date];
+                    return {
+                        ...habit,
+                        completedDates: newCompletedDates,
+                        streak: calculateStreak(newCompletedDates)
+                    };
+                });
+                
+                setHabitsData(prev => ({
+                    ...prev,
+                    [activeTab]: updatedHabits
+                }));
+                showToast('✅ Hábito atualizado!');
+            };
+            
+            const openModal = (personId) => {
+                setModalState({ isOpen: true, personId });
+            };
+            
+            const closeModal = () => {
+                setModalState({ isOpen: false, personId: null });
+            };
+            
+            const josielStats = {
+                total: habitsData.josiel.length,
+                completed: habitsData.josiel.filter(h => h.completedDates?.includes(getToday())).length,
+                streak: habitsData.josiel.reduce((acc, h) => acc + (h.streak || 0), 0)
+            };
+            
+            const ziporaStats = {
+                total: habitsData.zipora.length,
+                completed: habitsData.zipora.filter(h => h.completedDates?.includes(getToday())).length,
+                streak: habitsData.zipora.reduce((acc, h) => acc + (h.streak || 0), 0)
+            };
+            
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-black">
+                    <header className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm sticky top-0 z-40">
+                        <div className="container mx-auto px-4 py-4">
+                            <div className="text-center mb-2">
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                                    💑 HabitFlow Casal
+                                </h1>
+                                <p className="text-zinc-500 text-sm mt-1">Cresçam juntos, um hábito de cada vez</p>
+                            </div>
+                            
+                            <div className="flex gap-4 justify-center mt-4">
+                                <button
+                                    onClick={() => setActiveTab('josiel')}
+                                    className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 ${
+                                        activeTab === 'josiel' ? 'tab-active text-white' : 'tab-inactive text-zinc-400 hover:text-white'
+                                    }`}
+                                >
+                                    <span>💙</span>
+                                    <span>{names.josiel}</span>
+                                    <span className={`text-xs px-2 py-1 rounded-full ${activeTab === 'josiel' ? 'bg-white/20' : 'bg-zinc-700'}`}>
+                                        {josielStats.completed}/{josielStats.total}
+                                    </span>
+                                </button>
+                                
+                                <button
+                                    onClick={() => setActiveTab('zipora')}
+                                    className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 ${
+                                        activeTab === 'zipora' ? 'tab-active text-white' : 'tab-inactive text-zinc-400 hover:text-white'
+                                    }`}
+                                >
+                                    <span>💖</span>
+                                    <span>{names.zipora}</span>
+                                    <span className={`text-xs px-2 py-1 rounded-full ${activeTab === 'zipora' ? 'bg-white/20' : 'bg-zinc-700'}`}>
+                                        {ziporaStats.completed}/{ziporaStats.total}
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+                    
+                    <main className="container mx-auto px-4 py-8 max-w-7xl">
+                        <PersonDashboard
+                            personId={activeTab}
+                            personName={names[activeTab]}
+                            onNameChange={handleNameChange}
+                            habits={habitsData[activeTab]}
+                            onToggleHabit={toggleHabit}
+                            onNewHabit={openModal}
+                        />
+                    </main>
+                    
+                    {modalState.isOpen && (
+                        <NewHabitModal
+                            isOpen={modalState.isOpen}
+                            onClose={closeModal}
+                            onAdd={(habit) => addHabit(modalState.personId, habit)}
+                            personName={names[modalState.personId]}
+                        />
+                    )}
+                </div>
+            );
+        };
+        
+        // Renderizar
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
