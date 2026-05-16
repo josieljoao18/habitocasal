@@ -8,7 +8,7 @@
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React via CDN - Versão CORRETA -->
+    <!-- React via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
     
@@ -69,8 +69,22 @@
             background: #27272a;
         }
         
-        .edit-icon:hover {
-            opacity: 1 !important;
+        /* CORREÇÃO: Garantir que todos os textos sejam legíveis */
+        .habit-title {
+            color: white !important;
+            font-weight: 600 !important;
+        }
+        
+        .habit-description {
+            color: #a1a1aa !important;
+        }
+        
+        .progress-label {
+            color: #71717a !important;
+        }
+        
+        .progress-value {
+            color: #d4d4d8 !important;
         }
     </style>
 </head>
@@ -186,7 +200,7 @@
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-zinc-400 text-sm">{title}</p>
-                            <p className="text-3xl font-bold mt-1">{value}</p>
+                            <p className="text-3xl font-bold text-white mt-1">{value}</p>
                             {trend !== undefined && (
                                 <p className={`text-xs mt-2 ${trend >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                     {trend >= 0 ? '↑' : '↓'} {Math.abs(trend)}% essa semana
@@ -199,7 +213,7 @@
             );
         };
         
-        // Componente HabitCard
+        // Componente HabitCard - CORRIGIDO com cores brancas
         const HabitCard = ({ habit, onToggle }) => {
             const today = getToday();
             const completedToday = habit.completedDates?.includes(today) || false;
@@ -210,22 +224,22 @@
                     <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
                             <span className="text-3xl">{habit.icon}</span>
-                            <h3 className="text-xl font-semibold">{habit.title}</h3>
+                            <h3 className="habit-title text-xl font-semibold text-white">{habit.title}</h3>
                         </div>
                         <div className="flex items-center gap-1 text-orange-400">
                             <span>🔥</span>
-                            <span className="text-sm font-medium">{habit.streak || 0} dias</span>
+                            <span className="text-sm font-medium text-orange-400">{habit.streak || 0} dias</span>
                         </div>
                     </div>
                     
                     {habit.description && (
-                        <p className="text-zinc-400 text-sm mb-4">{habit.description}</p>
+                        <p className="habit-description text-sm mb-4 text-zinc-400">{habit.description}</p>
                     )}
                     
                     <div className="mt-4 space-y-2">
-                        <div className="flex justify-between text-xs text-zinc-500">
-                            <span>Progresso</span>
-                            <span>{habit.completedDates?.length || 0}/{habit.targetDays || 7} dias</span>
+                        <div className="flex justify-between text-xs">
+                            <span className="progress-label text-zinc-500">Progresso</span>
+                            <span className="progress-value text-zinc-300">{habit.completedDates?.length || 0}/{habit.targetDays || 7} dias</span>
                         </div>
                         <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
                             <div 
@@ -280,7 +294,7 @@
                             className="text-2xl font-bold bg-zinc-800 border border-green-500 rounded-xl px-3 py-1 text-white focus:outline-none"
                             autoFocus
                         />
-                        <button onClick={handleSave} className="p-1 hover:bg-zinc-700 rounded-lg transition">
+                        <button onClick={handleSave} className="p-1 hover:bg-zinc-700 rounded-lg transition text-white">
                             ✅
                         </button>
                     </div>
@@ -289,10 +303,10 @@
             
             return (
                 <div className="flex items-center gap-2 group">
-                    <h2 className="text-2xl font-bold">{name}</h2>
+                    <h2 className="text-2xl font-bold text-white">{name}</h2>
                     <button
                         onClick={() => setIsEditing(true)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-zinc-800 rounded-lg"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-white"
                     >
                         ✏️
                     </button>
@@ -325,7 +339,7 @@
                             name={personName} 
                             onSave={(newName) => onNameChange(personId, newName)}
                         />
-                        <p className="text-zinc-400 mt-2">
+                        <p className="text-zinc-300 mt-2">
                             {personId === 'josiel' ? '💪 Continue forte!' : '🌸 Continue brilhando!'}
                         </p>
                     </div>
@@ -338,7 +352,7 @@
                     
                     <div>
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-2xl font-semibold">Meus Hábitos</h3>
+                            <h3 className="text-2xl font-semibold text-white">Meus Hábitos</h3>
                             <button
                                 onClick={() => onNewHabit(personId)}
                                 className={`bg-gradient-to-r ${gradientClass} text-white px-4 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-2`}
@@ -408,7 +422,7 @@
                     onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
                 >
                     <div className="bg-zinc-900 rounded-3xl p-6 max-w-md w-full border border-zinc-800 animate-fade-in">
-                        <h3 className="text-2xl font-bold mb-2">Novo Hábito para {personName}</h3>
+                        <h3 className="text-2xl font-bold text-white mb-2">Novo Hábito para {personName}</h3>
                         <p className="text-zinc-400 text-sm mb-4">Crie um novo hábito para sua rotina</p>
                         
                         <form onSubmit={handleSubmit} className="space-y-4">
