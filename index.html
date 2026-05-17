@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -10,134 +11,141 @@
     <meta name="description" content="Acompanhe seus hábitos e cresça junto com seu parceiro">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    
+
     <title>HabitFlow Casal Cristão - Hábitos para dois</title>
-    
+
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- React via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
-    
+
     <!-- Babel para JSX -->
     <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
-    
+
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         /* Tema Escuro (padrão) */
         body {
             background: #0a0a0f;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             transition: all 0.3s ease;
         }
-        
+
         /* Tema Claro */
         body.light-mode {
             background: #f5f5f5;
         }
-        
+
         body.light-mode .bg-dark-card {
             background: #ffffff !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
-        
+
         body.light-mode .text-primary {
             color: #1a1a2e !important;
         }
-        
+
         body.light-mode .text-secondary {
             color: #6b6b7a !important;
         }
-        
+
         body.light-mode .border-primary {
             border-color: #e0e0e8 !important;
         }
-        
+
         body.light-mode .bg-dark-bg {
             background: #f5f5f5 !important;
         }
-        
+
         body.light-mode .bg-card {
             background: #ffffff !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
-        
+
         body.light-mode .glass-effect {
             background: rgba(255, 255, 255, 0.95) !important;
         }
-        
+
         body.light-mode .tab-inactive {
             background: #e8e8f0 !important;
             color: #6b6b7a !important;
         }
-        
+
         body.light-mode .check-button-pending {
             background: #e8e8f0 !important;
             border-color: #d0d0d8 !important;
             color: #a0a0a8 !important;
         }
-        
+
         body.light-mode .week-day:hover {
             background: rgba(16, 185, 129, 0.1);
         }
-        
+
         body.light-mode .bottom-nav {
             background: rgba(255, 255, 255, 0.98) !important;
             border-top-color: #e0e0e8 !important;
         }
-        
+
         body.light-mode .bg-gradient-bg {
             background: #f5f5f5 !important;
         }
-        
+
         ::-webkit-scrollbar {
             width: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: #1a1a2e;
         }
-        
+
         body.light-mode ::-webkit-scrollbar-track {
             background: #e0e0e8;
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: #2d2d44;
             border-radius: 9999px;
         }
-        
+
         body.light-mode ::-webkit-scrollbar-thumb {
             background: #c0c0c8;
         }
-        
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
+
         .animate-fade-in {
             animation: fadeIn 0.3s ease-out;
         }
-        
+
         .tab-active {
             background: linear-gradient(135deg, #10b981, #059669);
             box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.4);
         }
-        
+
         .tab-inactive {
             background: #2d2d44;
         }
-        
+
         .check-button {
             width: 48px;
             height: 48px;
@@ -152,25 +160,25 @@
             border: none;
             flex-shrink: 0;
         }
-        
+
         .check-button-completed {
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
         }
-        
+
         .check-button-pending {
             background: #2d2d44;
             color: #6b6b7a;
             border: 2px solid #3d3d55;
         }
-        
+
         .check-button-pending:hover {
             background: #3d3d55;
             color: #a1a1aa;
             transform: scale(1.05);
         }
-        
+
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -182,7 +190,7 @@
             padding: 12px 24px;
             z-index: 50;
         }
-        
+
         .bottom-nav-item {
             display: flex;
             flex-direction: column;
@@ -193,21 +201,21 @@
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        
+
         .bottom-nav-active {
             background: rgba(16, 185, 129, 0.15);
             color: #10b981;
         }
-        
+
         .bottom-nav-inactive {
             color: #6b6b7a;
         }
-        
+
         .bottom-nav-inactive:hover {
             background: rgba(45, 45, 68, 0.8);
             color: #e0e0e8;
         }
-        
+
         .week-calendar {
             display: flex;
             gap: 8px;
@@ -215,11 +223,11 @@
             padding: 4px 0;
             scrollbar-width: thin;
         }
-        
+
         .week-calendar::-webkit-scrollbar {
             height: 4px;
         }
-        
+
         .week-day {
             flex-shrink: 0;
             width: 55px;
@@ -229,22 +237,22 @@
             transition: all 0.2s ease;
             cursor: pointer;
         }
-        
+
         .week-day:hover {
             background: rgba(16, 185, 129, 0.15);
             transform: translateY(-2px);
         }
-        
+
         .week-day-selected {
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
         }
-        
+
         .week-day-completed {
             position: relative;
         }
-        
+
         .week-day-completed::after {
             content: '✓';
             position: absolute;
@@ -254,15 +262,15 @@
             color: #10b981;
             font-weight: bold;
         }
-        
+
         .week-day-selected.week-day-completed::after {
             color: white;
         }
-        
+
         body.light-mode .week-day-completed::after {
             color: #059669;
         }
-        
+
         .couple-name-highlight {
             background: linear-gradient(135deg, #10b981, #34d399);
             -webkit-background-clip: text;
@@ -270,12 +278,12 @@
             color: transparent;
             text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
         }
-        
+
         .avatar-container {
             position: relative;
             cursor: pointer;
         }
-        
+
         .avatar-overlay {
             position: absolute;
             bottom: -5px;
@@ -285,25 +293,25 @@
             padding: 4px;
             font-size: 10px;
         }
-        
+
         .period-button-active {
             background: #10b981;
             color: white;
         }
-        
+
         .switch {
             position: relative;
             display: inline-block;
             width: 52px;
             height: 28px;
         }
-        
+
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-        
+
         .slider {
             position: absolute;
             cursor: pointer;
@@ -315,7 +323,7 @@
             transition: 0.3s;
             border-radius: 34px;
         }
-        
+
         .slider:before {
             position: absolute;
             content: "🌙";
@@ -331,69 +339,71 @@
             border-radius: 50%;
             font-size: 12px;
         }
-        
-        input:checked + .slider {
+
+        input:checked+.slider {
             background-color: #10b981;
         }
-        
-        input:checked + .slider:before {
+
+        input:checked+.slider:before {
             transform: translateX(24px);
             content: "☀️";
         }
-        
+
         .text-primary {
             color: #e8e8f0;
         }
-        
+
         .text-secondary {
             color: #9ca3af;
         }
-        
+
         .bg-card {
             background: rgba(20, 20, 35, 0.8);
             backdrop-filter: blur(10px);
         }
-        
+
         .border-primary {
             border-color: #2d2d44;
         }
-        
+
         .install-button {
             background: linear-gradient(135deg, #10b981, #059669);
             transition: all 0.3s ease;
         }
-        
+
         .install-button:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
-        
+
         .glass-effect {
             background: rgba(20, 20, 35, 0.8);
             backdrop-filter: blur(10px);
         }
     </style>
 </head>
+
 <body>
     <div id="root"></div>
-    
+
     <div id="installPWA" style="display: none; position: fixed; bottom: 80px; right: 20px; z-index: 100;">
-        <button id="installBtn" class="install-button text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2">
+        <button id="installBtn"
+            class="install-button text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2">
             📱 Instalar App
         </button>
     </div>
-    
+
     <script type="text/babel">
         // PWA INSTALLATION
         let deferredPrompt;
         const installDiv = document.getElementById('installPWA');
         const installBtn = document.getElementById('installBtn');
-        
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             installDiv.style.display = 'block';
-            
+
             installBtn.addEventListener('click', async () => {
                 installDiv.style.display = 'none';
                 deferredPrompt.prompt();
@@ -404,25 +414,25 @@
                 deferredPrompt = null;
             });
         });
-        
+
         window.addEventListener('appinstalled', () => {
             installDiv.style.display = 'none';
             console.log('App foi instalado!');
         });
-        
+
         // ============ UTILITÁRIOS ============
         const getToday = () => new Date().toISOString().split('T')[0];
-        
+
         const formatDate = (date) => {
             const d = new Date(date);
             return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         };
-        
+
         const formatDayName = (date) => {
             const d = new Date(date);
             return d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
         };
-        
+
         const getDateRange = (period) => {
             const today = new Date();
             const dates = [];
@@ -441,7 +451,7 @@
             }
             return dates;
         };
-        
+
         const getWeekDays = () => {
             const today = new Date();
             const weekDays = [];
@@ -455,9 +465,9 @@
                 date.setDate(today.getDate() + i);
                 weekDays.push(date);
             }
-            return weekDays.sort((a,b) => a - b);
+            return weekDays.sort((a, b) => a - b);
         };
-        
+
         const calculateStreak = (dates) => {
             if (!dates || dates.length === 0) return 0;
             const sorted = [...dates].sort().reverse();
@@ -466,18 +476,18 @@
             for (let i = 1; i < sorted.length; i++) {
                 const prev = new Date(sorted[i]);
                 const diffDays = Math.floor((current - prev) / (1000 * 60 * 60 * 24));
-                if (diffDays === 1) { streak++; current = prev; } 
+                if (diffDays === 1) { streak++; current = prev; }
                 else break;
             }
             return streak;
         };
-        
+
         const calculateLevel = (totalCompletions) => {
             const level = Math.floor(totalCompletions / 30) + 1;
             const nextLevel = (level * 30) - totalCompletions;
             return { level, nextLevel, progress: (totalCompletions % 30) * 3.33 };
         };
-        
+
         // Lista completa de hábitos para casal cristão
         const coupleHabits = [
             { title: 'Elogiar o parceiro', description: 'Diga algo positivo sobre seu cônjuge', icon: '❤️', color: '#ef4444', tag: 'amor', frequency: { type: 'daily' } },
@@ -501,7 +511,7 @@
             { title: 'Servir ao próximo', description: 'Ajudar alguém necessitado', icon: '🤲', color: '#10b981', tag: 'espiritual', frequency: { type: 'weekly', day: 6 } },
             { title: 'Fazer surpresa', description: 'Uma pequena surpresa ao parceiro', icon: '🎁', color: '#ec4899', tag: 'amor', frequency: { type: 'custom', interval: 7 } }
         ];
-        
+
         // Dados iniciais
         const getInitialHabits = (personId) => {
             const getRandomCompletedDates = () => {
@@ -513,7 +523,7 @@
                 }
                 return dates;
             };
-            
+
             return coupleHabits.map((habit, index) => ({
                 id: `${personId}_${index}`,
                 title: habit.title,
@@ -528,7 +538,7 @@
                 createdAt: new Date().toISOString()
             }));
         };
-        
+
         // Lista de todos os emojis disponíveis para criar hábitos
         const allEmojis = [
             '❤️', '💬', '🙏', '💌', '💑', '🧠', '🏃', '😴', '🍽️', '💰', '🎯', '🚶', '📵', '🤝', '💖', '🎉', '✝️', '📖', '🤲', '🎁',
@@ -536,12 +546,12 @@
             '🏠', '🚗', '✈️', '🎬', '🍿', '☕', '🍵', '🍲', '🍜', '🍝', '🍰', '🍪', '🍩', '🍎', '🍊', '🍋', '🍉', '🍇', '🥑', '🥝',
             '🎄', '🎃', '🎂', '🎈', '🎊', '🎀', '🎁', '🏆', '🥇', '🥈', '🥉', '🎖️', '🏅', '🎭', '🎪', '🎨', '🎼', '🎹', '🎸', '🎧'
         ];
-        
+
         // Componente de Calendário Semanal
         const WeekCalendar = ({ selectedDate, onDateSelect, habits }) => {
             const weekDays = getWeekDays();
             const today = new Date();
-            
+
             const isDateCompleted = (date) => {
                 const dateStr = date.toISOString().split('T')[0];
                 let totalCompleted = 0;
@@ -550,11 +560,11 @@
                 });
                 return totalCompleted > 0;
             };
-            
+
             const isToday = (date) => {
                 return date.toDateString() === today.toDateString();
             };
-            
+
             return (
                 <div className="bg-card border border-primary rounded-2xl p-3">
                     <div className="week-calendar">
@@ -562,7 +572,7 @@
                             const isSelected = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
                             const hasCompletions = isDateCompleted(day);
                             const isCurrentDay = isToday(day);
-                            
+
                             return (
                                 <div
                                     key={idx}
@@ -578,12 +588,12 @@
                 </div>
             );
         };
-        
+
         // Gráfico de Radar
         const RadarChart = ({ habits, period }) => {
             const chartRef = React.useRef(null);
             const chartInstance = React.useRef(null);
-            
+
             React.useEffect(() => {
                 if (chartRef.current) {
                     if (chartInstance.current) chartInstance.current.destroy();
@@ -616,7 +626,7 @@
             }, [habits, period]);
             return (<div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-sm font-semibold text-primary mb-3">📡 Radar por Categoria</h3><div style={{ height: '250px' }}><canvas ref={chartRef}></canvas></div></div>);
         };
-        
+
         // Gráfico Mensal
         const MonthlyCompletionChart = ({ habits }) => {
             const chartRef = React.useRef(null);
@@ -647,14 +657,14 @@
             }, [habits]);
             return (<div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-sm font-semibold text-primary mb-3">📅 Média de Conclusões por Mês</h3><div style={{ height: '220px' }}><canvas ref={chartRef}></canvas></div></div>);
         };
-        
+
         // Componente HabitCard
         const HabitCard = ({ habit, onToggle, onEdit, onDelete, selectedDate }) => {
             const dateToCheck = selectedDate ? selectedDate.toISOString().split('T')[0] : getToday();
             const completedOnDate = habit.completedDates?.includes(dateToCheck) || false;
             const [showMenu, setShowMenu] = React.useState(false);
             const [menuPosition, setMenuPosition] = React.useState({ x: 0, y: 0 });
-            
+
             const getFrequencyText = () => {
                 if (!habit.frequency) return '📅 Todo dia';
                 if (habit.frequency.type === 'daily') return '📅 Todo dia';
@@ -665,18 +675,18 @@
                 if (habit.frequency.type === 'custom') return `🔄 A cada ${habit.frequency.interval} dias`;
                 return '📅 Todo dia';
             };
-            
+
             const handleMenuClick = (e) => {
                 e.stopPropagation();
                 setMenuPosition({ x: e.clientX, y: e.clientY });
                 setShowMenu(true);
             };
-            
+
             React.useEffect(() => {
                 const handleClickOutside = () => setShowMenu(false);
                 if (showMenu) { document.addEventListener('click', handleClickOutside); return () => document.removeEventListener('click', handleClickOutside); }
             }, [showMenu]);
-            
+
             return (
                 <>
                     <div className="bg-card border border-primary rounded-2xl p-3 hover:border-green-500/30 transition-all duration-300">
@@ -706,7 +716,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     {showMenu && (
                         <div className="fixed bg-[#1a1a2e] border border-[#2d2d44] rounded-xl p-2 z-50 shadow-xl" style={{ top: menuPosition.y - 60, left: menuPosition.x - 120 }}>
                             <div className="px-3 py-2 rounded-lg hover:bg-[#2d2d44] cursor-pointer transition flex items-center gap-2 text-primary" onClick={() => { onEdit(habit); setShowMenu(false); }}>✏️ Editar Hábito</div>
@@ -716,7 +726,7 @@
                 </>
             );
         };
-        
+
         // Modal de Edição de Hábito
         const EditHabitModal = ({ isOpen, onClose, habit, onSave }) => {
             const [title, setTitle] = React.useState('');
@@ -726,10 +736,10 @@
             const [frequencyType, setFrequencyType] = React.useState('daily');
             const [weeklyDay, setWeeklyDay] = React.useState(0);
             const [customInterval, setCustomInterval] = React.useState(2);
-            
+
             const tags = ['amor', 'comunicação', 'espiritual', 'saúde', 'finanças', 'relacionamento', 'crescimento', 'desconexão', 'celebração'];
             const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-            
+
             React.useEffect(() => {
                 if (habit) {
                     setTitle(habit.title || '');
@@ -743,21 +753,21 @@
                     }
                 }
             }, [habit]);
-            
+
             if (!isOpen) return null;
-            
+
             const handleSubmit = (e) => {
                 e.preventDefault();
                 if (!title.trim()) return;
-                
+
                 let frequency = { type: frequencyType };
                 if (frequencyType === 'weekly') frequency.day = weeklyDay;
                 if (frequencyType === 'custom') frequency.interval = customInterval;
-                
+
                 onSave({ ...habit, title: title.trim(), description: description.trim(), icon, tag, frequency });
                 onClose();
             };
-            
+
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
                     <div className="glass-effect rounded-2xl p-5 max-w-md w-full border border-primary animate-fade-in">
@@ -778,7 +788,7 @@
                 </div>
             );
         };
-        
+
         // Modal de Novo Hábito
         const NewHabitModal = ({ isOpen, onClose, onAdd, personName }) => {
             const [title, setTitle] = React.useState('');
@@ -788,20 +798,20 @@
             const [frequencyType, setFrequencyType] = React.useState('daily');
             const [weeklyDay, setWeeklyDay] = React.useState(new Date().getDay());
             const [customInterval, setCustomInterval] = React.useState(2);
-            
+
             const tags = ['amor', 'comunicação', 'espiritual', 'saúde', 'finanças', 'relacionamento', 'crescimento', 'desconexão', 'celebração'];
             const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-            
+
             if (!isOpen) return null;
-            
+
             const handleSubmit = (e) => {
                 e.preventDefault();
                 if (!title.trim()) return;
-                
+
                 let frequency = { type: frequencyType };
                 if (frequencyType === 'weekly') frequency.day = weeklyDay;
                 if (frequencyType === 'custom') frequency.interval = customInterval;
-                
+
                 onAdd({
                     title: title.trim(),
                     description: description.trim(),
@@ -819,7 +829,7 @@
                 setFrequencyType('daily');
                 onClose();
             };
-            
+
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
                     <div className="glass-effect rounded-2xl p-5 max-w-md w-full border border-primary animate-fade-in">
@@ -841,38 +851,38 @@
                 </div>
             );
         };
-        
+
         // Configurações
         const SettingsView = ({ personId, personName, onNameChange, habits, onResetStats, onReorderHabits, onUpdateTheme, currentTheme, couplePhoto, onUpdatePhoto }) => {
             const [localName, setLocalName] = React.useState(personName);
             const [showReorder, setShowReorder] = React.useState(false);
             const [reorderedHabits, setReorderedHabits] = React.useState([...habits]);
             const [selectedTag, setSelectedTag] = React.useState('todos');
-            
+
             const tags = ['todos', ...new Set(habits.map(h => h.tag))];
             const filteredHabits = selectedTag === 'todos' ? reorderedHabits : reorderedHabits.filter(h => h.tag === selectedTag);
-            
+
             const handleSaveName = () => { if (localName.trim()) onNameChange(personId, localName.trim()); };
             const handleSaveOrder = () => { onReorderHabits(personId, reorderedHabits); setShowReorder(false); };
             const moveHabit = (from, to) => { const updated = [...reorderedHabits]; const [moved] = updated.splice(from, 1); updated.splice(to, 0, moved); setReorderedHabits(updated); };
             const handleResetAllStats = () => { if (confirm('⚠️ Zerar TODAS as estatísticas?')) onResetStats(personId); };
             const handlePhotoUpload = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => onUpdatePhoto(reader.result); reader.readAsDataURL(file); } };
-            
+
             return (
                 <div className="space-y-4 pb-20">
                     <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">👤 Perfil</h3><div className="space-y-3"><div><label className="text-secondary text-xs">Nome</label><div className="flex gap-2"><input type="text" value={localName} onChange={(e) => setLocalName(e.target.value)} className="flex-1 p-2 rounded-xl bg-[#2d2d44] text-primary text-sm" /><button onClick={handleSaveName} className="px-4 py-2 bg-green-500 rounded-xl text-white text-sm">Salvar</button></div></div></div></div>
-                    
+
                     <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">🎨 Aparência</h3><div className="flex items-center justify-between"><span className="text-secondary text-sm">Tema {currentTheme === 'dark' ? 'Escuro' : 'Claro'}</span><label className="switch"><input type="checkbox" checked={currentTheme === 'light'} onChange={() => onUpdateTheme(currentTheme === 'dark' ? 'light' : 'dark')} /><span className="slider"></span></label></div></div>
-                    
+
                     <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">🏷️ Filtrar por Tag</h3><div className="flex gap-2 flex-wrap">{tags.map(tag => (<button key={tag} onClick={() => setSelectedTag(tag)} className={`px-3 py-1.5 rounded-xl text-xs ${selectedTag === tag ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>{tag}</button>))}</div><div className="mt-3 space-y-1">{filteredHabits.map(habit => (<div key={habit.id} className="flex items-center gap-2 text-sm"><span>{habit.icon}</span><span className="text-primary flex-1">{habit.title}</span><span className="text-secondary text-xs">{habit.tag}</span></div>))}</div></div>
-                    
-                    <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">🔄 Reordenar Hábitos</h3>{!showReorder ? (<button onClick={() => { setShowReorder(true); setReorderedHabits([...habits]); }} className="w-full py-2 bg-[#2d2d44] rounded-xl text-primary text-sm">Reordenar Lista</button>) : (<div className="space-y-2">{reorderedHabits.map((habit, idx) => (<div key={habit.id} className="flex items-center gap-2 p-2 bg-[#2d2d44]/50 rounded-xl"><span className="cursor-grab text-secondary">⋮⋮</span><span>{habit.icon}</span><span className="text-primary flex-1 text-sm">{habit.title}</span><div className="flex gap-1">{idx > 0 && <button onClick={() => moveHabit(idx, idx-1)} className="px-2 py-1 bg-[#2d2d44] rounded-lg text-primary text-xs">↑</button>}{idx < reorderedHabits.length-1 && <button onClick={() => moveHabit(idx, idx+1)} className="px-2 py-1 bg-[#2d2d44] rounded-lg text-primary text-xs">↓</button>}</div></div>))}<div className="flex gap-2 mt-3"><button onClick={() => setShowReorder(false)} className="flex-1 py-2 bg-[#2d2d44] rounded-xl text-secondary">Cancelar</button><button onClick={handleSaveOrder} className="flex-1 py-2 bg-green-500 rounded-xl text-white font-semibold">Salvar</button></div></div>)}</div>
-                    
+
+                    <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">🔄 Reordenar Hábitos</h3>{!showReorder ? (<button onClick={() => { setShowReorder(true); setReorderedHabits([...habits]); }} className="w-full py-2 bg-[#2d2d44] rounded-xl text-primary text-sm">Reordenar Lista</button>) : (<div className="space-y-2">{reorderedHabits.map((habit, idx) => (<div key={habit.id} className="flex items-center gap-2 p-2 bg-[#2d2d44]/50 rounded-xl"><span className="cursor-grab text-secondary">⋮⋮</span><span>{habit.icon}</span><span className="text-primary flex-1 text-sm">{habit.title}</span><div className="flex gap-1">{idx > 0 && <button onClick={() => moveHabit(idx, idx - 1)} className="px-2 py-1 bg-[#2d2d44] rounded-lg text-primary text-xs">↑</button>}{idx < reorderedHabits.length - 1 && <button onClick={() => moveHabit(idx, idx + 1)} className="px-2 py-1 bg-[#2d2d44] rounded-lg text-primary text-xs">↓</button>}</div></div>))}<div className="flex gap-2 mt-3"><button onClick={() => setShowReorder(false)} className="flex-1 py-2 bg-[#2d2d44] rounded-xl text-secondary">Cancelar</button><button onClick={handleSaveOrder} className="flex-1 py-2 bg-green-500 rounded-xl text-white font-semibold">Salvar</button></div></div>)}</div>
+
                     <div className="bg-card border border-red-500/30 rounded-2xl p-4"><h3 className="text-red-400 font-semibold text-sm mb-3">⚠️ Zona de Perigo</h3><button onClick={handleResetAllStats} className="w-full py-2 bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 text-sm">Zerar Todas as Estatísticas</button></div>
                 </div>
             );
         };
-        
+
         // Estatísticas
         const StatisticsView = ({ habits, personName }) => {
             const [period, setPeriod] = React.useState('week');
@@ -884,28 +894,28 @@
             let periodCompletions = 0;
             habits.forEach(habit => { periodCompletions += habit.completedDates?.filter(d => dateRange.includes(d)).length || 0; });
             const avgPerDay = dateRange.length > 0 ? (periodCompletions / dateRange.length).toFixed(1) : 0;
-            
+
             return (
                 <div className="space-y-4 pb-20">
                     <div className="grid grid-cols-2 gap-3">
                         <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Total</p><p className="text-xl font-bold text-primary">{totalCompletions}</p><p className="text-secondary text-xs">hábitos concluídos</p></div>
                         <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Streak Total</p><p className="text-xl font-bold text-primary">{totalStreak}</p><p className="text-secondary text-xs">dias acumulados</p></div>
-                        <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Média</p><p className="text-xl font-bold text-primary">{(totalCompletions/habits.length).toFixed(1)}</p><p className="text-secondary text-xs">por hábito</p></div>
+                        <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Média</p><p className="text-xl font-bold text-primary">{(totalCompletions / habits.length).toFixed(1)}</p><p className="text-secondary text-xs">por hábito</p></div>
                         <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Nível</p><p className="text-xl font-bold text-primary">{level.level}</p><p className="text-secondary text-xs">+{level.nextLevel} para prox</p></div>
                     </div>
-                    
-                    {bestHabit && (<div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-3 border border-green-500/30"><p className="text-secondary text-xs">🏅 Melhor Hábito</p><div className="flex items-center justify-between"><div className="flex items-center gap-2"><span className="text-2xl">{bestHabit.icon}</span><div><p className="text-primary font-semibold text-sm">{bestHabit.title}</p><p className="text-green-400 text-xs">🔥 {bestHabit.streak} dias</p></div></div><div><span className="text-green-400 font-bold">{bestHabit.completedDates?.length||0}</span><span className="text-secondary text-xs"> total</span></div></div></div>)}
-                    
+
+                    {bestHabit && (<div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-3 border border-green-500/30"><p className="text-secondary text-xs">🏅 Melhor Hábito</p><div className="flex items-center justify-between"><div className="flex items-center gap-2"><span className="text-2xl">{bestHabit.icon}</span><div><p className="text-primary font-semibold text-sm">{bestHabit.title}</p><p className="text-green-400 text-xs">🔥 {bestHabit.streak} dias</p></div></div><div><span className="text-green-400 font-bold">{bestHabit.completedDates?.length || 0}</span><span className="text-secondary text-xs"> total</span></div></div></div>)}
+
                     <div className="flex gap-2"><button onClick={() => setPeriod('week')} className={`flex-1 py-2 rounded-xl text-sm ${period === 'week' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>Esta Semana</button><button onClick={() => setPeriod('month')} className={`flex-1 py-2 rounded-xl text-sm ${period === 'month' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>Este Mês</button></div>
-                    
+
                     <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-4"><p className="text-secondary text-xs">Média por dia</p><p className="text-2xl font-bold text-primary">{avgPerDay}</p><p className="text-secondary text-xs">hábitos/dia neste período</p></div>
-                    
+
                     <RadarChart habits={habits} period={period} />
                     <MonthlyCompletionChart habits={habits} />
                 </div>
             );
         };
-        
+
         // App Principal
         const App = () => {
             const [activeTab, setActiveTab] = React.useState('josiel');
@@ -917,7 +927,7 @@
             const [editModalState, setEditModalState] = React.useState({ isOpen: false, habit: null });
             const [selectedDate, setSelectedDate] = React.useState(new Date());
             const [couplePhoto, setCouplePhoto] = React.useState(null);
-            
+
             React.useEffect(() => {
                 const savedTheme = localStorage.getItem('theme');
                 if (savedTheme) { setTheme(savedTheme); document.body.className = savedTheme === 'light' ? 'light-mode' : ''; }
@@ -929,25 +939,25 @@
                 const savedPhoto = localStorage.getItem('couple_photo');
                 if (savedPhoto) setCouplePhoto(savedPhoto);
             }, []);
-            
+
             React.useEffect(() => { localStorage.setItem('couple_names', JSON.stringify(names)); }, [names]);
             React.useEffect(() => { localStorage.setItem('couple_habits_v12', JSON.stringify(habitsData)); }, [habitsData]);
             React.useEffect(() => { localStorage.setItem('theme', theme); document.body.className = theme === 'light' ? 'light-mode' : ''; }, [theme]);
             React.useEffect(() => { if (couplePhoto) localStorage.setItem('couple_photo', couplePhoto); }, [couplePhoto]);
-            
+
             const showToast = (msg) => { const toast = document.createElement('div'); toast.className = 'fixed bottom-20 left-4 right-4 bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg animate-fade-in z-50 text-center text-sm'; toast.textContent = msg; document.body.appendChild(toast); setTimeout(() => toast.remove(), 2000); };
-            
+
             const handleNameChange = (personId, newName) => { setNames(prev => ({ ...prev, [personId]: newName })); showToast(`✨ Nome atualizado!`); };
             const handleUpdateTheme = (newTheme) => setTheme(newTheme);
             const handleUpdatePhoto = (photo) => setCouplePhoto(photo);
-            
+
             const resetStats = (personId) => { const resetHabits = habitsData[personId].map(habit => ({ ...habit, completedDates: [], streak: 0 })); setHabitsData(prev => ({ ...prev, [personId]: resetHabits })); showToast('📊 Estatísticas zeradas!'); };
             const reorderHabits = (personId, reordered) => { const withOrder = reordered.map((h, idx) => ({ ...h, order: idx })); setHabitsData(prev => ({ ...prev, [personId]: withOrder })); showToast('🔄 Ordem atualizada!'); };
-            
+
             const addHabit = (personId, habit) => { const newHabit = { ...habit, id: `${personId}_${Date.now()}`, order: habitsData[personId].length }; setHabitsData(prev => ({ ...prev, [personId]: [...prev[personId], newHabit] })); showToast(`✅ Hábito criado!`); };
             const editHabit = (updatedHabit) => { setHabitsData(prev => ({ ...prev, [activeTab]: prev[activeTab].map(h => h.id === updatedHabit.id ? updatedHabit : h) })); showToast(`✏️ Hábito atualizado!`); };
             const deleteHabit = (habitId) => { setHabitsData(prev => ({ ...prev, [activeTab]: prev[activeTab].filter(h => h.id !== habitId) })); showToast(`🗑️ Hábito deletado!`); };
-            
+
             const toggleHabit = (habitId, date) => {
                 const updated = habitsData[activeTab].map(habit => {
                     if (habit.id !== habitId) return habit;
@@ -958,22 +968,22 @@
                 setHabitsData(prev => ({ ...prev, [activeTab]: updated }));
                 showToast('✅ Hábito atualizado!');
             };
-            
+
             const openNewModal = (personId) => setModalState({ isOpen: true, personId });
             const closeNewModal = () => setModalState({ isOpen: false, personId: null });
             const openEditModal = (habit) => setEditModalState({ isOpen: true, habit });
             const closeEditModal = () => setEditModalState({ isOpen: false, habit: null });
-            
-            const getStats = (personId) => { const h = habitsData[personId]; return { total: h.length, completed: h.filter(hh => hh.completedDates?.includes(getToday())).length, streak: h.reduce((a,b)=>a+(b.streak||0),0) }; };
+
+            const getStats = (personId) => { const h = habitsData[personId]; return { total: h.length, completed: h.filter(hh => hh.completedDates?.includes(getToday())).length, streak: h.reduce((a, b) => a + (b.streak || 0), 0) }; };
             const josielStats = getStats('josiel'); const ziporaStats = getStats('zipora');
             const gradientClass = activeTab === 'josiel' ? 'from-blue-500 to-cyan-500' : 'from-pink-500 to-rose-500';
-            
+
             const renderView = () => {
-                if (bottomNav === 'habits') return <div className="space-y-4"><div className="flex justify-between items-center"><div><h3 className="text-lg font-semibold text-primary">Meus Hábitos</h3><p className="text-secondary text-xs">{selectedDate ? formatDate(selectedDate) : formatDate(new Date())}</p></div><button onClick={() => openNewModal(activeTab)} className={`bg-gradient-to-r ${gradientClass} text-white px-3 py-1.5 rounded-xl text-sm font-semibold flex items-center gap-1`}><span>+</span><span>Novo</span></button></div>{habitsData[activeTab].length === 0 ? (<div className="text-center py-12"><p className="text-secondary">Nenhum hábito</p></div>) : (<div className="space-y-2">{habitsData[activeTab].sort((a,b)=>(a.order||0)-(b.order||0)).map(habit => (<HabitCard key={habit.id} habit={habit} onToggle={toggleHabit} onEdit={openEditModal} onDelete={deleteHabit} selectedDate={selectedDate} />))}</div>)}</div>;
+                if (bottomNav === 'habits') return <div className="space-y-4"><div className="flex justify-between items-center"><div><h3 className="text-lg font-semibold text-primary">Meus Hábitos</h3><p className="text-secondary text-xs">{selectedDate ? formatDate(selectedDate) : formatDate(new Date())}</p></div><button onClick={() => openNewModal(activeTab)} className={`bg-gradient-to-r ${gradientClass} text-white px-3 py-1.5 rounded-xl text-sm font-semibold flex items-center gap-1`}><span>+</span><span>Novo</span></button></div>{habitsData[activeTab].length === 0 ? (<div className="text-center py-12"><p className="text-secondary">Nenhum hábito</p></div>) : (<div className="space-y-2">{habitsData[activeTab].sort((a, b) => (a.order || 0) - (b.order || 0)).map(habit => (<HabitCard key={habit.id} habit={habit} onToggle={toggleHabit} onEdit={openEditModal} onDelete={deleteHabit} selectedDate={selectedDate} />))}</div>)}</div>;
                 if (bottomNav === 'stats') return <StatisticsView habits={habitsData[activeTab]} personName={names[activeTab]} />;
                 return <SettingsView personId={activeTab} personName={names[activeTab]} onNameChange={handleNameChange} habits={habitsData[activeTab]} onResetStats={resetStats} onReorderHabits={reorderHabits} onUpdateTheme={handleUpdateTheme} currentTheme={theme} couplePhoto={couplePhoto} onUpdatePhoto={handleUpdatePhoto} />;
             };
-            
+
             return (
                 <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] pb-24">
                     <header className="border-b border-primary bg-[#0f0f1a]/80 backdrop-blur-sm sticky top-0 z-40">
@@ -999,13 +1009,13 @@
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <WeekCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} habits={habitsData[activeTab]} />
                         </div>
                     </header>
-                    
+
                     <main className="px-4 py-3 max-w-2xl mx-auto">{renderView()}</main>
-                    
+
                     <div className="bottom-nav">
                         <div className="flex justify-center gap-8 max-w-md mx-auto">
                             <div onClick={() => setBottomNav('habits')} className={`bottom-nav-item ${bottomNav === 'habits' ? 'bottom-nav-active' : 'bottom-nav-inactive'}`}><span className="text-2xl">📋</span><span className="text-xs">Hábitos</span></div>
@@ -1013,24 +1023,35 @@
                             <div onClick={() => setBottomNav('settings')} className={`bottom-nav-item ${bottomNav === 'settings' ? 'bottom-nav-active' : 'bottom-nav-inactive'}`}><span className="text-2xl">⚙️</span><span className="text-xs">Config</span></div>
                         </div>
                     </div>
-                    
+
                     {modalState.isOpen && <NewHabitModal isOpen={modalState.isOpen} onClose={closeNewModal} onAdd={(habit) => addHabit(modalState.personId, habit)} personName={names[modalState.personId]} />}
                     {editModalState.isOpen && <EditHabitModal isOpen={editModalState.isOpen} onClose={closeEditModal} habit={editModalState.habit} onSave={editHabit} />}
                 </div>
             );
         };
-        
+
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
-    
+
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(function(reg) {
+            navigator.serviceWorker.register('/sw.js').then(function (reg) {
                 console.log('Service Worker registrado!', reg);
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.log('Falha ao registrar Service Worker', err);
             });
         }
+        <input type="text" id="habit">
+
+            <button id="salvar">
+                Adicionar
+            </button>
+
+            <ul id="lista"></ul>
+
+            <script type="module" src="firebase.js"></script>
+    <script type="module" src="app.js"></script>
     </script>
 </body>
+
 </html>
