@@ -1,0 +1,4 @@
+git checkout -b teste-firebase
+git add .
+git commit -m "testando firebase"
+git push origin teste-firebase
