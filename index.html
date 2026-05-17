@@ -9,22 +9,55 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="HabitFlow">
     <meta name="description" content="Acompanhe seus hábitos e cresça junto com seu parceiro">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
 
     <title>HabitFlow Casal Cristão - Hábitos para dois</title>
 
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- React via CDN -->
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, child, update, remove, onValue } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAFz57Ku9PqgZzLe9DF1CFKDGz740TvwjA",
+            authDomain: "habitflow-casal-57723.firebaseapp.com",
+            databaseURL: "https://habitflow-casal-57723-default-rtdb.firebaseio.com",
+            projectId: "habitflow-casal-57723",
+            storageBucket: "habitflow-casal-57723.firebasestorage.app",
+            messagingSenderId: "205690500990",
+            appId: "1:205690500990:web:4afcaeef3e297dc351a52f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        window.firebaseAuth = auth;
+        window.firebaseDatabase = database;
+        window.firebaseSignIn = signInWithEmailAndPassword;
+        window.firebaseCreateUser = createUserWithEmailAndPassword;
+        window.firebaseSignOut = signOut;
+        window.firebaseOnAuthStateChanged = onAuthStateChanged;
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+        window.firebaseGet = get;
+        window.firebaseUpdate = update;
+        window.firebaseRemove = remove;
+        window.firebaseOnValue = onValue;
+        window.firebaseChild = child;
+    </script>
+
+    <!-- React -->
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
 
-    <!-- Babel para JSX -->
+    <!-- Babel -->
     <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
 
-    <!-- Chart.js para gráficos -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <style>
@@ -34,21 +67,19 @@
             box-sizing: border-box;
         }
 
-        /* Tema Escuro (padrão) */
         body {
             background: #0a0a0f;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             transition: all 0.3s ease;
         }
 
-        /* Tema Claro */
         body.light-mode {
             background: #f5f5f5;
         }
 
-        body.light-mode .bg-dark-card {
+        body.light-mode .bg-card {
             background: #ffffff !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         body.light-mode .text-primary {
@@ -63,19 +94,6 @@
             border-color: #e0e0e8 !important;
         }
 
-        body.light-mode .bg-dark-bg {
-            background: #f5f5f5 !important;
-        }
-
-        body.light-mode .bg-card {
-            background: #ffffff !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        body.light-mode .glass-effect {
-            background: rgba(255, 255, 255, 0.95) !important;
-        }
-
         body.light-mode .tab-inactive {
             background: #e8e8f0 !important;
             color: #6b6b7a !important;
@@ -84,20 +102,11 @@
         body.light-mode .check-button-pending {
             background: #e8e8f0 !important;
             border-color: #d0d0d8 !important;
-            color: #a0a0a8 !important;
-        }
-
-        body.light-mode .week-day:hover {
-            background: rgba(16, 185, 129, 0.1);
         }
 
         body.light-mode .bottom-nav {
             background: rgba(255, 255, 255, 0.98) !important;
             border-top-color: #e0e0e8 !important;
-        }
-
-        body.light-mode .bg-gradient-bg {
-            background: #f5f5f5 !important;
         }
 
         ::-webkit-scrollbar {
@@ -108,17 +117,9 @@
             background: #1a1a2e;
         }
 
-        body.light-mode ::-webkit-scrollbar-track {
-            background: #e0e0e8;
-        }
-
         ::-webkit-scrollbar-thumb {
             background: #2d2d44;
             border-radius: 9999px;
-        }
-
-        body.light-mode ::-webkit-scrollbar-thumb {
-            background: #c0c0c8;
         }
 
         @keyframes fadeIn {
@@ -211,21 +212,12 @@
             color: #6b6b7a;
         }
 
-        .bottom-nav-inactive:hover {
-            background: rgba(45, 45, 68, 0.8);
-            color: #e0e0e8;
-        }
-
         .week-calendar {
             display: flex;
             gap: 8px;
             overflow-x: auto;
             padding: 4px 0;
             scrollbar-width: thin;
-        }
-
-        .week-calendar::-webkit-scrollbar {
-            height: 4px;
         }
 
         .week-day {
@@ -263,14 +255,6 @@
             font-weight: bold;
         }
 
-        .week-day-selected.week-day-completed::after {
-            color: white;
-        }
-
-        body.light-mode .week-day-completed::after {
-            color: #059669;
-        }
-
         .couple-name-highlight {
             background: linear-gradient(135deg, #10b981, #34d399);
             -webkit-background-clip: text;
@@ -292,11 +276,6 @@
             border-radius: 50%;
             padding: 4px;
             font-size: 10px;
-        }
-
-        .period-button-active {
-            background: #10b981;
-            color: white;
         }
 
         .switch {
@@ -366,19 +345,52 @@
             border-color: #2d2d44;
         }
 
-        .install-button {
-            background: linear-gradient(135deg, #10b981, #059669);
-            transition: all 0.3s ease;
-        }
-
-        .install-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-        }
-
         .glass-effect {
             background: rgba(20, 20, 35, 0.8);
             backdrop-filter: blur(10px);
+        }
+
+        .context-menu {
+            position: fixed;
+            background: #1a1a2e;
+            border: 1px solid #2d2d44;
+            border-radius: 12px;
+            padding: 8px;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            min-width: 150px;
+        }
+
+        .context-menu-item {
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .context-menu-item:hover {
+            background: #2d2d44;
+        }
+
+        .context-menu-item.delete {
+            color: #ef4444;
+        }
+
+        @media (max-width: 640px) {
+            .week-day {
+                width: 45px;
+                padding: 6px 2px;
+            }
+
+            .check-button {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -386,71 +398,11 @@
 <body>
     <div id="root"></div>
 
-    <div id="installPWA" style="display: none; position: fixed; bottom: 80px; right: 20px; z-index: 100;">
-        <button id="installBtn"
-            class="install-button text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2">
-            📱 Instalar App
-        </button>
-    </div>
-
     <script type="text/babel">
-        // PWA INSTALLATION
-        let deferredPrompt;
-        const installDiv = document.getElementById('installPWA');
-        const installBtn = document.getElementById('installBtn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installDiv.style.display = 'block';
-
-            installBtn.addEventListener('click', async () => {
-                installDiv.style.display = 'none';
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('App instalado com sucesso!');
-                }
-                deferredPrompt = null;
-            });
-        });
-
-        window.addEventListener('appinstalled', () => {
-            installDiv.style.display = 'none';
-            console.log('App foi instalado!');
-        });
-
-        // ============ UTILITÁRIOS ============
+        // ===== UTILITÁRIOS =====
         const getToday = () => new Date().toISOString().split('T')[0];
-
-        const formatDate = (date) => {
-            const d = new Date(date);
-            return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-        };
-
-        const formatDayName = (date) => {
-            const d = new Date(date);
-            return d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
-        };
-
-        const getDateRange = (period) => {
-            const today = new Date();
-            const dates = [];
-            if (period === 'week') {
-                for (let i = 6; i >= 0; i--) {
-                    const date = new Date();
-                    date.setDate(today.getDate() - i);
-                    dates.push(date.toISOString().split('T')[0]);
-                }
-            } else if (period === 'month' || period === '30days') {
-                for (let i = 29; i >= 0; i--) {
-                    const date = new Date();
-                    date.setDate(today.getDate() - i);
-                    dates.push(date.toISOString().split('T')[0]);
-                }
-            }
-            return dates;
-        };
+        const formatDate = (date) => new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const formatDayName = (date) => date.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
 
         const getWeekDays = () => {
             const today = new Date();
@@ -482,105 +434,36 @@
             return streak;
         };
 
-        const calculateLevel = (totalCompletions) => {
-            const level = Math.floor(totalCompletions / 30) + 1;
-            const nextLevel = (level * 30) - totalCompletions;
-            return { level, nextLevel, progress: (totalCompletions % 30) * 3.33 };
-        };
-
-        // Lista completa de hábitos para casal cristão
+        // ===== HÁBITOS DO CASAL =====
         const coupleHabits = [
-            { title: 'Elogiar o parceiro', description: 'Diga algo positivo sobre seu cônjuge', icon: '❤️', color: '#ef4444', tag: 'amor', frequency: { type: 'daily' } },
-            { title: 'Conversar sem celular', description: 'Momento de qualidade sem distrações', icon: '💬', color: '#3b82f6', tag: 'comunicação', frequency: { type: 'daily' } },
-            { title: 'Gratidão diária', description: 'Agradecer a Deus pelo dia', icon: '🙏', color: '#8b5cf6', tag: 'espiritual', frequency: { type: 'daily' } },
-            { title: 'Mensagem carinhosa', description: 'Enviar mensagem durante o dia', icon: '💌', color: '#ec4899', tag: 'amor', frequency: { type: 'daily' } },
-            { title: 'Tempo de qualidade', description: 'Dedicar tempo exclusivo para o casal', icon: '💑', color: '#f59e0b', tag: 'relacionamento', frequency: { type: 'daily' } },
-            { title: 'Check-in emocional', description: 'Perguntar como o outro está se sentindo', icon: '🧠', color: '#14b8a6', tag: 'comunicação', frequency: { type: 'daily' } },
-            { title: 'Exercício físico', description: 'Praticar atividade física', icon: '🏃', color: '#22c55e', tag: 'saúde', frequency: { type: 'daily' } },
-            { title: 'Dormir bem', description: '7-8 horas de sono', icon: '😴', color: '#6366f1', tag: 'saúde', frequency: { type: 'daily' } },
-            { title: 'Fazer refeições juntos', description: 'Compartilhar momentos à mesa', icon: '🍽️', color: '#f97316', tag: 'relacionamento', frequency: { type: 'daily' } },
-            { title: 'Planejamento financeiro', description: 'Organizar finanças do casal', icon: '💰', color: '#10b981', tag: 'finanças', frequency: { type: 'weekly', day: 1 } },
-            { title: 'Definir metas do casal', description: 'Traçar objetivos juntos', icon: '🎯', color: '#eab308', tag: 'crescimento', frequency: { type: 'weekly', day: 0 } },
-            { title: 'Caminhada juntos', description: 'Caminhar ao ar livre', icon: '🚶', color: '#06b6d4', tag: 'saúde', frequency: { type: 'custom', interval: 2 } },
-            { title: 'Tempo offline', description: 'Desconectar das telas', icon: '📵', color: '#64748b', tag: 'desconexão', frequency: { type: 'custom', interval: 3 } },
-            { title: 'Resolver conflitos rapidamente', description: 'Não deixar para depois', icon: '🤝', color: '#a855f7', tag: 'comunicação', frequency: { type: 'daily' } },
-            { title: 'Demonstrar carinho físico', description: 'Abraços, beijos, toques', icon: '💖', color: '#f43f5e', tag: 'amor', frequency: { type: 'daily' } },
-            { title: 'Celebrar pequenas conquistas', description: 'Comemorar as vitórias do casal', icon: '🎉', color: '#f59e0b', tag: 'celebração', frequency: { type: 'weekly', day: 5 } },
-            { title: 'Oração juntos', description: 'Orar em casal', icon: '✝️', color: '#8b5cf6', tag: 'espiritual', frequency: { type: 'daily' } },
-            { title: 'Ler a Bíblia', description: 'Devocional diário', icon: '📖', color: '#a855f7', tag: 'espiritual', frequency: { type: 'daily' } },
-            { title: 'Servir ao próximo', description: 'Ajudar alguém necessitado', icon: '🤲', color: '#10b981', tag: 'espiritual', frequency: { type: 'weekly', day: 6 } },
-            { title: 'Fazer surpresa', description: 'Uma pequena surpresa ao parceiro', icon: '🎁', color: '#ec4899', tag: 'amor', frequency: { type: 'custom', interval: 7 } }
+            { title: 'Elogiar o parceiro', description: 'Diga algo positivo', icon: '❤️', tag: 'amor', frequency: { type: 'daily' } },
+            { title: 'Conversar sem celular', description: 'Momento sem distrações', icon: '💬', tag: 'comunicação', frequency: { type: 'daily' } },
+            { title: 'Gratidão diária', description: 'Agradecer a Deus', icon: '🙏', tag: 'espiritual', frequency: { type: 'daily' } },
+            { title: 'Mensagem carinhosa', description: 'Enviar mensagem', icon: '💌', tag: 'amor', frequency: { type: 'daily' } },
+            { title: 'Tempo de qualidade', description: 'Dedicar tempo ao casal', icon: '💑', tag: 'relacionamento', frequency: { type: 'daily' } },
+            { title: 'Oração juntos', description: 'Orar em casal', icon: '✝️', tag: 'espiritual', frequency: { type: 'daily' } },
+            { title: 'Ler a Bíblia', description: 'Devocional diário', icon: '📖', tag: 'espiritual', frequency: { type: 'daily' } },
+            { title: 'Exercício físico', description: 'Praticar atividade', icon: '🏃', tag: 'saúde', frequency: { type: 'daily' } },
+            { title: 'Dormir bem', description: '7-8 horas de sono', icon: '😴', tag: 'saúde', frequency: { type: 'daily' } },
+            { title: 'Planejamento financeiro', description: 'Organizar finanças', icon: '💰', tag: 'finanças', frequency: { type: 'weekly', day: 1 } }
         ];
 
-        // Dados iniciais
-        const getInitialHabits = (personId) => {
-            const getRandomCompletedDates = () => {
-                const dates = [getToday()];
-                for (let i = 1; i <= Math.floor(Math.random() * 15) + 5; i++) {
-                    const date = new Date();
-                    date.setDate(date.getDate() - i);
-                    if (Math.random() > 0.3) dates.push(date.toISOString().split('T')[0]);
-                }
-                return dates;
-            };
+        const allEmojis = ['❤️', '💬', '🙏', '💌', '💑', '✝️', '📖', '🏃', '😴', '💰', '🎯', '🚶', '💖', '🎉', '⭐', '✨', '🌟', '💪', '🧘', '🥗'];
 
-            return coupleHabits.map((habit, index) => ({
-                id: `${personId}_${index}`,
-                title: habit.title,
-                description: habit.description,
-                completedDates: getRandomCompletedDates(),
-                icon: habit.icon,
-                color: habit.color,
-                tag: habit.tag,
-                streak: Math.floor(Math.random() * 15) + 1,
-                order: index,
-                frequency: habit.frequency,
-                createdAt: new Date().toISOString()
-            }));
-        };
-
-        // Lista de todos os emojis disponíveis para criar hábitos
-        const allEmojis = [
-            '❤️', '💬', '🙏', '💌', '💑', '🧠', '🏃', '😴', '🍽️', '💰', '🎯', '🚶', '📵', '🤝', '💖', '🎉', '✝️', '📖', '🤲', '🎁',
-            '💪', '💧', '📚', '🧘', '🥗', '😌', '🎨', '🎵', '📝', '🌟', '⭐', '🔥', '💎', '🌹', '🌸', '🌺', '🕊️', '⛪', '✨', '⭐',
-            '🏠', '🚗', '✈️', '🎬', '🍿', '☕', '🍵', '🍲', '🍜', '🍝', '🍰', '🍪', '🍩', '🍎', '🍊', '🍋', '🍉', '🍇', '🥑', '🥝',
-            '🎄', '🎃', '🎂', '🎈', '🎊', '🎀', '🎁', '🏆', '🥇', '🥈', '🥉', '🎖️', '🏅', '🎭', '🎪', '🎨', '🎼', '🎹', '🎸', '🎧'
-        ];
-
-        // Componente de Calendário Semanal
+        // ===== COMPONENTES =====
         const WeekCalendar = ({ selectedDate, onDateSelect, habits }) => {
             const weekDays = getWeekDays();
             const today = new Date();
-
-            const isDateCompleted = (date) => {
-                const dateStr = date.toISOString().split('T')[0];
-                let totalCompleted = 0;
-                habits.forEach(habit => {
-                    if (habit.completedDates?.includes(dateStr)) totalCompleted++;
-                });
-                return totalCompleted > 0;
-            };
-
-            const isToday = (date) => {
-                return date.toDateString() === today.toDateString();
-            };
-
+            const isDateCompleted = (date) => habits.some(h => h.completedDates?.includes(date.toISOString().split('T')[0]));
             return (
                 <div className="bg-card border border-primary rounded-2xl p-3">
                     <div className="week-calendar">
                         {weekDays.map((day, idx) => {
                             const isSelected = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
-                            const hasCompletions = isDateCompleted(day);
-                            const isCurrentDay = isToday(day);
-
                             return (
-                                <div
-                                    key={idx}
-                                    onClick={() => onDateSelect(day)}
-                                    className={`week-day ${isSelected ? 'week-day-selected' : ''} ${hasCompletions ? 'week-day-completed' : ''}`}
-                                >
+                                <div key={idx} onClick={() => onDateSelect(day)} className={`week-day ${isSelected ? 'week-day-selected' : ''} ${isDateCompleted(day) ? 'week-day-completed' : ''}`}>
                                     <div className="text-xs font-medium">{formatDayName(day)}</div>
-                                    <div className={`text-lg font-bold ${isCurrentDay && !isSelected ? 'text-green-400' : 'text-primary'}`}>{day.getDate()}</div>
+                                    <div className={`text-lg font-bold ${day.toDateString() === today.toDateString() && !isSelected ? 'text-green-400' : 'text-primary'}`}>{day.getDate()}</div>
                                 </div>
                             );
                         })}
@@ -589,374 +472,173 @@
             );
         };
 
-        // Gráfico de Radar
-        const RadarChart = ({ habits, period }) => {
-            const chartRef = React.useRef(null);
-            const chartInstance = React.useRef(null);
-
-            React.useEffect(() => {
-                if (chartRef.current) {
-                    if (chartInstance.current) chartInstance.current.destroy();
-                    const dateRange = getDateRange(period);
-                    const categories = ['Amor', 'Comunicação', 'Espiritual', 'Saúde', 'Finanças'];
-                    const categoryData = categories.map(cat => {
-                        const catHabits = habits.filter(h => {
-                            if (cat === 'Amor') return h.tag === 'amor';
-                            if (cat === 'Comunicação') return h.tag === 'comunicação';
-                            if (cat === 'Espiritual') return h.tag === 'espiritual';
-                            if (cat === 'Saúde') return h.tag === 'saúde';
-                            if (cat === 'Finanças') return h.tag === 'finanças';
-                            return false;
-                        });
-                        let totalCompletions = 0;
-                        catHabits.forEach(habit => {
-                            const completionsInRange = habit.completedDates?.filter(d => dateRange.includes(d)).length || 0;
-                            totalCompletions += completionsInRange;
-                        });
-                        const maxPossible = catHabits.length * dateRange.length;
-                        return maxPossible > 0 ? (totalCompletions / maxPossible) * 100 : 0;
-                    });
-                    chartInstance.current = new Chart(chartRef.current, {
-                        type: 'radar',
-                        data: { labels: categories, datasets: [{ label: 'Taxa (%)', data: categoryData, backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', borderWidth: 2, pointBackgroundColor: '#10b981' }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { r: { beginAtZero: true, max: 100, ticks: { color: '#9ca3af' }, grid: { color: '#2d2d44' }, pointLabels: { color: '#e8e8f0' } } } }
-                    });
-                }
-                return () => { if (chartInstance.current) chartInstance.current.destroy(); };
-            }, [habits, period]);
-            return (<div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-sm font-semibold text-primary mb-3">📡 Radar por Categoria</h3><div style={{ height: '250px' }}><canvas ref={chartRef}></canvas></div></div>);
-        };
-
-        // Gráfico Mensal
-        const MonthlyCompletionChart = ({ habits }) => {
-            const chartRef = React.useRef(null);
-            const chartInstance = React.useRef(null);
-            React.useEffect(() => {
-                if (chartRef.current) {
-                    if (chartInstance.current) chartInstance.current.destroy();
-                    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                    const currentMonth = new Date().getMonth();
-                    const last6Months = [];
-                    for (let i = 5; i >= 0; i--) last6Months.push(months[(currentMonth - i + 12) % 12]);
-                    const monthlyData = last6Months.map((_, idx) => {
-                        const monthNum = (currentMonth - (5 - idx) + 12) % 12;
-                        let totalCompletions = 0;
-                        habits.forEach(habit => {
-                            const completionsInMonth = habit.completedDates?.filter(d => new Date(d).getMonth() === monthNum).length || 0;
-                            totalCompletions += completionsInMonth;
-                        });
-                        return habits.length > 0 ? totalCompletions / habits.length : 0;
-                    });
-                    chartInstance.current = new Chart(chartRef.current, {
-                        type: 'bar',
-                        data: { labels: last6Months, datasets: [{ label: 'Média de Conclusões', data: monthlyData, backgroundColor: 'rgba(16, 185, 129, 0.7)', borderRadius: 8 }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { y: { beginAtZero: true, ticks: { color: '#9ca3af' }, grid: { color: '#2d2d44' } }, x: { ticks: { color: '#9ca3af' }, grid: { color: '#2d2d44' } } } }
-                    });
-                }
-                return () => { if (chartInstance.current) chartInstance.current.destroy(); };
-            }, [habits]);
-            return (<div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-sm font-semibold text-primary mb-3">📅 Média de Conclusões por Mês</h3><div style={{ height: '220px' }}><canvas ref={chartRef}></canvas></div></div>);
-        };
-
-        // Componente HabitCard
         const HabitCard = ({ habit, onToggle, onEdit, onDelete, selectedDate }) => {
             const dateToCheck = selectedDate ? selectedDate.toISOString().split('T')[0] : getToday();
             const completedOnDate = habit.completedDates?.includes(dateToCheck) || false;
             const [showMenu, setShowMenu] = React.useState(false);
-            const [menuPosition, setMenuPosition] = React.useState({ x: 0, y: 0 });
+            const [menuPos, setMenuPos] = React.useState({ x: 0, y: 0 });
 
-            const getFrequencyText = () => {
+            const getFreqText = () => {
                 if (!habit.frequency) return '📅 Todo dia';
                 if (habit.frequency.type === 'daily') return '📅 Todo dia';
-                if (habit.frequency.type === 'weekly') {
-                    const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-                    return `📆 ${days[habit.frequency.day]}`;
-                }
-                if (habit.frequency.type === 'custom') return `🔄 A cada ${habit.frequency.interval} dias`;
-                return '📅 Todo dia';
+                if (habit.frequency.type === 'weekly') return `📆 ${['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][habit.frequency.day]}`;
+                return `🔄 A cada ${habit.frequency.interval} dias`;
             };
-
-            const handleMenuClick = (e) => {
-                e.stopPropagation();
-                setMenuPosition({ x: e.clientX, y: e.clientY });
-                setShowMenu(true);
-            };
-
-            React.useEffect(() => {
-                const handleClickOutside = () => setShowMenu(false);
-                if (showMenu) { document.addEventListener('click', handleClickOutside); return () => document.removeEventListener('click', handleClickOutside); }
-            }, [showMenu]);
 
             return (
                 <>
-                    <div className="bg-card border border-primary rounded-2xl p-3 hover:border-green-500/30 transition-all duration-300">
+                    <div className="bg-card border border-primary rounded-2xl p-3">
                         <div className="flex items-start gap-3">
                             <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
+                                <div className="flex items-center gap-2">
                                     <span className="text-2xl">{habit.icon}</span>
-                                    <div className="flex-1">
-                                        <h3 className="text-primary font-semibold text-sm">{habit.title}</h3>
-                                        <p className="text-secondary text-xs">{getFrequencyText()}</p>
-                                    </div>
+                                    <div><h3 className="text-primary font-semibold text-sm">{habit.title}</h3><p className="text-secondary text-xs">{getFreqText()}</p></div>
                                 </div>
                                 <div className="flex items-center gap-2 mt-1">
                                     <span className="text-xs text-orange-400">🔥 {habit.streak || 0}</span>
-                                    <span className="text-secondary text-xs">✅ {habit.completedDates?.length || 0} total</span>
+                                    <span className="text-secondary text-xs">✅ {habit.completedDates?.length || 0}</span>
                                     <span className="text-xs text-green-400">{habit.tag}</span>
                                 </div>
-                                {habit.description && (
-                                    <p className="text-secondary text-xs mt-1">{habit.description}</p>
-                                )}
                             </div>
-                            <div className="flex flex-col items-center gap-2">
-                                <button onClick={handleMenuClick} className="text-secondary hover:text-primary p-1 rounded-lg text-xl">⋮</button>
+                            <div className="flex flex-col items-center gap-1">
+                                <button onClick={(e) => { e.stopPropagation(); setMenuPos({ x: e.clientX, y: e.clientY }); setShowMenu(true); }} className="text-secondary text-xl">⋮</button>
                                 <button onClick={() => onToggle(habit.id, dateToCheck)} className={`check-button ${completedOnDate ? 'check-button-completed' : 'check-button-pending'}`} style={{ width: '40px', height: '40px', fontSize: '20px' }}>
                                     {completedOnDate ? '✓' : '○'}
                                 </button>
                             </div>
                         </div>
                     </div>
-
                     {showMenu && (
-                        <div className="fixed bg-[#1a1a2e] border border-[#2d2d44] rounded-xl p-2 z-50 shadow-xl" style={{ top: menuPosition.y - 60, left: menuPosition.x - 120 }}>
-                            <div className="px-3 py-2 rounded-lg hover:bg-[#2d2d44] cursor-pointer transition flex items-center gap-2 text-primary" onClick={() => { onEdit(habit); setShowMenu(false); }}>✏️ Editar Hábito</div>
-                            <div className="px-3 py-2 rounded-lg hover:bg-red-500/20 cursor-pointer transition flex items-center gap-2 text-red-400" onClick={() => { if (confirm(`Deletar "${habit.title}"?`)) onDelete(habit.id); setShowMenu(false); }}>🗑️ Deletar Hábito</div>
+                        <div className="context-menu" style={{ top: menuPos.y - 60, left: menuPos.x - 120 }}>
+                            <div className="context-menu-item" onClick={() => { onEdit(habit); setShowMenu(false); }}>✏️ Editar</div>
+                            <div className="context-menu-item delete" onClick={() => { if (confirm(`Deletar "${habit.title}"?`)) onDelete(habit.id); setShowMenu(false); }}>🗑️ Deletar</div>
                         </div>
                     )}
                 </>
             );
         };
 
-        // Modal de Edição de Hábito
-        const EditHabitModal = ({ isOpen, onClose, habit, onSave }) => {
-            const [title, setTitle] = React.useState('');
-            const [description, setDescription] = React.useState('');
-            const [icon, setIcon] = React.useState('❤️');
-            const [tag, setTag] = React.useState('amor');
-            const [frequencyType, setFrequencyType] = React.useState('daily');
-            const [weeklyDay, setWeeklyDay] = React.useState(0);
-            const [customInterval, setCustomInterval] = React.useState(2);
+        // ===== TELA DE LOGIN =====
+        const LoginScreen = ({ onLogin }) => {
+            const [email, setEmail] = React.useState('');
+            const [password, setPassword] = React.useState('');
+            const [isRegister, setIsRegister] = React.useState(false);
+            const [loading, setLoading] = React.useState(false);
+            const [error, setError] = React.useState('');
 
-            const tags = ['amor', 'comunicação', 'espiritual', 'saúde', 'finanças', 'relacionamento', 'crescimento', 'desconexão', 'celebração'];
-            const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-
-            React.useEffect(() => {
-                if (habit) {
-                    setTitle(habit.title || '');
-                    setDescription(habit.description || '');
-                    setIcon(habit.icon || '❤️');
-                    setTag(habit.tag || 'amor');
-                    if (habit.frequency) {
-                        setFrequencyType(habit.frequency.type);
-                        if (habit.frequency.type === 'weekly') setWeeklyDay(habit.frequency.day || 0);
-                        if (habit.frequency.type === 'custom') setCustomInterval(habit.frequency.interval || 2);
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+                try {
+                    if (isRegister) {
+                        await window.firebaseCreateUser(window.firebaseAuth, email, password);
+                    } else {
+                        await window.firebaseSignIn(window.firebaseAuth, email, password);
                     }
+                    onLogin();
+                } catch (err) {
+                    setError(err.message);
                 }
-            }, [habit]);
-
-            if (!isOpen) return null;
-
-            const handleSubmit = (e) => {
-                e.preventDefault();
-                if (!title.trim()) return;
-
-                let frequency = { type: frequencyType };
-                if (frequencyType === 'weekly') frequency.day = weeklyDay;
-                if (frequencyType === 'custom') frequency.interval = customInterval;
-
-                onSave({ ...habit, title: title.trim(), description: description.trim(), icon, tag, frequency });
-                onClose();
+                setLoading(false);
             };
 
             return (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-                    <div className="glass-effect rounded-2xl p-5 max-w-md w-full border border-primary animate-fade-in">
-                        <h3 className="text-xl font-bold text-primary mb-2">✏️ Editar Hábito</h3>
-                        <form onSubmit={handleSubmit} className="space-y-3">
-                            <div><label className="text-secondary text-xs">Ícone</label><div className="flex gap-1.5 flex-wrap max-h-32 overflow-y-auto p-2 bg-[#2d2d44]/30 rounded-xl">{allEmojis.map(em => (<button key={em} type="button" onClick={() => setIcon(em)} className={`text-xl p-1.5 rounded-lg ${icon === em ? 'bg-green-500/20 border border-green-500/30' : 'bg-[#2d2d44]'}`}>{em}</button>))}</div></div>
-                            <div><label className="text-secondary text-xs">Nome</label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm focus:outline-none focus:border-green-500" required /></div>
-                            <div><label className="text-secondary text-xs">Descrição</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="2" className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm" /></div>
-                            <div><label className="text-secondary text-xs">Categoria</label><select value={tag} onChange={(e) => setTag(e.target.value)} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm">{tags.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
-                            <div><label className="text-secondary text-xs">Frequência</label>
-                                <div className="flex gap-2 mb-2"><button type="button" onClick={() => setFrequencyType('daily')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'daily' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>📅 Todo dia</button><button type="button" onClick={() => setFrequencyType('weekly')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'weekly' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>📆 Semanal</button><button type="button" onClick={() => setFrequencyType('custom')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'custom' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>🔄 Personalizado</button></div>
-                                {frequencyType === 'weekly' && (<select value={weeklyDay} onChange={(e) => setWeeklyDay(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm">{weekDays.map((d, i) => <option key={i} value={i}>{d}</option>)}</select>)}
-                                {frequencyType === 'custom' && (<div className="flex items-center gap-2"><span className="text-secondary text-sm">A cada</span><input type="number" min="1" max="30" value={customInterval} onChange={(e) => setCustomInterval(Number(e.target.value))} className="w-20 p-2 rounded-xl bg-[#2d2d44] text-primary text-center" /><span className="text-secondary text-sm">dias</span></div>)}
-                            </div>
-                            <div className="flex gap-3 pt-2"><button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl bg-[#2d2d44] text-secondary">Cancelar</button><button type="submit" className="flex-1 py-2 rounded-xl bg-green-500 text-white font-semibold">Salvar</button></div>
+                <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] to-[#0f0f1a] flex items-center justify-center p-4">
+                    <div className="glass-effect rounded-3xl p-8 max-w-md w-full border border-primary animate-fade-in">
+                        <div className="text-center mb-6">
+                            <div className="text-6xl mb-3">💑</div>
+                            <h1 className="text-3xl font-bold couple-name-highlight">HabitFlow</h1>
+                            <p className="text-secondary text-sm mt-2">Casal Cristão</p>
+                        </div>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 rounded-xl bg-[#2d2d44] text-primary placeholder:text-secondary focus:outline-none focus:border-green-500" required />
+                            <input type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 rounded-xl bg-[#2d2d44] text-primary placeholder:text-secondary focus:outline-none focus:border-green-500" required />
+                            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+                            <button type="submit" disabled={loading} className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold">
+                                {loading ? 'Carregando...' : (isRegister ? 'Criar Conta' : 'Entrar')}
+                            </button>
+                            <p className="text-center text-secondary text-sm">
+                                {isRegister ? 'Já tem conta?' : 'Não tem conta?'}{' '}
+                                <button type="button" onClick={() => setIsRegister(!isRegister)} className="text-green-400">{isRegister ? 'Fazer login' : 'Cadastre-se'}</button>
+                            </p>
                         </form>
                     </div>
                 </div>
             );
         };
 
-        // Modal de Novo Hábito
-        const NewHabitModal = ({ isOpen, onClose, onAdd, personName }) => {
-            const [title, setTitle] = React.useState('');
-            const [description, setDescription] = React.useState('');
-            const [icon, setIcon] = React.useState('❤️');
-            const [tag, setTag] = React.useState('amor');
-            const [frequencyType, setFrequencyType] = React.useState('daily');
-            const [weeklyDay, setWeeklyDay] = React.useState(new Date().getDay());
-            const [customInterval, setCustomInterval] = React.useState(2);
-
-            const tags = ['amor', 'comunicação', 'espiritual', 'saúde', 'finanças', 'relacionamento', 'crescimento', 'desconexão', 'celebração'];
-            const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-
-            if (!isOpen) return null;
-
-            const handleSubmit = (e) => {
-                e.preventDefault();
-                if (!title.trim()) return;
-
-                let frequency = { type: frequencyType };
-                if (frequencyType === 'weekly') frequency.day = weeklyDay;
-                if (frequencyType === 'custom') frequency.interval = customInterval;
-
-                onAdd({
-                    title: title.trim(),
-                    description: description.trim(),
-                    icon,
-                    tag,
-                    frequency,
-                    completedDates: [],
-                    streak: 0,
-                    createdAt: new Date().toISOString()
-                });
-                setTitle('');
-                setDescription('');
-                setIcon('❤️');
-                setTag('amor');
-                setFrequencyType('daily');
-                onClose();
-            };
-
-            return (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-                    <div className="glass-effect rounded-2xl p-5 max-w-md w-full border border-primary animate-fade-in">
-                        <h3 className="text-xl font-bold text-primary mb-1">✨ Novo Hábito</h3>
-                        <p className="text-secondary text-xs mb-4">para {personName}</p>
-                        <form onSubmit={handleSubmit} className="space-y-3">
-                            <div><label className="text-secondary text-xs">Ícone (clique para escolher)</label><div className="flex gap-1.5 flex-wrap max-h-32 overflow-y-auto p-2 bg-[#2d2d44]/30 rounded-xl">{allEmojis.map(em => (<button key={em} type="button" onClick={() => setIcon(em)} className={`text-xl p-1.5 rounded-lg ${icon === em ? 'bg-green-500/20 border border-green-500/30' : 'bg-[#2d2d44]'}`}>{em}</button>))}</div></div>
-                            <div><label className="text-secondary text-xs">Nome</label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Elogiar o parceiro" className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm focus:outline-none focus:border-green-500" required /></div>
-                            <div><label className="text-secondary text-xs">Descrição (opcional)</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descreva seu hábito..." rows="2" className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm" /></div>
-                            <div><label className="text-secondary text-xs">Categoria</label><select value={tag} onChange={(e) => setTag(e.target.value)} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm">{tags.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
-                            <div><label className="text-secondary text-xs">Frequência</label>
-                                <div className="flex gap-2 mb-2"><button type="button" onClick={() => setFrequencyType('daily')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'daily' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>📅 Todo dia</button><button type="button" onClick={() => setFrequencyType('weekly')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'weekly' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>📆 Semanal</button><button type="button" onClick={() => setFrequencyType('custom')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'custom' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>🔄 Personalizado</button></div>
-                                {frequencyType === 'weekly' && (<select value={weeklyDay} onChange={(e) => setWeeklyDay(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm">{weekDays.map((d, i) => <option key={i} value={i}>{d}</option>)}</select>)}
-                                {frequencyType === 'custom' && (<div className="flex items-center gap-2"><span className="text-secondary text-sm">A cada</span><input type="number" min="1" max="30" value={customInterval} onChange={(e) => setCustomInterval(Number(e.target.value))} className="w-20 p-2 rounded-xl bg-[#2d2d44] text-primary text-center" /><span className="text-secondary text-sm">dias</span></div>)}
-                            </div>
-                            <div className="flex gap-3 pt-2"><button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl bg-[#2d2d44] text-secondary">Cancelar</button><button type="submit" className="flex-1 py-2 rounded-xl bg-green-500 text-white font-semibold">Criar</button></div>
-                        </form>
-                    </div>
-                </div>
-            );
-        };
-
-        // Configurações
-        const SettingsView = ({ personId, personName, onNameChange, habits, onResetStats, onReorderHabits, onUpdateTheme, currentTheme, couplePhoto, onUpdatePhoto }) => {
-            const [localName, setLocalName] = React.useState(personName);
-            const [showReorder, setShowReorder] = React.useState(false);
-            const [reorderedHabits, setReorderedHabits] = React.useState([...habits]);
-            const [selectedTag, setSelectedTag] = React.useState('todos');
-
-            const tags = ['todos', ...new Set(habits.map(h => h.tag))];
-            const filteredHabits = selectedTag === 'todos' ? reorderedHabits : reorderedHabits.filter(h => h.tag === selectedTag);
-
-            const handleSaveName = () => { if (localName.trim()) onNameChange(personId, localName.trim()); };
-            const handleSaveOrder = () => { onReorderHabits(personId, reorderedHabits); setShowReorder(false); };
-            const moveHabit = (from, to) => { const updated = [...reorderedHabits]; const [moved] = updated.splice(from, 1); updated.splice(to, 0, moved); setReorderedHabits(updated); };
-            const handleResetAllStats = () => { if (confirm('⚠️ Zerar TODAS as estatísticas?')) onResetStats(personId); };
-            const handlePhotoUpload = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => onUpdatePhoto(reader.result); reader.readAsDataURL(file); } };
-
-            return (
-                <div className="space-y-4 pb-20">
-                    <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">👤 Perfil</h3><div className="space-y-3"><div><label className="text-secondary text-xs">Nome</label><div className="flex gap-2"><input type="text" value={localName} onChange={(e) => setLocalName(e.target.value)} className="flex-1 p-2 rounded-xl bg-[#2d2d44] text-primary text-sm" /><button onClick={handleSaveName} className="px-4 py-2 bg-green-500 rounded-xl text-white text-sm">Salvar</button></div></div></div></div>
-
-                    <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">🎨 Aparência</h3><div className="flex items-center justify-between"><span className="text-secondary text-sm">Tema {currentTheme === 'dark' ? 'Escuro' : 'Claro'}</span><label className="switch"><input type="checkbox" checked={currentTheme === 'light'} onChange={() => onUpdateTheme(currentTheme === 'dark' ? 'light' : 'dark')} /><span className="slider"></span></label></div></div>
-
-                    <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">🏷️ Filtrar por Tag</h3><div className="flex gap-2 flex-wrap">{tags.map(tag => (<button key={tag} onClick={() => setSelectedTag(tag)} className={`px-3 py-1.5 rounded-xl text-xs ${selectedTag === tag ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>{tag}</button>))}</div><div className="mt-3 space-y-1">{filteredHabits.map(habit => (<div key={habit.id} className="flex items-center gap-2 text-sm"><span>{habit.icon}</span><span className="text-primary flex-1">{habit.title}</span><span className="text-secondary text-xs">{habit.tag}</span></div>))}</div></div>
-
-                    <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">🔄 Reordenar Hábitos</h3>{!showReorder ? (<button onClick={() => { setShowReorder(true); setReorderedHabits([...habits]); }} className="w-full py-2 bg-[#2d2d44] rounded-xl text-primary text-sm">Reordenar Lista</button>) : (<div className="space-y-2">{reorderedHabits.map((habit, idx) => (<div key={habit.id} className="flex items-center gap-2 p-2 bg-[#2d2d44]/50 rounded-xl"><span className="cursor-grab text-secondary">⋮⋮</span><span>{habit.icon}</span><span className="text-primary flex-1 text-sm">{habit.title}</span><div className="flex gap-1">{idx > 0 && <button onClick={() => moveHabit(idx, idx - 1)} className="px-2 py-1 bg-[#2d2d44] rounded-lg text-primary text-xs">↑</button>}{idx < reorderedHabits.length - 1 && <button onClick={() => moveHabit(idx, idx + 1)} className="px-2 py-1 bg-[#2d2d44] rounded-lg text-primary text-xs">↓</button>}</div></div>))}<div className="flex gap-2 mt-3"><button onClick={() => setShowReorder(false)} className="flex-1 py-2 bg-[#2d2d44] rounded-xl text-secondary">Cancelar</button><button onClick={handleSaveOrder} className="flex-1 py-2 bg-green-500 rounded-xl text-white font-semibold">Salvar</button></div></div>)}</div>
-
-                    <div className="bg-card border border-red-500/30 rounded-2xl p-4"><h3 className="text-red-400 font-semibold text-sm mb-3">⚠️ Zona de Perigo</h3><button onClick={handleResetAllStats} className="w-full py-2 bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 text-sm">Zerar Todas as Estatísticas</button></div>
-                </div>
-            );
-        };
-
-        // Estatísticas
-        const StatisticsView = ({ habits, personName }) => {
-            const [period, setPeriod] = React.useState('week');
-            const totalCompletions = habits.reduce((acc, h) => acc + (h.completedDates?.length || 0), 0);
-            const totalStreak = habits.reduce((acc, h) => acc + (h.streak || 0), 0);
-            const bestHabit = habits.reduce((best, h) => (h.streak > (best?.streak || 0) ? h : best), null);
-            const level = calculateLevel(totalCompletions);
-            const dateRange = getDateRange(period);
-            let periodCompletions = 0;
-            habits.forEach(habit => { periodCompletions += habit.completedDates?.filter(d => dateRange.includes(d)).length || 0; });
-            const avgPerDay = dateRange.length > 0 ? (periodCompletions / dateRange.length).toFixed(1) : 0;
-
-            return (
-                <div className="space-y-4 pb-20">
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Total</p><p className="text-xl font-bold text-primary">{totalCompletions}</p><p className="text-secondary text-xs">hábitos concluídos</p></div>
-                        <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Streak Total</p><p className="text-xl font-bold text-primary">{totalStreak}</p><p className="text-secondary text-xs">dias acumulados</p></div>
-                        <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Média</p><p className="text-xl font-bold text-primary">{(totalCompletions / habits.length).toFixed(1)}</p><p className="text-secondary text-xs">por hábito</p></div>
-                        <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Nível</p><p className="text-xl font-bold text-primary">{level.level}</p><p className="text-secondary text-xs">+{level.nextLevel} para prox</p></div>
-                    </div>
-
-                    {bestHabit && (<div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-3 border border-green-500/30"><p className="text-secondary text-xs">🏅 Melhor Hábito</p><div className="flex items-center justify-between"><div className="flex items-center gap-2"><span className="text-2xl">{bestHabit.icon}</span><div><p className="text-primary font-semibold text-sm">{bestHabit.title}</p><p className="text-green-400 text-xs">🔥 {bestHabit.streak} dias</p></div></div><div><span className="text-green-400 font-bold">{bestHabit.completedDates?.length || 0}</span><span className="text-secondary text-xs"> total</span></div></div></div>)}
-
-                    <div className="flex gap-2"><button onClick={() => setPeriod('week')} className={`flex-1 py-2 rounded-xl text-sm ${period === 'week' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>Esta Semana</button><button onClick={() => setPeriod('month')} className={`flex-1 py-2 rounded-xl text-sm ${period === 'month' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>Este Mês</button></div>
-
-                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-4"><p className="text-secondary text-xs">Média por dia</p><p className="text-2xl font-bold text-primary">{avgPerDay}</p><p className="text-secondary text-xs">hábitos/dia neste período</p></div>
-
-                    <RadarChart habits={habits} period={period} />
-                    <MonthlyCompletionChart habits={habits} />
-                </div>
-            );
-        };
-
-        // App Principal
+        // ===== APP PRINCIPAL =====
         const App = () => {
+            const [user, setUser] = React.useState(null);
+            const [loading, setLoading] = React.useState(true);
             const [activeTab, setActiveTab] = React.useState('josiel');
             const [bottomNav, setBottomNav] = React.useState('habits');
             const [theme, setTheme] = React.useState('dark');
             const [names, setNames] = React.useState({ josiel: 'Josiel', zipora: 'Zipora' });
             const [habitsData, setHabitsData] = React.useState({ josiel: [], zipora: [] });
-            const [modalState, setModalState] = React.useState({ isOpen: false, personId: null });
-            const [editModalState, setEditModalState] = React.useState({ isOpen: false, habit: null });
             const [selectedDate, setSelectedDate] = React.useState(new Date());
             const [couplePhoto, setCouplePhoto] = React.useState(null);
+            const [modalState, setModalState] = React.useState({ open: false, personId: null });
+            const [editModal, setEditModal] = React.useState({ open: false, habit: null });
 
+            // Firebase Auth Listener
             React.useEffect(() => {
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme) { setTheme(savedTheme); document.body.className = savedTheme === 'light' ? 'light-mode' : ''; }
-                const savedNames = localStorage.getItem('couple_names');
-                if (savedNames) setNames(JSON.parse(savedNames));
-                const savedHabits = localStorage.getItem('couple_habits_v12');
-                if (savedHabits) setHabitsData(JSON.parse(savedHabits));
-                else setHabitsData({ josiel: getInitialHabits('josiel'), zipora: getInitialHabits('zipora') });
-                const savedPhoto = localStorage.getItem('couple_photo');
-                if (savedPhoto) setCouplePhoto(savedPhoto);
+                const unsubscribe = window.firebaseOnAuthStateChanged(window.firebaseAuth, async (user) => {
+                    if (user) {
+                        setUser(user);
+                        // Carregar dados do Firebase
+                        const snapshot = await window.firebaseGet(window.firebaseRef(window.firebaseDatabase, `users/${user.uid}`));
+                        if (snapshot.exists()) {
+                            const data = snapshot.val();
+                            setNames(data.names || { josiel: 'Josiel', zipora: 'Zipora' });
+                            setHabitsData(data.habits || { josiel: [], zipora: [] });
+                            setTheme(data.theme || 'dark');
+                            setCouplePhoto(data.photo || null);
+                            document.body.className = data.theme === 'light' ? 'light-mode' : '';
+                        } else {
+                            // Dados iniciais
+                            const initHabits = {
+                                josiel: coupleHabits.map((h, i) => ({ ...h, id: `josiel_${i}`, completedDates: [getToday()], streak: 1, order: i })),
+                                zipora: coupleHabits.map((h, i) => ({ ...h, id: `zipora_${i}`, completedDates: [getToday()], streak: 1, order: i }))
+                            };
+                            setHabitsData(initHabits);
+                            await window.firebaseSet(window.firebaseRef(window.firebaseDatabase, `users/${user.uid}`), { names, habits: initHabits, theme: 'dark', photo: null });
+                        }
+                    }
+                    setLoading(false);
+                });
+                return () => unsubscribe();
             }, []);
 
-            React.useEffect(() => { localStorage.setItem('couple_names', JSON.stringify(names)); }, [names]);
-            React.useEffect(() => { localStorage.setItem('couple_habits_v12', JSON.stringify(habitsData)); }, [habitsData]);
-            React.useEffect(() => { localStorage.setItem('theme', theme); document.body.className = theme === 'light' ? 'light-mode' : ''; }, [theme]);
-            React.useEffect(() => { if (couplePhoto) localStorage.setItem('couple_photo', couplePhoto); }, [couplePhoto]);
+            const saveToFirebase = async (data) => {
+                if (user) await window.firebaseUpdate(window.firebaseRef(window.firebaseDatabase, `users/${user.uid}`), data);
+            };
 
-            const showToast = (msg) => { const toast = document.createElement('div'); toast.className = 'fixed bottom-20 left-4 right-4 bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg animate-fade-in z-50 text-center text-sm'; toast.textContent = msg; document.body.appendChild(toast); setTimeout(() => toast.remove(), 2000); };
+            React.useEffect(() => { if (user) saveToFirebase({ names }); }, [names]);
+            React.useEffect(() => { if (user) saveToFirebase({ habits: habitsData }); }, [habitsData]);
+            React.useEffect(() => { if (user) { document.body.className = theme === 'light' ? 'light-mode' : ''; saveToFirebase({ theme }); } }, [theme]);
+            React.useEffect(() => { if (user && couplePhoto) saveToFirebase({ photo: couplePhoto }); }, [couplePhoto]);
 
+            const showToast = (msg) => {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-20 left-4 right-4 bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg animate-fade-in z-50 text-center text-sm';
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            };
+
+            const handleLogout = async () => { await window.firebaseSignOut(window.firebaseAuth); setUser(null); showToast('👋 Até logo!'); };
             const handleNameChange = (personId, newName) => { setNames(prev => ({ ...prev, [personId]: newName })); showToast(`✨ Nome atualizado!`); };
-            const handleUpdateTheme = (newTheme) => setTheme(newTheme);
-            const handleUpdatePhoto = (photo) => setCouplePhoto(photo);
 
-            const resetStats = (personId) => { const resetHabits = habitsData[personId].map(habit => ({ ...habit, completedDates: [], streak: 0 })); setHabitsData(prev => ({ ...prev, [personId]: resetHabits })); showToast('📊 Estatísticas zeradas!'); };
-            const reorderHabits = (personId, reordered) => { const withOrder = reordered.map((h, idx) => ({ ...h, order: idx })); setHabitsData(prev => ({ ...prev, [personId]: withOrder })); showToast('🔄 Ordem atualizada!'); };
+            const addHabit = (personId, habit) => {
+                const newHabit = { ...habit, id: `${personId}_${Date.now()}`, completedDates: [], streak: 0, order: habitsData[personId].length };
+                setHabitsData(prev => ({ ...prev, [personId]: [...prev[personId], newHabit] }));
+                showToast(`✅ Hábito criado!`);
+            };
 
-            const addHabit = (personId, habit) => { const newHabit = { ...habit, id: `${personId}_${Date.now()}`, order: habitsData[personId].length }; setHabitsData(prev => ({ ...prev, [personId]: [...prev[personId], newHabit] })); showToast(`✅ Hábito criado!`); };
-            const editHabit = (updatedHabit) => { setHabitsData(prev => ({ ...prev, [activeTab]: prev[activeTab].map(h => h.id === updatedHabit.id ? updatedHabit : h) })); showToast(`✏️ Hábito atualizado!`); };
-            const deleteHabit = (habitId) => { setHabitsData(prev => ({ ...prev, [activeTab]: prev[activeTab].filter(h => h.id !== habitId) })); showToast(`🗑️ Hábito deletado!`); };
+            const editHabit = (updated) => { setHabitsData(prev => ({ ...prev, [activeTab]: prev[activeTab].map(h => h.id === updated.id ? updated : h) })); showToast(`✏️ Hábito atualizado!`); };
+            const deleteHabit = (id) => { setHabitsData(prev => ({ ...prev, [activeTab]: prev[activeTab].filter(h => h.id !== id) })); showToast(`🗑️ Hábito deletado!`); };
 
             const toggleHabit = (habitId, date) => {
                 const updated = habitsData[activeTab].map(habit => {
@@ -969,20 +651,28 @@
                 showToast('✅ Hábito atualizado!');
             };
 
-            const openNewModal = (personId) => setModalState({ isOpen: true, personId });
-            const closeNewModal = () => setModalState({ isOpen: false, personId: null });
-            const openEditModal = (habit) => setEditModalState({ isOpen: true, habit });
-            const closeEditModal = () => setEditModalState({ isOpen: false, habit: null });
+            if (loading) return <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center"><div className="text-green-400 text-xl">Carregando...</div></div>;
+            if (!user) return <LoginScreen onLogin={() => { }} />;
 
-            const getStats = (personId) => { const h = habitsData[personId]; return { total: h.length, completed: h.filter(hh => hh.completedDates?.includes(getToday())).length, streak: h.reduce((a, b) => a + (b.streak || 0), 0) }; };
-            const josielStats = getStats('josiel'); const ziporaStats = getStats('zipora');
+            const getStats = (personId) => {
+                const h = habitsData[personId];
+                return { total: h.length, completed: h.filter(hh => hh.completedDates?.includes(getToday())).length, streak: h.reduce((a, b) => a + (b.streak || 0), 0) };
+            };
+
+            const josielStats = getStats('josiel');
+            const ziporaStats = getStats('zipora');
             const gradientClass = activeTab === 'josiel' ? 'from-blue-500 to-cyan-500' : 'from-pink-500 to-rose-500';
 
-            const renderView = () => {
-                if (bottomNav === 'habits') return <div className="space-y-4"><div className="flex justify-between items-center"><div><h3 className="text-lg font-semibold text-primary">Meus Hábitos</h3><p className="text-secondary text-xs">{selectedDate ? formatDate(selectedDate) : formatDate(new Date())}</p></div><button onClick={() => openNewModal(activeTab)} className={`bg-gradient-to-r ${gradientClass} text-white px-3 py-1.5 rounded-xl text-sm font-semibold flex items-center gap-1`}><span>+</span><span>Novo</span></button></div>{habitsData[activeTab].length === 0 ? (<div className="text-center py-12"><p className="text-secondary">Nenhum hábito</p></div>) : (<div className="space-y-2">{habitsData[activeTab].sort((a, b) => (a.order || 0) - (b.order || 0)).map(habit => (<HabitCard key={habit.id} habit={habit} onToggle={toggleHabit} onEdit={openEditModal} onDelete={deleteHabit} selectedDate={selectedDate} />))}</div>)}</div>;
-                if (bottomNav === 'stats') return <StatisticsView habits={habitsData[activeTab]} personName={names[activeTab]} />;
-                return <SettingsView personId={activeTab} personName={names[activeTab]} onNameChange={handleNameChange} habits={habitsData[activeTab]} onResetStats={resetStats} onReorderHabits={reorderHabits} onUpdateTheme={handleUpdateTheme} currentTheme={theme} couplePhoto={couplePhoto} onUpdatePhoto={handleUpdatePhoto} />;
-            };
+            const HabitsView = () => (
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <div><h3 className="text-lg font-semibold text-primary">Meus Hábitos</h3><p className="text-secondary text-xs">{formatDate(selectedDate)}</p></div>
+                        <button onClick={() => setModalState({ open: true, personId: activeTab })} className={`bg-gradient-to-r ${gradientClass} text-white px-3 py-1.5 rounded-xl text-sm font-semibold flex items-center gap-1`}><span>+</span><span>Novo</span></button>
+                    </div>
+                    {habitsData[activeTab].length === 0 ? (<div className="text-center py-12"><p className="text-secondary">Nenhum hábito</p></div>) :
+                        (<div className="space-y-2">{habitsData[activeTab].sort((a, b) => (a.order || 0) - (b.order || 0)).map(habit => (<HabitCard key={habit.id} habit={habit} onToggle={toggleHabit} onEdit={(h) => setEditModal({ open: true, habit: h })} onDelete={deleteHabit} selectedDate={selectedDate} />))}</div>)}
+                </div>
+            );
 
             return (
                 <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] pb-24">
@@ -993,64 +683,92 @@
                                     <div className="avatar-container relative" onClick={() => document.getElementById('photoUpload').click()}>
                                         {couplePhoto ? (<img src={couplePhoto} className="w-12 h-12 rounded-full object-cover border-2 border-green-500" />) : (<div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-2xl">💑</div>)}
                                         <div className="avatar-overlay">📷</div>
-                                        <input type="file" id="photoUpload" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => handleUpdatePhoto(reader.result); reader.readAsDataURL(file); } }} />
+                                        <input type="file" id="photoUpload" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => setCouplePhoto(reader.result); reader.readAsDataURL(file); } }} />
                                     </div>
-                                    <div>
-                                        <h1 className="text-2xl font-bold couple-name-highlight">HabitFlow</h1>
-                                        <p className="text-secondary text-xs">Casal Cristão 👑</p>
-                                    </div>
+                                    <div><h1 className="text-2xl font-bold couple-name-highlight">HabitFlow</h1><p className="text-secondary text-xs">Casal Cristão 👑</p></div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button onClick={() => setActiveTab('josiel')} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 'josiel' ? 'tab-active text-white' : 'bg-[#2d2d44] text-secondary'}`}>
-                                        💙 {names.josiel} <span className="ml-1 text-xs">🔥{josielStats.streak}</span>
-                                    </button>
-                                    <button onClick={() => setActiveTab('zipora')} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === 'zipora' ? 'tab-active text-white' : 'bg-[#2d2d44] text-secondary'}`}>
-                                        💖 {names.zipora} <span className="ml-1 text-xs">🔥{ziporaStats.streak}</span>
-                                    </button>
+                                    <button onClick={() => setActiveTab('josiel')} className={`px-4 py-2 rounded-xl text-sm font-bold ${activeTab === 'josiel' ? 'tab-active text-white' : 'bg-[#2d2d44] text-secondary'}`}>💙 {names.josiel} 🔥{josielStats.streak}</button>
+                                    <button onClick={() => setActiveTab('zipora')} className={`px-4 py-2 rounded-xl text-sm font-bold ${activeTab === 'zipora' ? 'tab-active text-white' : 'bg-[#2d2d44] text-secondary'}`}>💖 {names.zipora} 🔥{ziporaStats.streak}</button>
+                                    <button onClick={handleLogout} className="px-3 py-2 rounded-xl bg-red-500/20 text-red-400 text-sm">🚪 Sair</button>
                                 </div>
                             </div>
-
                             <WeekCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} habits={habitsData[activeTab]} />
                         </div>
                     </header>
 
-                    <main className="px-4 py-3 max-w-2xl mx-auto">{renderView()}</main>
+                    <main className="px-4 py-3 max-w-2xl mx-auto">
+                        {bottomNav === 'habits' && <HabitsView />}
+                        {bottomNav === 'settings' && (
+                            <div className="space-y-4 pb-20">
+                                <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold">👤 Perfil</h3><div className="flex gap-2 mt-2"><input type="text" value={names[activeTab]} onChange={(e) => handleNameChange(activeTab, e.target.value)} className="flex-1 p-2 rounded-xl bg-[#2d2d44] text-primary" /><button onClick={() => handleNameChange(activeTab, names[activeTab])} className="px-4 py-2 bg-green-500 rounded-xl text-white">Salvar</button></div></div>
+                                <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold">🎨 Tema</h3><div className="flex items-center justify-between mt-2"><span className="text-secondary">{theme === 'dark' ? 'Escuro' : 'Claro'}</span><label className="switch"><input type="checkbox" checked={theme === 'light'} onChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')} /><span className="slider"></span></label></div></div>
+                                <div className="bg-card border border-red-500/30 rounded-2xl p-4"><h3 className="text-red-400 font-semibold">⚠️ Sair</h3><button onClick={handleLogout} className="w-full mt-2 py-2 bg-red-500/20 rounded-xl text-red-400">Sair da Conta</button></div>
+                            </div>
+                        )}
+                    </main>
 
                     <div className="bottom-nav">
                         <div className="flex justify-center gap-8 max-w-md mx-auto">
-                            <div onClick={() => setBottomNav('habits')} className={`bottom-nav-item ${bottomNav === 'habits' ? 'bottom-nav-active' : 'bottom-nav-inactive'}`}><span className="text-2xl">📋</span><span className="text-xs">Hábitos</span></div>
-                            <div onClick={() => setBottomNav('stats')} className={`bottom-nav-item ${bottomNav === 'stats' ? 'bottom-nav-active' : 'bottom-nav-inactive'}`}><span className="text-2xl">📊</span><span className="text-xs">Stats</span></div>
-                            <div onClick={() => setBottomNav('settings')} className={`bottom-nav-item ${bottomNav === 'settings' ? 'bottom-nav-active' : 'bottom-nav-inactive'}`}><span className="text-2xl">⚙️</span><span className="text-xs">Config</span></div>
+                            <div onClick={() => setBottomNav('habits')} className={`bottom-nav-item ${bottomNav === 'habits' ? 'bottom-nav-active' : 'bottom-nav-inactive'}`}><span className="text-2xl">📋</span><span>Hábitos</span></div>
+                            <div onClick={() => setBottomNav('settings')} className={`bottom-nav-item ${bottomNav === 'settings' ? 'bottom-nav-active' : 'bottom-nav-inactive'}`}><span className="text-2xl">⚙️</span><span>Config</span></div>
                         </div>
                     </div>
 
-                    {modalState.isOpen && <NewHabitModal isOpen={modalState.isOpen} onClose={closeNewModal} onAdd={(habit) => addHabit(modalState.personId, habit)} personName={names[modalState.personId]} />}
-                    {editModalState.isOpen && <EditHabitModal isOpen={editModalState.isOpen} onClose={closeEditModal} habit={editModalState.habit} onSave={editHabit} />}
+                    {/* Modal Novo Hábito */}
+                    {modalState.open && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setModalState({ open: false, personId: null })}>
+                            <div className="glass-effect rounded-2xl p-5 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                                <h3 className="text-xl font-bold text-primary mb-2">✨ Novo Hábito</h3>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const form = e.target;
+                                    addHabit(modalState.personId, {
+                                        title: form.title.value,
+                                        description: form.desc.value,
+                                        icon: form.icon.value,
+                                        tag: form.tag.value,
+                                        frequency: { type: form.freq.value === 'daily' ? 'daily' : 'weekly', day: parseInt(form.day?.value || 0) },
+                                        completedDates: [],
+                                        streak: 0
+                                    });
+                                    setModalState({ open: false, personId: null });
+                                }} className="space-y-3">
+                                    <div><label className="text-secondary text-xs">Ícone</label><select name="icon" className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary">{allEmojis.map(em => <option key={em} value={em}>{em}</option>)}</select></div>
+                                    <div><input name="title" placeholder="Nome" className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary" required /></div>
+                                    <div><textarea name="desc" placeholder="Descrição" rows="2" className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary"></textarea></div>
+                                    <div><select name="tag" className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary"><option value="amor">Amor</option><option value="espiritual">Espiritual</option><option value="saúde">Saúde</option></select></div>
+                                    <div><select name="freq" className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary"><option value="daily">Todo dia</option><option value="weekly">Semanal</option></select></div>
+                                    <div className="flex gap-3"><button type="button" onClick={() => setModalState({ open: false, personId: null })} className="flex-1 py-2 rounded-xl bg-[#2d2d44] text-secondary">Cancelar</button><button type="submit" className="flex-1 py-2 rounded-xl bg-green-500 text-white">Criar</button></div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Modal Editar Hábito */}
+                    {editModal.open && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setEditModal({ open: false, habit: null })}>
+                            <div className="glass-effect rounded-2xl p-5 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                                <h3 className="text-xl font-bold text-primary mb-2">✏️ Editar Hábito</h3>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    editHabit({ ...editModal.habit, title: e.target.title.value, description: e.target.desc.value, icon: e.target.icon.value, tag: e.target.tag.value });
+                                    setEditModal({ open: false, habit: null });
+                                }} className="space-y-3">
+                                    <div><label className="text-secondary text-xs">Ícone</label><select name="icon" className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary">{allEmojis.map(em => <option key={em} value={em} selected={editModal.habit?.icon === em}>{em}</option>)}</select></div>
+                                    <div><input name="title" defaultValue={editModal.habit?.title} className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary" required /></div>
+                                    <div><textarea name="desc" defaultValue={editModal.habit?.description} rows="2" className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary"></textarea></div>
+                                    <div><select name="tag" defaultValue={editModal.habit?.tag} className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary"><option value="amor">Amor</option><option value="espiritual">Espiritual</option><option value="saúde">Saúde</option></select></div>
+                                    <div className="flex gap-3"><button type="button" onClick={() => setEditModal({ open: false, habit: null })} className="flex-1 py-2 rounded-xl bg-[#2d2d44] text-secondary">Cancelar</button><button type="submit" className="flex-1 py-2 rounded-xl bg-green-500 text-white">Salvar</button></div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
 
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-    </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(function (reg) {
-                console.log('Service Worker registrado!', reg);
-            }).catch(function (err) {
-                console.log('Falha ao registrar Service Worker', err);
-            });
-        }
-        <input type="text" id="habit">
-
-            <button id="salvar">
-                Adicionar
-            </button>
-
-            <ul id="lista"></ul>
-
-            <script type="module" src="firebase.js"></script>
-    <script type="module" src="app.js"></script>
     </script>
 </body>
 

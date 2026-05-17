@@ -1,29 +1,28 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
+} from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_AUTH_DOMAIN",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_BUCKET",
-  messagingSenderId: "SEU_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyAFz57Ku9PqgZzLe9DF1CFKDGz740TvwjA",
+  authDomain: "habitflow-casal-57723.firebaseapp.com",
+  databaseURL: "https://habitflow-casal-57723-default-rtdb.firebaseio.com",
+  projectId: "habitflow-casal-57723",
+  storageBucket: "habitflow-casal-57723.firebasestorage.app",
+  messagingSenderId: "205690500990",
+  appId: "1:205690500990:web:4afcaeef3e297dc351a52f"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+import { db
+} from './firebase';
+import { ref, onValue
+} from 'firebase/database';
 
-const db = getFirestore(app);
-
-export {
-  db,
-  collection,
-  addDoc,
-  onSnapshot
-};
+const habitosRef = ref(db, 'habitos');
+onValue(habitosRef, (snapshot) => {
+  const dados = snapshot.val();
+  console.log(dados); // atualiza automaticamente quando alguém muda no banco
+});
