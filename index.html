@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     
-    <title>HabitFlow Casal - Hábitos para dois</title>
+    <title>HabitFlow Casal Cristão - Hábitos para dois</title>
     
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,41 +33,70 @@
             box-sizing: border-box;
         }
         
+        /* Tema Escuro (padrão) */
         body {
             background: #0a0a0f;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            transition: all 0.3s ease;
         }
         
+        /* Tema Claro */
         body.light-mode {
-            background: #f0f0f3;
+            background: #f5f5f5;
         }
         
-        body.light-mode .bg-zinc-900 {
+        body.light-mode .bg-dark-card {
             background: #ffffff !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
-        body.light-mode .bg-zinc-900\/50 {
-            background: rgba(255, 255, 255, 0.9) !important;
-        }
-        
-        body.light-mode .text-white {
+        body.light-mode .text-primary {
             color: #1a1a2e !important;
         }
         
-        body.light-mode .text-zinc-400 {
+        body.light-mode .text-secondary {
             color: #6b6b7a !important;
         }
         
-        body.light-mode .border-zinc-800 {
+        body.light-mode .border-primary {
             border-color: #e0e0e8 !important;
         }
         
-        body.light-mode .bg-zinc-800 {
-            background: #f0f0f5 !important;
+        body.light-mode .bg-dark-bg {
+            background: #f5f5f5 !important;
         }
         
-        body.light-mode .bg-zinc-800\/50 {
-            background: rgba(240, 240, 245, 0.8) !important;
+        body.light-mode .bg-card {
+            background: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        body.light-mode .glass-effect {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+        
+        body.light-mode .tab-inactive {
+            background: #e8e8f0 !important;
+            color: #6b6b7a !important;
+        }
+        
+        body.light-mode .check-button-pending {
+            background: #e8e8f0 !important;
+            border-color: #d0d0d8 !important;
+            color: #a0a0a8 !important;
+        }
+        
+        body.light-mode .week-day:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        body.light-mode .bottom-nav {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border-top-color: #e0e0e8 !important;
+        }
+        
+        body.light-mode .bg-gradient-bg {
+            background: #f5f5f5 !important;
         }
         
         ::-webkit-scrollbar {
@@ -78,9 +107,17 @@
             background: #1a1a2e;
         }
         
+        body.light-mode ::-webkit-scrollbar-track {
+            background: #e0e0e8;
+        }
+        
         ::-webkit-scrollbar-thumb {
             background: #2d2d44;
             border-radius: 9999px;
+        }
+        
+        body.light-mode ::-webkit-scrollbar-thumb {
+            background: #c0c0c8;
         }
         
         @keyframes fadeIn {
@@ -222,6 +259,10 @@
             color: white;
         }
         
+        body.light-mode .week-day-completed::after {
+            color: #059669;
+        }
+        
         .couple-name-highlight {
             background: linear-gradient(135deg, #10b981, #34d399);
             -webkit-background-clip: text;
@@ -253,8 +294,8 @@
         .switch {
             position: relative;
             display: inline-block;
-            width: 48px;
-            height: 24px;
+            width: 52px;
+            height: 28px;
         }
         
         .switch input {
@@ -277,14 +318,18 @@
         
         .slider:before {
             position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
+            content: "🌙";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px;
+            width: 24px;
+            left: 2px;
+            bottom: 2px;
             background-color: white;
             transition: 0.3s;
             border-radius: 50%;
+            font-size: 12px;
         }
         
         input:checked + .slider {
@@ -293,9 +338,10 @@
         
         input:checked + .slider:before {
             transform: translateX(24px);
+            content: "☀️";
         }
         
-        .text-better {
+        .text-primary {
             color: #e8e8f0;
         }
         
@@ -308,7 +354,7 @@
             backdrop-filter: blur(10px);
         }
         
-        .border-better {
+        .border-primary {
             border-color: #2d2d44;
         }
         
@@ -320,6 +366,11 @@
         .install-button:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .glass-effect {
+            background: rgba(20, 20, 35, 0.8);
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
@@ -427,18 +478,35 @@
             return { level, nextLevel, progress: (totalCompletions % 30) * 3.33 };
         };
         
-        // Dados iniciais (sem meta mensal)
+        // Lista completa de hábitos para casal cristão
+        const coupleHabits = [
+            { title: 'Elogiar o parceiro', description: 'Diga algo positivo sobre seu cônjuge', icon: '❤️', color: '#ef4444', tag: 'amor', frequency: { type: 'daily' } },
+            { title: 'Conversar sem celular', description: 'Momento de qualidade sem distrações', icon: '💬', color: '#3b82f6', tag: 'comunicação', frequency: { type: 'daily' } },
+            { title: 'Gratidão diária', description: 'Agradecer a Deus pelo dia', icon: '🙏', color: '#8b5cf6', tag: 'espiritual', frequency: { type: 'daily' } },
+            { title: 'Mensagem carinhosa', description: 'Enviar mensagem durante o dia', icon: '💌', color: '#ec4899', tag: 'amor', frequency: { type: 'daily' } },
+            { title: 'Tempo de qualidade', description: 'Dedicar tempo exclusivo para o casal', icon: '💑', color: '#f59e0b', tag: 'relacionamento', frequency: { type: 'daily' } },
+            { title: 'Check-in emocional', description: 'Perguntar como o outro está se sentindo', icon: '🧠', color: '#14b8a6', tag: 'comunicação', frequency: { type: 'daily' } },
+            { title: 'Exercício físico', description: 'Praticar atividade física', icon: '🏃', color: '#22c55e', tag: 'saúde', frequency: { type: 'daily' } },
+            { title: 'Dormir bem', description: '7-8 horas de sono', icon: '😴', color: '#6366f1', tag: 'saúde', frequency: { type: 'daily' } },
+            { title: 'Fazer refeições juntos', description: 'Compartilhar momentos à mesa', icon: '🍽️', color: '#f97316', tag: 'relacionamento', frequency: { type: 'daily' } },
+            { title: 'Planejamento financeiro', description: 'Organizar finanças do casal', icon: '💰', color: '#10b981', tag: 'finanças', frequency: { type: 'weekly', day: 1 } },
+            { title: 'Definir metas do casal', description: 'Traçar objetivos juntos', icon: '🎯', color: '#eab308', tag: 'crescimento', frequency: { type: 'weekly', day: 0 } },
+            { title: 'Caminhada juntos', description: 'Caminhar ao ar livre', icon: '🚶', color: '#06b6d4', tag: 'saúde', frequency: { type: 'custom', interval: 2 } },
+            { title: 'Tempo offline', description: 'Desconectar das telas', icon: '📵', color: '#64748b', tag: 'desconexão', frequency: { type: 'custom', interval: 3 } },
+            { title: 'Resolver conflitos rapidamente', description: 'Não deixar para depois', icon: '🤝', color: '#a855f7', tag: 'comunicação', frequency: { type: 'daily' } },
+            { title: 'Demonstrar carinho físico', description: 'Abraços, beijos, toques', icon: '💖', color: '#f43f5e', tag: 'amor', frequency: { type: 'daily' } },
+            { title: 'Celebrar pequenas conquistas', description: 'Comemorar as vitórias do casal', icon: '🎉', color: '#f59e0b', tag: 'celebração', frequency: { type: 'weekly', day: 5 } },
+            { title: 'Oração juntos', description: 'Orar em casal', icon: '✝️', color: '#8b5cf6', tag: 'espiritual', frequency: { type: 'daily' } },
+            { title: 'Ler a Bíblia', description: 'Devocional diário', icon: '📖', color: '#a855f7', tag: 'espiritual', frequency: { type: 'daily' } },
+            { title: 'Servir ao próximo', description: 'Ajudar alguém necessitado', icon: '🤲', color: '#10b981', tag: 'espiritual', frequency: { type: 'weekly', day: 6 } },
+            { title: 'Fazer surpresa', description: 'Uma pequena surpresa ao parceiro', icon: '🎁', color: '#ec4899', tag: 'amor', frequency: { type: 'custom', interval: 7 } }
+        ];
+        
+        // Dados iniciais
         const getInitialHabits = (personId) => {
-            const allHabits = [
-                { title: 'Beber Água', description: '2 litros de água', icon: '💧', color: '#3b82f6', tag: 'saúde', frequency: { type: 'daily' } },
-                { title: 'Meditar', description: '10 minutos', icon: '🧘', color: '#8b5cf6', tag: 'bem-estar', frequency: { type: 'daily' } },
-                { title: 'Ler', description: '20 páginas', icon: '📚', color: '#f59e0b', tag: 'aprendizado', frequency: { type: 'weekly', day: new Date().getDay() } },
-                { title: 'Exercitar', description: '30 minutos', icon: '🏃', color: '#ef4444', tag: 'saúde', frequency: { type: 'custom', interval: 2 } }
-            ];
-            
             const getRandomCompletedDates = () => {
                 const dates = [getToday()];
-                for (let i = 1; i <= Math.floor(Math.random() * 8) + 3; i++) {
+                for (let i = 1; i <= Math.floor(Math.random() * 15) + 5; i++) {
                     const date = new Date();
                     date.setDate(date.getDate() - i);
                     if (Math.random() > 0.3) dates.push(date.toISOString().split('T')[0]);
@@ -446,7 +514,7 @@
                 return dates;
             };
             
-            return allHabits.map((habit, index) => ({
+            return coupleHabits.map((habit, index) => ({
                 id: `${personId}_${index}`,
                 title: habit.title,
                 description: habit.description,
@@ -454,12 +522,20 @@
                 icon: habit.icon,
                 color: habit.color,
                 tag: habit.tag,
-                streak: Math.floor(Math.random() * 10) + 1,
+                streak: Math.floor(Math.random() * 15) + 1,
                 order: index,
                 frequency: habit.frequency,
                 createdAt: new Date().toISOString()
             }));
         };
+        
+        // Lista de todos os emojis disponíveis para criar hábitos
+        const allEmojis = [
+            '❤️', '💬', '🙏', '💌', '💑', '🧠', '🏃', '😴', '🍽️', '💰', '🎯', '🚶', '📵', '🤝', '💖', '🎉', '✝️', '📖', '🤲', '🎁',
+            '💪', '💧', '📚', '🧘', '🥗', '😌', '🎨', '🎵', '📝', '🌟', '⭐', '🔥', '💎', '🌹', '🌸', '🌺', '🕊️', '⛪', '✨', '⭐',
+            '🏠', '🚗', '✈️', '🎬', '🍿', '☕', '🍵', '🍲', '🍜', '🍝', '🍰', '🍪', '🍩', '🍎', '🍊', '🍋', '🍉', '🍇', '🥑', '🥝',
+            '🎄', '🎃', '🎂', '🎈', '🎊', '🎀', '🎁', '🏆', '🥇', '🥈', '🥉', '🎖️', '🏅', '🎭', '🎪', '🎨', '🎼', '🎹', '🎸', '🎧'
+        ];
         
         // Componente de Calendário Semanal
         const WeekCalendar = ({ selectedDate, onDateSelect, habits }) => {
@@ -480,7 +556,7 @@
             };
             
             return (
-                <div className="bg-card border border-better rounded-2xl p-3">
+                <div className="bg-card border border-primary rounded-2xl p-3">
                     <div className="week-calendar">
                         {weekDays.map((day, idx) => {
                             const isSelected = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
@@ -494,7 +570,7 @@
                                     className={`week-day ${isSelected ? 'week-day-selected' : ''} ${hasCompletions ? 'week-day-completed' : ''}`}
                                 >
                                     <div className="text-xs font-medium">{formatDayName(day)}</div>
-                                    <div className={`text-lg font-bold ${isCurrentDay && !isSelected ? 'text-green-400' : 'text-better'}`}>{day.getDate()}</div>
+                                    <div className={`text-lg font-bold ${isCurrentDay && !isSelected ? 'text-green-400' : 'text-primary'}`}>{day.getDate()}</div>
                                 </div>
                             );
                         })}
@@ -512,13 +588,14 @@
                 if (chartRef.current) {
                     if (chartInstance.current) chartInstance.current.destroy();
                     const dateRange = getDateRange(period);
-                    const categories = ['Saúde', 'Bem-estar', 'Aprendizado', 'Lazer'];
+                    const categories = ['Amor', 'Comunicação', 'Espiritual', 'Saúde', 'Finanças'];
                     const categoryData = categories.map(cat => {
                         const catHabits = habits.filter(h => {
+                            if (cat === 'Amor') return h.tag === 'amor';
+                            if (cat === 'Comunicação') return h.tag === 'comunicação';
+                            if (cat === 'Espiritual') return h.tag === 'espiritual';
                             if (cat === 'Saúde') return h.tag === 'saúde';
-                            if (cat === 'Bem-estar') return h.tag === 'bem-estar';
-                            if (cat === 'Aprendizado') return h.tag === 'aprendizado';
-                            if (cat === 'Lazer') return h.tag === 'lazer';
+                            if (cat === 'Finanças') return h.tag === 'finanças';
                             return false;
                         });
                         let totalCompletions = 0;
@@ -537,10 +614,10 @@
                 }
                 return () => { if (chartInstance.current) chartInstance.current.destroy(); };
             }, [habits, period]);
-            return (<div className="bg-card border border-better rounded-2xl p-4"><h3 className="text-sm font-semibold text-better mb-3">📡 Radar por Categoria</h3><div style={{ height: '250px' }}><canvas ref={chartRef}></canvas></div></div>);
+            return (<div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-sm font-semibold text-primary mb-3">📡 Radar por Categoria</h3><div style={{ height: '250px' }}><canvas ref={chartRef}></canvas></div></div>);
         };
         
-        // Gráfico Mensal (ajustado sem targetDays)
+        // Gráfico Mensal
         const MonthlyCompletionChart = ({ habits }) => {
             const chartRef = React.useRef(null);
             const chartInstance = React.useRef(null);
@@ -558,8 +635,7 @@
                             const completionsInMonth = habit.completedDates?.filter(d => new Date(d).getMonth() === monthNum).length || 0;
                             totalCompletions += completionsInMonth;
                         });
-                        const avgPerHabit = habits.length > 0 ? totalCompletions / habits.length : 0;
-                        return avgPerHabit;
+                        return habits.length > 0 ? totalCompletions / habits.length : 0;
                     });
                     chartInstance.current = new Chart(chartRef.current, {
                         type: 'bar',
@@ -569,10 +645,10 @@
                 }
                 return () => { if (chartInstance.current) chartInstance.current.destroy(); };
             }, [habits]);
-            return (<div className="bg-card border border-better rounded-2xl p-4"><h3 className="text-sm font-semibold text-better mb-3">📅 Média de Conclusões por Mês</h3><div style={{ height: '220px' }}><canvas ref={chartRef}></canvas></div></div>);
+            return (<div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-sm font-semibold text-primary mb-3">📅 Média de Conclusões por Mês</h3><div style={{ height: '220px' }}><canvas ref={chartRef}></canvas></div></div>);
         };
         
-        // Componente HabitCard (sem meta mensal)
+        // Componente HabitCard
         const HabitCard = ({ habit, onToggle, onEdit, onDelete, selectedDate }) => {
             const dateToCheck = selectedDate ? selectedDate.toISOString().split('T')[0] : getToday();
             const completedOnDate = habit.completedDates?.includes(dateToCheck) || false;
@@ -603,13 +679,13 @@
             
             return (
                 <>
-                    <div className="bg-card border border-better rounded-2xl p-3 hover:border-green-500/30 transition-all duration-300">
+                    <div className="bg-card border border-primary rounded-2xl p-3 hover:border-green-500/30 transition-all duration-300">
                         <div className="flex items-start gap-3">
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
                                     <span className="text-2xl">{habit.icon}</span>
                                     <div className="flex-1">
-                                        <h3 className="text-better font-semibold text-sm">{habit.title}</h3>
+                                        <h3 className="text-primary font-semibold text-sm">{habit.title}</h3>
                                         <p className="text-secondary text-xs">{getFrequencyText()}</p>
                                     </div>
                                 </div>
@@ -618,9 +694,12 @@
                                     <span className="text-secondary text-xs">✅ {habit.completedDates?.length || 0} total</span>
                                     <span className="text-xs text-green-400">{habit.tag}</span>
                                 </div>
+                                {habit.description && (
+                                    <p className="text-secondary text-xs mt-1">{habit.description}</p>
+                                )}
                             </div>
                             <div className="flex flex-col items-center gap-2">
-                                <button onClick={handleMenuClick} className="text-secondary hover:text-better p-1 rounded-lg text-xl">⋮</button>
+                                <button onClick={handleMenuClick} className="text-secondary hover:text-primary p-1 rounded-lg text-xl">⋮</button>
                                 <button onClick={() => onToggle(habit.id, dateToCheck)} className={`check-button ${completedOnDate ? 'check-button-completed' : 'check-button-pending'}`} style={{ width: '40px', height: '40px', fontSize: '20px' }}>
                                     {completedOnDate ? '✓' : '○'}
                                 </button>
@@ -630,7 +709,7 @@
                     
                     {showMenu && (
                         <div className="fixed bg-[#1a1a2e] border border-[#2d2d44] rounded-xl p-2 z-50 shadow-xl" style={{ top: menuPosition.y - 60, left: menuPosition.x - 120 }}>
-                            <div className="px-3 py-2 rounded-lg hover:bg-[#2d2d44] cursor-pointer transition flex items-center gap-2 text-better" onClick={() => { onEdit(habit); setShowMenu(false); }}>✏️ Editar Hábito</div>
+                            <div className="px-3 py-2 rounded-lg hover:bg-[#2d2d44] cursor-pointer transition flex items-center gap-2 text-primary" onClick={() => { onEdit(habit); setShowMenu(false); }}>✏️ Editar Hábito</div>
                             <div className="px-3 py-2 rounded-lg hover:bg-red-500/20 cursor-pointer transition flex items-center gap-2 text-red-400" onClick={() => { if (confirm(`Deletar "${habit.title}"?`)) onDelete(habit.id); setShowMenu(false); }}>🗑️ Deletar Hábito</div>
                         </div>
                     )}
@@ -638,26 +717,25 @@
             );
         };
         
-        // Modal de Edição de Hábito (sem meta mensal)
+        // Modal de Edição de Hábito
         const EditHabitModal = ({ isOpen, onClose, habit, onSave }) => {
             const [title, setTitle] = React.useState('');
             const [description, setDescription] = React.useState('');
-            const [icon, setIcon] = React.useState('💪');
-            const [tag, setTag] = React.useState('saúde');
+            const [icon, setIcon] = React.useState('❤️');
+            const [tag, setTag] = React.useState('amor');
             const [frequencyType, setFrequencyType] = React.useState('daily');
             const [weeklyDay, setWeeklyDay] = React.useState(0);
             const [customInterval, setCustomInterval] = React.useState(2);
             
-            const icons = ['💪', '💧', '📚', '🏃', '🧘', '🥗', '😴', '🎯', '💻', '🎨', '📝', '🚶'];
-            const tags = ['saúde', 'bem-estar', 'aprendizado', 'lazer', 'trabalho'];
+            const tags = ['amor', 'comunicação', 'espiritual', 'saúde', 'finanças', 'relacionamento', 'crescimento', 'desconexão', 'celebração'];
             const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
             
             React.useEffect(() => {
                 if (habit) {
                     setTitle(habit.title || '');
                     setDescription(habit.description || '');
-                    setIcon(habit.icon || '💪');
-                    setTag(habit.tag || 'saúde');
+                    setIcon(habit.icon || '❤️');
+                    setTag(habit.tag || 'amor');
                     if (habit.frequency) {
                         setFrequencyType(habit.frequency.type);
                         if (habit.frequency.type === 'weekly') setWeeklyDay(habit.frequency.day || 0);
@@ -682,17 +760,17 @@
             
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-                    <div className="bg-[#1a1a2e] rounded-2xl p-5 max-w-md w-full border border-[#2d2d44] animate-fade-in">
-                        <h3 className="text-xl font-bold text-better mb-2">✏️ Editar Hábito</h3>
+                    <div className="glass-effect rounded-2xl p-5 max-w-md w-full border border-primary animate-fade-in">
+                        <h3 className="text-xl font-bold text-primary mb-2">✏️ Editar Hábito</h3>
                         <form onSubmit={handleSubmit} className="space-y-3">
-                            <div><label className="text-secondary text-xs">Ícone</label><div className="flex gap-1.5 flex-wrap">{icons.map(ic => (<button key={ic} type="button" onClick={() => setIcon(ic)} className={`text-xl p-1.5 rounded-lg ${icon === ic ? 'bg-green-500/20 border border-green-500/30' : 'bg-[#2d2d44]'}`}>{ic}</button>))}</div></div>
-                            <div><label className="text-secondary text-xs">Nome</label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-better text-sm focus:outline-none focus:border-green-500" required /></div>
-                            <div><label className="text-secondary text-xs">Descrição</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="2" className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-better text-sm" /></div>
-                            <div><label className="text-secondary text-xs">Categoria</label><select value={tag} onChange={(e) => setTag(e.target.value)} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-better text-sm">{tags.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                            <div><label className="text-secondary text-xs">Ícone</label><div className="flex gap-1.5 flex-wrap max-h-32 overflow-y-auto p-2 bg-[#2d2d44]/30 rounded-xl">{allEmojis.map(em => (<button key={em} type="button" onClick={() => setIcon(em)} className={`text-xl p-1.5 rounded-lg ${icon === em ? 'bg-green-500/20 border border-green-500/30' : 'bg-[#2d2d44]'}`}>{em}</button>))}</div></div>
+                            <div><label className="text-secondary text-xs">Nome</label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm focus:outline-none focus:border-green-500" required /></div>
+                            <div><label className="text-secondary text-xs">Descrição</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="2" className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm" /></div>
+                            <div><label className="text-secondary text-xs">Categoria</label><select value={tag} onChange={(e) => setTag(e.target.value)} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm">{tags.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
                             <div><label className="text-secondary text-xs">Frequência</label>
                                 <div className="flex gap-2 mb-2"><button type="button" onClick={() => setFrequencyType('daily')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'daily' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>📅 Todo dia</button><button type="button" onClick={() => setFrequencyType('weekly')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'weekly' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>📆 Semanal</button><button type="button" onClick={() => setFrequencyType('custom')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'custom' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>🔄 Personalizado</button></div>
-                                {frequencyType === 'weekly' && (<select value={weeklyDay} onChange={(e) => setWeeklyDay(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-better text-sm">{weekDays.map((d, i) => <option key={i} value={i}>{d}</option>)}</select>)}
-                                {frequencyType === 'custom' && (<div className="flex items-center gap-2"><span className="text-secondary text-sm">A cada</span><input type="number" min="1" max="30" value={customInterval} onChange={(e) => setCustomInterval(Number(e.target.value))} className="w-20 p-2 rounded-xl bg-[#2d2d44] text-better text-center" /><span className="text-secondary text-sm">dias</span></div>)}
+                                {frequencyType === 'weekly' && (<select value={weeklyDay} onChange={(e) => setWeeklyDay(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm">{weekDays.map((d, i) => <option key={i} value={i}>{d}</option>)}</select>)}
+                                {frequencyType === 'custom' && (<div className="flex items-center gap-2"><span className="text-secondary text-sm">A cada</span><input type="number" min="1" max="30" value={customInterval} onChange={(e) => setCustomInterval(Number(e.target.value))} className="w-20 p-2 rounded-xl bg-[#2d2d44] text-primary text-center" /><span className="text-secondary text-sm">dias</span></div>)}
                             </div>
                             <div className="flex gap-3 pt-2"><button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl bg-[#2d2d44] text-secondary">Cancelar</button><button type="submit" className="flex-1 py-2 rounded-xl bg-green-500 text-white font-semibold">Salvar</button></div>
                         </form>
@@ -701,18 +779,17 @@
             );
         };
         
-        // Modal de Novo Hábito (sem meta mensal)
+        // Modal de Novo Hábito
         const NewHabitModal = ({ isOpen, onClose, onAdd, personName }) => {
             const [title, setTitle] = React.useState('');
             const [description, setDescription] = React.useState('');
-            const [icon, setIcon] = React.useState('💪');
-            const [tag, setTag] = React.useState('saúde');
+            const [icon, setIcon] = React.useState('❤️');
+            const [tag, setTag] = React.useState('amor');
             const [frequencyType, setFrequencyType] = React.useState('daily');
             const [weeklyDay, setWeeklyDay] = React.useState(new Date().getDay());
             const [customInterval, setCustomInterval] = React.useState(2);
             
-            const icons = ['💪', '💧', '📚', '🏃', '🧘', '🥗', '😴', '🎯', '💻', '🎨', '📝', '🚶'];
-            const tags = ['saúde', 'bem-estar', 'aprendizado', 'lazer', 'trabalho'];
+            const tags = ['amor', 'comunicação', 'espiritual', 'saúde', 'finanças', 'relacionamento', 'crescimento', 'desconexão', 'celebração'];
             const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
             
             if (!isOpen) return null;
@@ -737,26 +814,26 @@
                 });
                 setTitle('');
                 setDescription('');
-                setIcon('💪');
-                setTag('saúde');
+                setIcon('❤️');
+                setTag('amor');
                 setFrequencyType('daily');
                 onClose();
             };
             
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-                    <div className="bg-[#1a1a2e] rounded-2xl p-5 max-w-md w-full border border-[#2d2d44] animate-fade-in">
-                        <h3 className="text-xl font-bold text-better mb-1">✨ Novo Hábito</h3>
+                    <div className="glass-effect rounded-2xl p-5 max-w-md w-full border border-primary animate-fade-in">
+                        <h3 className="text-xl font-bold text-primary mb-1">✨ Novo Hábito</h3>
                         <p className="text-secondary text-xs mb-4">para {personName}</p>
                         <form onSubmit={handleSubmit} className="space-y-3">
-                            <div><label className="text-secondary text-xs">Ícone</label><div className="flex gap-1.5 flex-wrap">{icons.map(ic => (<button key={ic} type="button" onClick={() => setIcon(ic)} className={`text-xl p-1.5 rounded-lg ${icon === ic ? 'bg-green-500/20 border border-green-500/30' : 'bg-[#2d2d44]'}`}>{ic}</button>))}</div></div>
-                            <div><label className="text-secondary text-xs">Nome</label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Beber água" className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-better text-sm focus:outline-none focus:border-green-500" required /></div>
-                            <div><label className="text-secondary text-xs">Descrição (opcional)</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descreva seu hábito..." rows="2" className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-better text-sm" /></div>
-                            <div><label className="text-secondary text-xs">Categoria</label><select value={tag} onChange={(e) => setTag(e.target.value)} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-better text-sm">{tags.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                            <div><label className="text-secondary text-xs">Ícone (clique para escolher)</label><div className="flex gap-1.5 flex-wrap max-h-32 overflow-y-auto p-2 bg-[#2d2d44]/30 rounded-xl">{allEmojis.map(em => (<button key={em} type="button" onClick={() => setIcon(em)} className={`text-xl p-1.5 rounded-lg ${icon === em ? 'bg-green-500/20 border border-green-500/30' : 'bg-[#2d2d44]'}`}>{em}</button>))}</div></div>
+                            <div><label className="text-secondary text-xs">Nome</label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Elogiar o parceiro" className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm focus:outline-none focus:border-green-500" required /></div>
+                            <div><label className="text-secondary text-xs">Descrição (opcional)</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descreva seu hábito..." rows="2" className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm" /></div>
+                            <div><label className="text-secondary text-xs">Categoria</label><select value={tag} onChange={(e) => setTag(e.target.value)} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm">{tags.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
                             <div><label className="text-secondary text-xs">Frequência</label>
                                 <div className="flex gap-2 mb-2"><button type="button" onClick={() => setFrequencyType('daily')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'daily' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>📅 Todo dia</button><button type="button" onClick={() => setFrequencyType('weekly')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'weekly' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>📆 Semanal</button><button type="button" onClick={() => setFrequencyType('custom')} className={`flex-1 py-2 rounded-xl text-sm ${frequencyType === 'custom' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>🔄 Personalizado</button></div>
-                                {frequencyType === 'weekly' && (<select value={weeklyDay} onChange={(e) => setWeeklyDay(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-better text-sm">{weekDays.map((d, i) => <option key={i} value={i}>{d}</option>)}</select>)}
-                                {frequencyType === 'custom' && (<div className="flex items-center gap-2"><span className="text-secondary text-sm">A cada</span><input type="number" min="1" max="30" value={customInterval} onChange={(e) => setCustomInterval(Number(e.target.value))} className="w-20 p-2 rounded-xl bg-[#2d2d44] text-better text-center" /><span className="text-secondary text-sm">dias</span></div>)}
+                                {frequencyType === 'weekly' && (<select value={weeklyDay} onChange={(e) => setWeeklyDay(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-primary text-sm">{weekDays.map((d, i) => <option key={i} value={i}>{d}</option>)}</select>)}
+                                {frequencyType === 'custom' && (<div className="flex items-center gap-2"><span className="text-secondary text-sm">A cada</span><input type="number" min="1" max="30" value={customInterval} onChange={(e) => setCustomInterval(Number(e.target.value))} className="w-20 p-2 rounded-xl bg-[#2d2d44] text-primary text-center" /><span className="text-secondary text-sm">dias</span></div>)}
                             </div>
                             <div className="flex gap-3 pt-2"><button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl bg-[#2d2d44] text-secondary">Cancelar</button><button type="submit" className="flex-1 py-2 rounded-xl bg-green-500 text-white font-semibold">Criar</button></div>
                         </form>
@@ -783,20 +860,20 @@
             
             return (
                 <div className="space-y-4 pb-20">
-                    <div className="bg-card border border-better rounded-2xl p-4"><h3 className="text-better font-semibold text-sm mb-3">👤 Perfil</h3><div className="space-y-3"><div><label className="text-secondary text-xs">Nome</label><div className="flex gap-2"><input type="text" value={localName} onChange={(e) => setLocalName(e.target.value)} className="flex-1 p-2 rounded-xl bg-[#2d2d44] text-better text-sm" /><button onClick={handleSaveName} className="px-4 py-2 bg-green-500 rounded-xl text-white text-sm">Salvar</button></div></div></div></div>
+                    <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">👤 Perfil</h3><div className="space-y-3"><div><label className="text-secondary text-xs">Nome</label><div className="flex gap-2"><input type="text" value={localName} onChange={(e) => setLocalName(e.target.value)} className="flex-1 p-2 rounded-xl bg-[#2d2d44] text-primary text-sm" /><button onClick={handleSaveName} className="px-4 py-2 bg-green-500 rounded-xl text-white text-sm">Salvar</button></div></div></div></div>
                     
-                    <div className="bg-card border border-better rounded-2xl p-4"><h3 className="text-better font-semibold text-sm mb-3">🎨 Aparência</h3><div className="flex items-center justify-between"><span className="text-secondary text-sm">Modo Escuro</span><label className="switch"><input type="checkbox" checked={currentTheme === 'dark'} onChange={() => onUpdateTheme(currentTheme === 'dark' ? 'light' : 'dark')} /><span className="slider"></span></label></div></div>
+                    <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">🎨 Aparência</h3><div className="flex items-center justify-between"><span className="text-secondary text-sm">Tema {currentTheme === 'dark' ? 'Escuro' : 'Claro'}</span><label className="switch"><input type="checkbox" checked={currentTheme === 'light'} onChange={() => onUpdateTheme(currentTheme === 'dark' ? 'light' : 'dark')} /><span className="slider"></span></label></div></div>
                     
-                    <div className="bg-card border border-better rounded-2xl p-4"><h3 className="text-better font-semibold text-sm mb-3">🏷️ Filtrar por Tag</h3><div className="flex gap-2 flex-wrap">{tags.map(tag => (<button key={tag} onClick={() => setSelectedTag(tag)} className={`px-3 py-1.5 rounded-xl text-xs ${selectedTag === tag ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>{tag}</button>))}</div><div className="mt-3 space-y-1">{filteredHabits.map(habit => (<div key={habit.id} className="flex items-center gap-2 text-sm"><span>{habit.icon}</span><span className="text-better flex-1">{habit.title}</span><span className="text-secondary text-xs">{habit.tag}</span></div>))}</div></div>
+                    <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">🏷️ Filtrar por Tag</h3><div className="flex gap-2 flex-wrap">{tags.map(tag => (<button key={tag} onClick={() => setSelectedTag(tag)} className={`px-3 py-1.5 rounded-xl text-xs ${selectedTag === tag ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>{tag}</button>))}</div><div className="mt-3 space-y-1">{filteredHabits.map(habit => (<div key={habit.id} className="flex items-center gap-2 text-sm"><span>{habit.icon}</span><span className="text-primary flex-1">{habit.title}</span><span className="text-secondary text-xs">{habit.tag}</span></div>))}</div></div>
                     
-                    <div className="bg-card border border-better rounded-2xl p-4"><h3 className="text-better font-semibold text-sm mb-3">🔄 Reordenar Hábitos</h3>{!showReorder ? (<button onClick={() => { setShowReorder(true); setReorderedHabits([...habits]); }} className="w-full py-2 bg-[#2d2d44] rounded-xl text-better text-sm">Reordenar Lista</button>) : (<div className="space-y-2">{reorderedHabits.map((habit, idx) => (<div key={habit.id} className="flex items-center gap-2 p-2 bg-[#2d2d44]/50 rounded-xl"><span className="cursor-grab text-secondary">⋮⋮</span><span>{habit.icon}</span><span className="text-better flex-1 text-sm">{habit.title}</span><div className="flex gap-1">{idx > 0 && <button onClick={() => moveHabit(idx, idx-1)} className="px-2 py-1 bg-[#2d2d44] rounded-lg text-better text-xs">↑</button>}{idx < reorderedHabits.length-1 && <button onClick={() => moveHabit(idx, idx+1)} className="px-2 py-1 bg-[#2d2d44] rounded-lg text-better text-xs">↓</button>}</div></div>))}<div className="flex gap-2 mt-3"><button onClick={() => setShowReorder(false)} className="flex-1 py-2 bg-[#2d2d44] rounded-xl text-secondary">Cancelar</button><button onClick={handleSaveOrder} className="flex-1 py-2 bg-green-500 rounded-xl text-white font-semibold">Salvar</button></div></div>)}</div>
+                    <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold text-sm mb-3">🔄 Reordenar Hábitos</h3>{!showReorder ? (<button onClick={() => { setShowReorder(true); setReorderedHabits([...habits]); }} className="w-full py-2 bg-[#2d2d44] rounded-xl text-primary text-sm">Reordenar Lista</button>) : (<div className="space-y-2">{reorderedHabits.map((habit, idx) => (<div key={habit.id} className="flex items-center gap-2 p-2 bg-[#2d2d44]/50 rounded-xl"><span className="cursor-grab text-secondary">⋮⋮</span><span>{habit.icon}</span><span className="text-primary flex-1 text-sm">{habit.title}</span><div className="flex gap-1">{idx > 0 && <button onClick={() => moveHabit(idx, idx-1)} className="px-2 py-1 bg-[#2d2d44] rounded-lg text-primary text-xs">↑</button>}{idx < reorderedHabits.length-1 && <button onClick={() => moveHabit(idx, idx+1)} className="px-2 py-1 bg-[#2d2d44] rounded-lg text-primary text-xs">↓</button>}</div></div>))}<div className="flex gap-2 mt-3"><button onClick={() => setShowReorder(false)} className="flex-1 py-2 bg-[#2d2d44] rounded-xl text-secondary">Cancelar</button><button onClick={handleSaveOrder} className="flex-1 py-2 bg-green-500 rounded-xl text-white font-semibold">Salvar</button></div></div>)}</div>
                     
                     <div className="bg-card border border-red-500/30 rounded-2xl p-4"><h3 className="text-red-400 font-semibold text-sm mb-3">⚠️ Zona de Perigo</h3><button onClick={handleResetAllStats} className="w-full py-2 bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 text-sm">Zerar Todas as Estatísticas</button></div>
                 </div>
             );
         };
         
-        // Estatísticas (ajustada sem targetDays)
+        // Estatísticas
         const StatisticsView = ({ habits, personName }) => {
             const [period, setPeriod] = React.useState('week');
             const totalCompletions = habits.reduce((acc, h) => acc + (h.completedDates?.length || 0), 0);
@@ -811,17 +888,17 @@
             return (
                 <div className="space-y-4 pb-20">
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-card border border-better rounded-2xl p-3"><p className="text-secondary text-xs">Total</p><p className="text-xl font-bold text-better">{totalCompletions}</p></div>
-                        <div className="bg-card border border-better rounded-2xl p-3"><p className="text-secondary text-xs">Streak</p><p className="text-xl font-bold text-better">{totalStreak}</p></div>
-                        <div className="bg-card border border-better rounded-2xl p-3"><p className="text-secondary text-xs">Média</p><p className="text-xl font-bold text-better">{(totalCompletions/habits.length).toFixed(1)}</p></div>
-                        <div className="bg-card border border-better rounded-2xl p-3"><p className="text-secondary text-xs">Nível</p><p className="text-xl font-bold text-better">{level.level}</p></div>
+                        <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Total</p><p className="text-xl font-bold text-primary">{totalCompletions}</p><p className="text-secondary text-xs">hábitos concluídos</p></div>
+                        <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Streak Total</p><p className="text-xl font-bold text-primary">{totalStreak}</p><p className="text-secondary text-xs">dias acumulados</p></div>
+                        <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Média</p><p className="text-xl font-bold text-primary">{(totalCompletions/habits.length).toFixed(1)}</p><p className="text-secondary text-xs">por hábito</p></div>
+                        <div className="bg-card border border-primary rounded-2xl p-3"><p className="text-secondary text-xs">Nível</p><p className="text-xl font-bold text-primary">{level.level}</p><p className="text-secondary text-xs">+{level.nextLevel} para prox</p></div>
                     </div>
                     
-                    {bestHabit && (<div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-3 border border-green-500/30"><p className="text-secondary text-xs">🏅 Melhor Hábito</p><div className="flex items-center justify-between"><div className="flex items-center gap-2"><span className="text-2xl">{bestHabit.icon}</span><div><p className="text-better font-semibold text-sm">{bestHabit.title}</p><p className="text-green-400 text-xs">🔥 {bestHabit.streak} dias</p></div></div><div><span className="text-green-400 font-bold">{bestHabit.completedDates?.length||0}</span><span className="text-secondary text-xs"> total</span></div></div></div>)}
+                    {bestHabit && (<div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-3 border border-green-500/30"><p className="text-secondary text-xs">🏅 Melhor Hábito</p><div className="flex items-center justify-between"><div className="flex items-center gap-2"><span className="text-2xl">{bestHabit.icon}</span><div><p className="text-primary font-semibold text-sm">{bestHabit.title}</p><p className="text-green-400 text-xs">🔥 {bestHabit.streak} dias</p></div></div><div><span className="text-green-400 font-bold">{bestHabit.completedDates?.length||0}</span><span className="text-secondary text-xs"> total</span></div></div></div>)}
                     
-                    <div className="flex gap-2"><button onClick={() => setPeriod('week')} className={`flex-1 py-2 rounded-xl text-sm ${period === 'week' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>Semana</button><button onClick={() => setPeriod('month')} className={`flex-1 py-2 rounded-xl text-sm ${period === 'month' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>Mês</button></div>
+                    <div className="flex gap-2"><button onClick={() => setPeriod('week')} className={`flex-1 py-2 rounded-xl text-sm ${period === 'week' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>Esta Semana</button><button onClick={() => setPeriod('month')} className={`flex-1 py-2 rounded-xl text-sm ${period === 'month' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>Este Mês</button></div>
                     
-                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-4"><p className="text-secondary text-xs">Média por dia</p><p className="text-2xl font-bold text-better">{avgPerDay}</p><p className="text-secondary text-xs">hábitos/dia neste período</p></div>
+                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-4"><p className="text-secondary text-xs">Média por dia</p><p className="text-2xl font-bold text-primary">{avgPerDay}</p><p className="text-secondary text-xs">hábitos/dia neste período</p></div>
                     
                     <RadarChart habits={habits} period={period} />
                     <MonthlyCompletionChart habits={habits} />
@@ -846,7 +923,7 @@
                 if (savedTheme) { setTheme(savedTheme); document.body.className = savedTheme === 'light' ? 'light-mode' : ''; }
                 const savedNames = localStorage.getItem('couple_names');
                 if (savedNames) setNames(JSON.parse(savedNames));
-                const savedHabits = localStorage.getItem('couple_habits_v11');
+                const savedHabits = localStorage.getItem('couple_habits_v12');
                 if (savedHabits) setHabitsData(JSON.parse(savedHabits));
                 else setHabitsData({ josiel: getInitialHabits('josiel'), zipora: getInitialHabits('zipora') });
                 const savedPhoto = localStorage.getItem('couple_photo');
@@ -854,7 +931,7 @@
             }, []);
             
             React.useEffect(() => { localStorage.setItem('couple_names', JSON.stringify(names)); }, [names]);
-            React.useEffect(() => { localStorage.setItem('couple_habits_v11', JSON.stringify(habitsData)); }, [habitsData]);
+            React.useEffect(() => { localStorage.setItem('couple_habits_v12', JSON.stringify(habitsData)); }, [habitsData]);
             React.useEffect(() => { localStorage.setItem('theme', theme); document.body.className = theme === 'light' ? 'light-mode' : ''; }, [theme]);
             React.useEffect(() => { if (couplePhoto) localStorage.setItem('couple_photo', couplePhoto); }, [couplePhoto]);
             
@@ -892,14 +969,14 @@
             const gradientClass = activeTab === 'josiel' ? 'from-blue-500 to-cyan-500' : 'from-pink-500 to-rose-500';
             
             const renderView = () => {
-                if (bottomNav === 'habits') return <div className="space-y-4"><div className="flex justify-between items-center"><div><h3 className="text-lg font-semibold text-better">Meus Hábitos</h3><p className="text-secondary text-xs">{selectedDate ? formatDate(selectedDate) : formatDate(new Date())}</p></div><button onClick={() => openNewModal(activeTab)} className={`bg-gradient-to-r ${gradientClass} text-white px-3 py-1.5 rounded-xl text-sm font-semibold flex items-center gap-1`}><span>+</span><span>Novo</span></button></div>{habitsData[activeTab].length === 0 ? (<div className="text-center py-12"><p className="text-secondary">Nenhum hábito</p></div>) : (<div className="space-y-2">{habitsData[activeTab].sort((a,b)=>(a.order||0)-(b.order||0)).map(habit => (<HabitCard key={habit.id} habit={habit} onToggle={toggleHabit} onEdit={openEditModal} onDelete={deleteHabit} selectedDate={selectedDate} />))}</div>)}</div>;
+                if (bottomNav === 'habits') return <div className="space-y-4"><div className="flex justify-between items-center"><div><h3 className="text-lg font-semibold text-primary">Meus Hábitos</h3><p className="text-secondary text-xs">{selectedDate ? formatDate(selectedDate) : formatDate(new Date())}</p></div><button onClick={() => openNewModal(activeTab)} className={`bg-gradient-to-r ${gradientClass} text-white px-3 py-1.5 rounded-xl text-sm font-semibold flex items-center gap-1`}><span>+</span><span>Novo</span></button></div>{habitsData[activeTab].length === 0 ? (<div className="text-center py-12"><p className="text-secondary">Nenhum hábito</p></div>) : (<div className="space-y-2">{habitsData[activeTab].sort((a,b)=>(a.order||0)-(b.order||0)).map(habit => (<HabitCard key={habit.id} habit={habit} onToggle={toggleHabit} onEdit={openEditModal} onDelete={deleteHabit} selectedDate={selectedDate} />))}</div>)}</div>;
                 if (bottomNav === 'stats') return <StatisticsView habits={habitsData[activeTab]} personName={names[activeTab]} />;
                 return <SettingsView personId={activeTab} personName={names[activeTab]} onNameChange={handleNameChange} habits={habitsData[activeTab]} onResetStats={resetStats} onReorderHabits={reorderHabits} onUpdateTheme={handleUpdateTheme} currentTheme={theme} couplePhoto={couplePhoto} onUpdatePhoto={handleUpdatePhoto} />;
             };
             
             return (
                 <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] pb-24">
-                    <header className="border-b border-[#2d2d44] bg-[#0f0f1a]/80 backdrop-blur-sm sticky top-0 z-40">
+                    <header className="border-b border-primary bg-[#0f0f1a]/80 backdrop-blur-sm sticky top-0 z-40">
                         <div className="px-4 py-3">
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-3">
@@ -910,7 +987,7 @@
                                     </div>
                                     <div>
                                         <h1 className="text-2xl font-bold couple-name-highlight">HabitFlow</h1>
-                                        <p className="text-secondary text-xs">Juntos somos mais fortes 💪</p>
+                                        <p className="text-secondary text-xs">Casal Cristão 👑</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
