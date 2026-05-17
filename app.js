@@ -1,44 +1,11 @@
-import {
-  db,
-  collection,
-  addDoc,
-  onSnapshot
-} from "./firebase.js";
+// Exemplo: conectar ao Firebase Realtime Database
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, onValue } from "firebase/database";
 
-const habitsRef = collection(db, "habits");
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-const lista = document.getElementById("lista");
-
-const botao = document.getElementById("salvar");
-
-const input = document.getElementById("habit");
-
-// SALVAR HÁBITO
-botao.addEventListener("click", async () => {
-
-  if (input.value === "") return;
-
-  await addDoc(habitsRef, {
-    nome: input.value,
-    criadoEm: new Date()
-  });
-
-  input.value = "";
-});
-
-// TEMPO REAL
-onSnapshot(habitsRef, (snapshot) => {
-
-  lista.innerHTML = "";
-
-  snapshot.forEach((doc) => {
-
-    const item = document.createElement("li");
-
-    item.textContent = doc.data().nome;
-
-    lista.appendChild(item);
-
-  });
-
+// Escuta mudanças em tempo real
+onValue(ref(db, 'dados'), (snapshot) => {
+  console.log(snapshot.val());
 });
