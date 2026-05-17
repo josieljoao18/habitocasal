@@ -2,7 +2,15 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HabitFlow">
+    <meta name="description" content="Acompanhe seus hábitos e cresça junto com seu parceiro">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <title>HabitFlow Casal - Hábitos para dois</title>
     
     <!-- TailwindCSS -->
@@ -287,7 +295,6 @@
             transform: translateX(24px);
         }
         
-        /* Melhor contraste para texto no tema escuro */
         .text-better {
             color: #e8e8f0;
         }
@@ -304,13 +311,55 @@
         .border-better {
             border-color: #2d2d44;
         }
+        
+        .install-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            transition: all 0.3s ease;
+        }
+        
+        .install-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
     
+    <div id="installPWA" style="display: none; position: fixed; bottom: 80px; right: 20px; z-index: 100;">
+        <button id="installBtn" class="install-button text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2">
+            📱 Instalar App
+        </button>
+    </div>
+    
     <script type="text/babel">
-        // Utilitários
+        // PWA INSTALLATION
+        let deferredPrompt;
+        const installDiv = document.getElementById('installPWA');
+        const installBtn = document.getElementById('installBtn');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installDiv.style.display = 'block';
+            
+            installBtn.addEventListener('click', async () => {
+                installDiv.style.display = 'none';
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('App instalado com sucesso!');
+                }
+                deferredPrompt = null;
+            });
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            installDiv.style.display = 'none';
+            console.log('App foi instalado!');
+        });
+        
+        // ============ UTILITÁRIOS ============
         const getToday = () => new Date().toISOString().split('T')[0];
         
         const formatDate = (date) => {
@@ -378,29 +427,13 @@
             return { level, nextLevel, progress: (totalCompletions % 30) * 3.33 };
         };
         
-        // Verifica se o hábito deve ser exibido hoje baseado na frequência
-        const shouldShowToday = (habit, date) => {
-            if (!habit.frequency) return true;
-            
-            const startDate = new Date(habit.createdAt || Date.now());
-            const targetDate = new Date(date);
-            const daysDiff = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
-            
-            if (habit.frequency.type === 'daily') return true;
-            if (habit.frequency.type === 'weekly') return targetDate.getDay() === habit.frequency.day;
-            if (habit.frequency.type === 'custom') {
-                return daysDiff % habit.frequency.interval === 0;
-            }
-            return true;
-        };
-        
-        // Dados iniciais
+        // Dados iniciais (sem meta mensal)
         const getInitialHabits = (personId) => {
             const allHabits = [
-                { title: 'Beber Água', description: '2 litros de água', targetDays: 30, icon: '💧', color: '#3b82f6', tag: 'saúde', frequency: { type: 'daily' } },
-                { title: 'Meditar', description: '10 minutos', targetDays: 25, icon: '🧘', color: '#8b5cf6', tag: 'bem-estar', frequency: { type: 'daily' } },
-                { title: 'Ler', description: '20 páginas', targetDays: 20, icon: '📚', color: '#f59e0b', tag: 'aprendizado', frequency: { type: 'weekly', day: new Date().getDay() } },
-                { title: 'Exercitar', description: '30 minutos', targetDays: 25, icon: '🏃', color: '#ef4444', tag: 'saúde', frequency: { type: 'custom', interval: 2 } }
+                { title: 'Beber Água', description: '2 litros de água', icon: '💧', color: '#3b82f6', tag: 'saúde', frequency: { type: 'daily' } },
+                { title: 'Meditar', description: '10 minutos', icon: '🧘', color: '#8b5cf6', tag: 'bem-estar', frequency: { type: 'daily' } },
+                { title: 'Ler', description: '20 páginas', icon: '📚', color: '#f59e0b', tag: 'aprendizado', frequency: { type: 'weekly', day: new Date().getDay() } },
+                { title: 'Exercitar', description: '30 minutos', icon: '🏃', color: '#ef4444', tag: 'saúde', frequency: { type: 'custom', interval: 2 } }
             ];
             
             const getRandomCompletedDates = () => {
@@ -422,7 +455,6 @@
                 color: habit.color,
                 tag: habit.tag,
                 streak: Math.floor(Math.random() * 10) + 1,
-                targetDays: habit.targetDays,
                 order: index,
                 frequency: habit.frequency,
                 createdAt: new Date().toISOString()
@@ -508,7 +540,7 @@
             return (<div className="bg-card border border-better rounded-2xl p-4"><h3 className="text-sm font-semibold text-better mb-3">📡 Radar por Categoria</h3><div style={{ height: '250px' }}><canvas ref={chartRef}></canvas></div></div>);
         };
         
-        // Gráfico Mensal
+        // Gráfico Mensal (ajustado sem targetDays)
         const MonthlyCompletionChart = ({ habits }) => {
             const chartRef = React.useRef(null);
             const chartInstance = React.useRef(null);
@@ -521,42 +553,41 @@
                     for (let i = 5; i >= 0; i--) last6Months.push(months[(currentMonth - i + 12) % 12]);
                     const monthlyData = last6Months.map((_, idx) => {
                         const monthNum = (currentMonth - (5 - idx) + 12) % 12;
-                        let totalCompletions = 0, totalPossible = 0;
+                        let totalCompletions = 0;
                         habits.forEach(habit => {
                             const completionsInMonth = habit.completedDates?.filter(d => new Date(d).getMonth() === monthNum).length || 0;
                             totalCompletions += completionsInMonth;
-                            totalPossible += habit.targetDays;
                         });
-                        return totalPossible > 0 ? (totalCompletions / totalPossible) * 100 : 0;
+                        const avgPerHabit = habits.length > 0 ? totalCompletions / habits.length : 0;
+                        return avgPerHabit;
                     });
                     chartInstance.current = new Chart(chartRef.current, {
                         type: 'bar',
-                        data: { labels: last6Months, datasets: [{ label: 'Taxa de Conclusão (%)', data: monthlyData, backgroundColor: 'rgba(16, 185, 129, 0.7)', borderRadius: 8 }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { y: { beginAtZero: true, max: 100, ticks: { color: '#9ca3af', callback: (v) => v + '%' }, grid: { color: '#2d2d44' } }, x: { ticks: { color: '#9ca3af' }, grid: { color: '#2d2d44' } } } }
+                        data: { labels: last6Months, datasets: [{ label: 'Média de Conclusões', data: monthlyData, backgroundColor: 'rgba(16, 185, 129, 0.7)', borderRadius: 8 }] },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { y: { beginAtZero: true, ticks: { color: '#9ca3af' }, grid: { color: '#2d2d44' } }, x: { ticks: { color: '#9ca3af' }, grid: { color: '#2d2d44' } } } }
                     });
                 }
                 return () => { if (chartInstance.current) chartInstance.current.destroy(); };
             }, [habits]);
-            return (<div className="bg-card border border-better rounded-2xl p-4"><h3 className="text-sm font-semibold text-better mb-3">📅 Taxa de Conclusão Mensal</h3><div style={{ height: '220px' }}><canvas ref={chartRef}></canvas></div></div>);
+            return (<div className="bg-card border border-better rounded-2xl p-4"><h3 className="text-sm font-semibold text-better mb-3">📅 Média de Conclusões por Mês</h3><div style={{ height: '220px' }}><canvas ref={chartRef}></canvas></div></div>);
         };
         
-        // Componente HabitCard
+        // Componente HabitCard (sem meta mensal)
         const HabitCard = ({ habit, onToggle, onEdit, onDelete, selectedDate }) => {
             const dateToCheck = selectedDate ? selectedDate.toISOString().split('T')[0] : getToday();
             const completedOnDate = habit.completedDates?.includes(dateToCheck) || false;
-            const progress = ((habit.completedDates?.length || 0) / (habit.targetDays || 7)) * 100;
             const [showMenu, setShowMenu] = React.useState(false);
             const [menuPosition, setMenuPosition] = React.useState({ x: 0, y: 0 });
             
             const getFrequencyText = () => {
-                if (!habit.frequency) return 'Todo dia';
+                if (!habit.frequency) return '📅 Todo dia';
                 if (habit.frequency.type === 'daily') return '📅 Todo dia';
                 if (habit.frequency.type === 'weekly') {
                     const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
                     return `📆 ${days[habit.frequency.day]}`;
                 }
                 if (habit.frequency.type === 'custom') return `🔄 A cada ${habit.frequency.interval} dias`;
-                return 'Todo dia';
+                return '📅 Todo dia';
             };
             
             const handleMenuClick = (e) => {
@@ -584,13 +615,12 @@
                                 </div>
                                 <div className="flex items-center gap-2 mt-1">
                                     <span className="text-xs text-orange-400">🔥 {habit.streak || 0}</span>
-                                    <span className="text-secondary text-xs">📊 {habit.completedDates?.length || 0}/{habit.targetDays}</span>
+                                    <span className="text-secondary text-xs">✅ {habit.completedDates?.length || 0} total</span>
                                     <span className="text-xs text-green-400">{habit.tag}</span>
                                 </div>
-                                <div className="mt-2"><div className="w-full bg-[#2d2d44] rounded-full h-1.5 overflow-hidden"><div className="bg-gradient-to-r from-green-500 to-emerald-500 h-full rounded-full" style={{ width: `${Math.min(progress, 100)}%` }} /></div></div>
                             </div>
                             <div className="flex flex-col items-center gap-2">
-                                <button onClick={handleMenuClick} className="action-button text-secondary hover:text-better p-1 rounded-lg">⋮</button>
+                                <button onClick={handleMenuClick} className="text-secondary hover:text-better p-1 rounded-lg text-xl">⋮</button>
                                 <button onClick={() => onToggle(habit.id, dateToCheck)} className={`check-button ${completedOnDate ? 'check-button-completed' : 'check-button-pending'}`} style={{ width: '40px', height: '40px', fontSize: '20px' }}>
                                     {completedOnDate ? '✓' : '○'}
                                 </button>
@@ -600,20 +630,19 @@
                     
                     {showMenu && (
                         <div className="fixed bg-[#1a1a2e] border border-[#2d2d44] rounded-xl p-2 z-50 shadow-xl" style={{ top: menuPosition.y - 60, left: menuPosition.x - 120 }}>
-                            <div className="context-menu-item px-3 py-2 rounded-lg hover:bg-[#2d2d44] cursor-pointer transition flex items-center gap-2 text-better" onClick={() => { onEdit(habit); setShowMenu(false); }}>✏️ Editar Hábito</div>
-                            <div className="context-menu-item px-3 py-2 rounded-lg hover:bg-red-500/20 cursor-pointer transition flex items-center gap-2 text-red-400" onClick={() => { if (confirm(`Deletar "${habit.title}"?`)) onDelete(habit.id); setShowMenu(false); }}>🗑️ Deletar Hábito</div>
+                            <div className="px-3 py-2 rounded-lg hover:bg-[#2d2d44] cursor-pointer transition flex items-center gap-2 text-better" onClick={() => { onEdit(habit); setShowMenu(false); }}>✏️ Editar Hábito</div>
+                            <div className="px-3 py-2 rounded-lg hover:bg-red-500/20 cursor-pointer transition flex items-center gap-2 text-red-400" onClick={() => { if (confirm(`Deletar "${habit.title}"?`)) onDelete(habit.id); setShowMenu(false); }}>🗑️ Deletar Hábito</div>
                         </div>
                     )}
                 </>
             );
         };
         
-        // Modal de Edição de Hábito
+        // Modal de Edição de Hábito (sem meta mensal)
         const EditHabitModal = ({ isOpen, onClose, habit, onSave }) => {
             const [title, setTitle] = React.useState('');
             const [description, setDescription] = React.useState('');
             const [icon, setIcon] = React.useState('💪');
-            const [targetDays, setTargetDays] = React.useState(30);
             const [tag, setTag] = React.useState('saúde');
             const [frequencyType, setFrequencyType] = React.useState('daily');
             const [weeklyDay, setWeeklyDay] = React.useState(0);
@@ -628,7 +657,6 @@
                     setTitle(habit.title || '');
                     setDescription(habit.description || '');
                     setIcon(habit.icon || '💪');
-                    setTargetDays(habit.targetDays || 30);
                     setTag(habit.tag || 'saúde');
                     if (habit.frequency) {
                         setFrequencyType(habit.frequency.type);
@@ -648,7 +676,7 @@
                 if (frequencyType === 'weekly') frequency.day = weeklyDay;
                 if (frequencyType === 'custom') frequency.interval = customInterval;
                 
-                onSave({ ...habit, title: title.trim(), description: description.trim(), icon, targetDays, tag, frequency });
+                onSave({ ...habit, title: title.trim(), description: description.trim(), icon, tag, frequency });
                 onClose();
             };
             
@@ -666,7 +694,6 @@
                                 {frequencyType === 'weekly' && (<select value={weeklyDay} onChange={(e) => setWeeklyDay(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-better text-sm">{weekDays.map((d, i) => <option key={i} value={i}>{d}</option>)}</select>)}
                                 {frequencyType === 'custom' && (<div className="flex items-center gap-2"><span className="text-secondary text-sm">A cada</span><input type="number" min="1" max="30" value={customInterval} onChange={(e) => setCustomInterval(Number(e.target.value))} className="w-20 p-2 rounded-xl bg-[#2d2d44] text-better text-center" /><span className="text-secondary text-sm">dias</span></div>)}
                             </div>
-                            <div><label className="text-secondary text-xs">Meta mensal: {targetDays} dias</label><input type="range" value={targetDays} onChange={(e) => setTargetDays(Number(e.target.value))} min="1" max="31" className="w-full" /></div>
                             <div className="flex gap-3 pt-2"><button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl bg-[#2d2d44] text-secondary">Cancelar</button><button type="submit" className="flex-1 py-2 rounded-xl bg-green-500 text-white font-semibold">Salvar</button></div>
                         </form>
                     </div>
@@ -674,12 +701,11 @@
             );
         };
         
-        // Modal de Novo Hábito
+        // Modal de Novo Hábito (sem meta mensal)
         const NewHabitModal = ({ isOpen, onClose, onAdd, personName }) => {
             const [title, setTitle] = React.useState('');
             const [description, setDescription] = React.useState('');
             const [icon, setIcon] = React.useState('💪');
-            const [targetDays, setTargetDays] = React.useState(30);
             const [tag, setTag] = React.useState('saúde');
             const [frequencyType, setFrequencyType] = React.useState('daily');
             const [weeklyDay, setWeeklyDay] = React.useState(new Date().getDay());
@@ -703,7 +729,6 @@
                     title: title.trim(),
                     description: description.trim(),
                     icon,
-                    targetDays,
                     tag,
                     frequency,
                     completedDates: [],
@@ -713,7 +738,6 @@
                 setTitle('');
                 setDescription('');
                 setIcon('💪');
-                setTargetDays(30);
                 setTag('saúde');
                 setFrequencyType('daily');
                 onClose();
@@ -734,7 +758,6 @@
                                 {frequencyType === 'weekly' && (<select value={weeklyDay} onChange={(e) => setWeeklyDay(Number(e.target.value))} className="w-full p-2.5 rounded-xl bg-[#2d2d44] text-better text-sm">{weekDays.map((d, i) => <option key={i} value={i}>{d}</option>)}</select>)}
                                 {frequencyType === 'custom' && (<div className="flex items-center gap-2"><span className="text-secondary text-sm">A cada</span><input type="number" min="1" max="30" value={customInterval} onChange={(e) => setCustomInterval(Number(e.target.value))} className="w-20 p-2 rounded-xl bg-[#2d2d44] text-better text-center" /><span className="text-secondary text-sm">dias</span></div>)}
                             </div>
-                            <div><label className="text-secondary text-xs">Meta mensal: {targetDays} dias</label><input type="range" value={targetDays} onChange={(e) => setTargetDays(Number(e.target.value))} min="1" max="31" className="w-full" /></div>
                             <div className="flex gap-3 pt-2"><button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl bg-[#2d2d44] text-secondary">Cancelar</button><button type="submit" className="flex-1 py-2 rounded-xl bg-green-500 text-white font-semibold">Criar</button></div>
                         </form>
                     </div>
@@ -773,7 +796,7 @@
             );
         };
         
-        // Estatísticas
+        // Estatísticas (ajustada sem targetDays)
         const StatisticsView = ({ habits, personName }) => {
             const [period, setPeriod] = React.useState('week');
             const totalCompletions = habits.reduce((acc, h) => acc + (h.completedDates?.length || 0), 0);
@@ -781,9 +804,9 @@
             const bestHabit = habits.reduce((best, h) => (h.streak > (best?.streak || 0) ? h : best), null);
             const level = calculateLevel(totalCompletions);
             const dateRange = getDateRange(period);
-            let periodCompletions = 0, periodPossible = 0;
-            habits.forEach(habit => { periodCompletions += habit.completedDates?.filter(d => dateRange.includes(d)).length || 0; periodPossible += habit.targetDays; });
-            const periodRate = periodPossible > 0 ? (periodCompletions / periodPossible) * 100 : 0;
+            let periodCompletions = 0;
+            habits.forEach(habit => { periodCompletions += habit.completedDates?.filter(d => dateRange.includes(d)).length || 0; });
+            const avgPerDay = dateRange.length > 0 ? (periodCompletions / dateRange.length).toFixed(1) : 0;
             
             return (
                 <div className="space-y-4 pb-20">
@@ -794,11 +817,11 @@
                         <div className="bg-card border border-better rounded-2xl p-3"><p className="text-secondary text-xs">Nível</p><p className="text-xl font-bold text-better">{level.level}</p></div>
                     </div>
                     
-                    {bestHabit && (<div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-3 border border-green-500/30"><p className="text-secondary text-xs">🏅 Melhor Hábito</p><div className="flex items-center justify-between"><div className="flex items-center gap-2"><span className="text-2xl">{bestHabit.icon}</span><div><p className="text-better font-semibold text-sm">{bestHabit.title}</p><p className="text-green-400 text-xs">🔥 {bestHabit.streak} dias</p></div></div><div><span className="text-green-400 font-bold">{bestHabit.completedDates?.length||0}</span><span className="text-secondary text-xs">/{bestHabit.targetDays}</span></div></div></div>)}
+                    {bestHabit && (<div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-3 border border-green-500/30"><p className="text-secondary text-xs">🏅 Melhor Hábito</p><div className="flex items-center justify-between"><div className="flex items-center gap-2"><span className="text-2xl">{bestHabit.icon}</span><div><p className="text-better font-semibold text-sm">{bestHabit.title}</p><p className="text-green-400 text-xs">🔥 {bestHabit.streak} dias</p></div></div><div><span className="text-green-400 font-bold">{bestHabit.completedDates?.length||0}</span><span className="text-secondary text-xs"> total</span></div></div></div>)}
                     
                     <div className="flex gap-2"><button onClick={() => setPeriod('week')} className={`flex-1 py-2 rounded-xl text-sm ${period === 'week' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>Semana</button><button onClick={() => setPeriod('month')} className={`flex-1 py-2 rounded-xl text-sm ${period === 'month' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>Mês</button></div>
                     
-                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-4"><p className="text-secondary text-xs">Taxa de Conclusão</p><p className="text-2xl font-bold text-better">{periodRate.toFixed(1)}%</p><div className="mt-2 w-full bg-[#2d2d44] rounded-full h-2"><div className="bg-green-500 h-full rounded-full" style={{ width: `${periodRate}%` }} /></div></div>
+                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-4"><p className="text-secondary text-xs">Média por dia</p><p className="text-2xl font-bold text-better">{avgPerDay}</p><p className="text-secondary text-xs">hábitos/dia neste período</p></div>
                     
                     <RadarChart habits={habits} period={period} />
                     <MonthlyCompletionChart habits={habits} />
@@ -823,7 +846,7 @@
                 if (savedTheme) { setTheme(savedTheme); document.body.className = savedTheme === 'light' ? 'light-mode' : ''; }
                 const savedNames = localStorage.getItem('couple_names');
                 if (savedNames) setNames(JSON.parse(savedNames));
-                const savedHabits = localStorage.getItem('couple_habits_v9');
+                const savedHabits = localStorage.getItem('couple_habits_v11');
                 if (savedHabits) setHabitsData(JSON.parse(savedHabits));
                 else setHabitsData({ josiel: getInitialHabits('josiel'), zipora: getInitialHabits('zipora') });
                 const savedPhoto = localStorage.getItem('couple_photo');
@@ -831,7 +854,7 @@
             }, []);
             
             React.useEffect(() => { localStorage.setItem('couple_names', JSON.stringify(names)); }, [names]);
-            React.useEffect(() => { localStorage.setItem('couple_habits_v9', JSON.stringify(habitsData)); }, [habitsData]);
+            React.useEffect(() => { localStorage.setItem('couple_habits_v11', JSON.stringify(habitsData)); }, [habitsData]);
             React.useEffect(() => { localStorage.setItem('theme', theme); document.body.className = theme === 'light' ? 'light-mode' : ''; }, [theme]);
             React.useEffect(() => { if (couplePhoto) localStorage.setItem('couple_photo', couplePhoto); }, [couplePhoto]);
             
@@ -921,6 +944,16 @@
         };
         
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                console.log('Service Worker registrado!', reg);
+            }).catch(function(err) {
+                console.log('Falha ao registrar Service Worker', err);
+            });
+        }
     </script>
 </body>
 </html>
