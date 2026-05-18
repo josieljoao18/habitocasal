@@ -4,16 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
     <meta name="theme-color" content="#10b981">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="HabitFlow">
-    <meta name="description" content="Hábitos para casal cristão">
     <title>HabitFlow Casal Cristão</title>
     
-    <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Firebase SDKs -->
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
@@ -46,688 +40,950 @@
         window.firebaseRemove = remove;
         window.firebaseOnValue = onValue;
     </script>
-    
-    <!-- React -->
-    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
-    
-    <!-- Babel -->
+
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0a0a0f;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            transition: all 0.3s ease;
+        
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: rgba(20,20,35,0.8);
+            --text-primary: #e8e8f0;
+            --text-secondary: #9ca3af;
+            --border-primary: #2d2d44;
+            --bg-button: #2d2d44;
+            --bg-input: #2d2d44;
+            --green-gradient: linear-gradient(135deg, #10b981, #059669);
+            --green-shadow: rgba(16,185,129,0.5);
         }
+        
         body.light-mode {
-            background: #f0f2f5;
+            --bg-primary: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a2e;
+            --text-secondary: #6b6b7a;
+            --border-primary: #e4e6eb;
+            --bg-button: #e8e8f0;
+            --bg-input: #f0f2f5;
         }
-        /* Tema claro */
-        body.light-mode .bg-card { background: #ffffff !important; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        body.light-mode .text-primary { color: #1a1a2e !important; }
-        body.light-mode .text-secondary { color: #6b6b7a !important; }
-        body.light-mode .border-primary { border-color: #e4e6eb !important; }
-        body.light-mode .tab-inactive { background: #e8e8f0 !important; color: #6b6b7a !important; }
-        body.light-mode .check-button-pending { background: #f0f2f5 !important; border-color: #d0d0d8 !important; }
-        body.light-mode .bottom-nav { background: rgba(255,255,255,0.98) !important; border-top-color: #e4e6eb; }
-        body.light-mode .glass-effect { background: rgba(255,255,255,0.95) !important; }
         
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #1a1a2e; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: #2d2d44; border-radius: 10px; }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        body {
+            background: var(--bg-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            transition: background 0.3s, color 0.3s;
+            color: var(--text-primary);
         }
-        .animate-fade-in-up { animation: fadeInUp 0.3s ease-out; }
         
-        .tab-active {
-            background: linear-gradient(135deg, #10b981, #059669);
-            box-shadow: 0 4px 14px rgba(16,185,129,0.4);
-        }
-        .tab-inactive { background: #2d2d44; transition: all 0.2s; }
+        .text-primary { color: var(--text-primary); }
+        .text-secondary { color: var(--text-secondary); }
+        .border-primary { border-color: var(--border-primary); }
+        .bg-card { background: var(--bg-card); backdrop-filter: blur(10px); border-radius: 1rem; border: 1px solid var(--border-primary); }
+        .bg-input { background: var(--bg-input); }
+        .glass-effect { background: var(--bg-card); backdrop-filter: blur(20px); border-radius: 1rem; border: 1px solid var(--border-primary); }
+        
         .check-button {
-            width: 48px; height: 48px; border-radius: 50%;
+            width: 44px; height: 44px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px; font-weight: bold;
-            transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            cursor: pointer; border: none; flex-shrink: 0;
+            font-size: 22px; font-weight: bold; border: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; flex-shrink: 0;
         }
         .check-button-completed {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: var(--green-gradient);
             color: white;
-            box-shadow: 0 0 15px rgba(16,185,129,0.5);
+            box-shadow: 0 0 20px var(--green-shadow);
         }
         .check-button-pending {
-            background: #2d2d44;
-            color: #6b6b7a;
-            border: 2px solid #3d3d55;
+            background: var(--bg-button);
+            color: var(--text-secondary);
+            border: 2px solid var(--border-primary);
         }
-        .check-button-pending:hover { transform: scale(1.05); background: #3d3d55; }
+        
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: rgba(15,15,25,0.98); backdrop-filter: blur(20px);
-            border-top: 1px solid #2d2d44;
-            padding: 10px 24px; z-index: 50;
-            display: flex; justify-content: center; gap: 20px;
+            border-top: 1px solid var(--border-primary);
+            padding: 8px 16px; z-index: 50;
+            display: flex; justify-content: center; gap: 32px;
         }
+        body.light-mode .bottom-nav { background: rgba(255,255,255,0.98); }
+        
         .bottom-nav-item {
             display: flex; flex-direction: column; align-items: center;
-            gap: 4px; padding: 8px 16px; border-radius: 20px;
-            transition: all 0.2s; cursor: pointer;
+            gap: 2px; padding: 6px 16px; border-radius: 20px;
+            transition: all 0.2s; cursor: pointer; font-size: 0.75rem;
         }
-        .bottom-nav-active {
-            background: rgba(16,185,129,0.15);
-            color: #10b981;
-            transform: translateY(-3px);
-        }
-        .bottom-nav-inactive { color: #6b6b7a; }
-        .week-calendar {
-            display: flex; gap: 8px; overflow-x: auto; padding: 6px 0;
-            scrollbar-width: thin;
-        }
+        .bottom-nav-active { background: rgba(16,185,129,0.15); color: #10b981; transform: translateY(-3px); }
+        
+        .week-calendar { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0; }
         .week-day {
-            flex-shrink: 0; width: 55px; text-align: center;
-            padding: 8px 4px; border-radius: 20px;
+            flex-shrink: 0; width: 50px; text-align: center;
+            padding: 8px 4px; border-radius: 16px;
             transition: all 0.2s; cursor: pointer;
         }
-        .week-day:hover { background: rgba(16,185,129,0.15); transform: translateY(-2px); }
-        .week-day-selected {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            transform: scale(1.02);
+        .week-day:hover { background: rgba(16,185,129,0.15); }
+        .week-day-selected { background: var(--green-gradient); color: white; }
+        .week-day-dot {
+            position: absolute; top: 2px; right: 4px;
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #10b981;
         }
-        .week-day-completed { position: relative; }
-        .week-day-completed::after {
-            content: '✓'; position: absolute; top: 2px; right: 6px;
-            font-size: 10px; color: #10b981; font-weight: bold;
-        }
+        
         .couple-name-highlight {
             background: linear-gradient(135deg, #10b981, #34d399);
             -webkit-background-clip: text; background-clip: text;
             color: transparent;
         }
-        .avatar-container { position: relative; cursor: pointer; }
-        .avatar-overlay {
-            position: absolute; bottom: -3px; right: -3px;
-            background: #10b981; border-radius: 50%; padding: 4px;
-            font-size: 10px;
-        }
-        .switch {
-            position: relative; display: inline-block;
-            width: 52px; height: 28px;
-        }
+        
+        .switch { position: relative; display: inline-block; width: 52px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0;
-            right: 0; bottom: 0; background-color: #3d3d55;
-            transition: 0.3s; border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute; content: "🌙";
-            display: flex; align-items: center; justify-content: center;
-            height: 24px; width: 24px; left: 2px; bottom: 2px;
-            background-color: white; transition: 0.3s; border-radius: 50%;
-            font-size: 12px;
-        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-primary); transition: 0.3s; border-radius: 34px; }
+        .slider:before { position: absolute; content: "🌙"; display: flex; align-items: center; justify-content: center; height: 24px; width: 24px; left: 2px; bottom: 2px; background-color: white; transition: 0.3s; border-radius: 50%; font-size: 12px; }
         input:checked + .slider { background-color: #10b981; }
         input:checked + .slider:before { transform: translateX(24px); content: "☀️"; }
         
-        .text-primary { color: #e8e8f0; }
-        .text-secondary { color: #9ca3af; }
-        .bg-card { background: rgba(20,20,35,0.8); backdrop-filter: blur(10px); }
-        .border-primary { border-color: #2d2d44; }
-        .glass-effect { background: rgba(20,20,35,0.9); backdrop-filter: blur(20px); }
-        
-        .context-menu {
-            position: fixed; background: #1a1a2e; border: 1px solid #2d2d44;
-            border-radius: 16px; padding: 8px; z-index: 100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3); min-width: 150px;
-        }
-        .context-menu-item {
-            padding: 8px 12px; display: flex; align-items: center;
-            gap: 8px; border-radius: 12px; cursor: pointer;
-            transition: 0.2s;
-        }
-        .context-menu-item:hover { background: #2d2d44; }
-        .context-menu-item.delete { color: #ef4444; }
-        
-        .emoji-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
-            gap: 8px;
-            max-height: 180px;
-            overflow-y: auto;
-            padding: 8px;
-            background: rgba(45,45,68,0.5);
-            border-radius: 16px;
-        }
-        .emoji-btn {
-            font-size: 24px;
-            padding: 6px;
-            border-radius: 12px;
-            background: #2d2d44;
-            transition: all 0.2s;
-            cursor: pointer;
-            text-align: center;
-        }
-        .emoji-btn:hover {
-            transform: scale(1.1);
-            background: #10b981;
-        }
-        .emoji-btn.selected {
-            background: #10b981;
-            box-shadow: 0 0 8px #10b981;
-        }
-        @media (max-width: 640px) {
-            .week-day { width: 48px; }
-            .check-button { width: 42px; height: 42px; font-size: 20px; }
-            .emoji-btn { font-size: 20px; padding: 4px; }
-        }
         .toast {
             position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-            background: #10b981; color: white; padding: 10px 20px;
+            background: #10b981; color: white; padding: 8px 20px;
             border-radius: 40px; font-size: 14px; z-index: 1000;
-            white-space: nowrap; animation: fadeInUp 0.2s ease;
+            animation: fadeInUp 0.3s ease;
         }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        
         .loading-spinner {
-            width: 32px; height: 32px;
-            border: 3px solid #2d2d44; border-top-color: #10b981;
-            border-radius: 50%; animation: spin 0.6s linear infinite;
+            width: 32px; height: 32px; border: 3px solid var(--border-primary);
+            border-top-color: #10b981; border-radius: 50%;
+            animation: spin 0.6s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .progress-bar-bg { width: 100%; height: 6px; background: var(--bg-button); border-radius: 10px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--green-gradient); border-radius: 10px; transition: width 0.5s ease; }
+        
+        .emoji-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 8px; max-height: 160px; overflow-y: auto; padding: 8px; background: var(--bg-button); border-radius: 16px; }
+        .emoji-btn { font-size: 24px; padding: 6px; border-radius: 12px; background: var(--bg-input); text-align: center; cursor: pointer; transition: 0.2s; }
+        .emoji-btn:hover { transform: scale(1.1); background: #10b981; }
+        .emoji-btn.selected { background: #10b981; }
+        
+        @media (max-width: 640px) {
+            .week-day { width: 44px; padding: 6px 2px; }
+            .check-button { width: 40px; height: 40px; font-size: 20px; }
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
+
     <script type="text/babel">
-        // ---------- UTILS ----------
+        const { useState, useEffect, useCallback, useMemo, memo } = React;
+        
+        // ==================== UTILITÁRIOS ====================
         const getToday = () => new Date().toISOString().split('T')[0];
         const formatDate = (d) => new Date(d).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
         const formatDayName = (d) => d.toLocaleDateString('pt-BR', { weekday:'short' }).replace('.','');
+        
         const getWeekDays = () => {
             const today = new Date();
             const days = [];
-            for(let i=3;i>=0;i--) { let d=new Date(); d.setDate(today.getDate()-i); days.push(d); }
-            for(let i=1;i<=3;i++) { let d=new Date(); d.setDate(today.getDate()+i); days.push(d); }
+            for(let i=3;i>=0;i--) { const d=new Date(); d.setDate(today.getDate()-i); days.push(d); }
+            for(let i=1;i<=3;i++) { const d=new Date(); d.setDate(today.getDate()+i); days.push(d); }
             return days.sort((a,b)=>a-b);
         };
-        const calculateStreak = (dates) => {
-            if(!dates||!dates.length) return 0;
-            const sorted = [...dates].sort().reverse();
-            let streak=1, cur=new Date(sorted[0]);
-            for(let i=1;i<sorted.length;i++) {
-                let prev=new Date(sorted[i]);
-                let diff=Math.floor((cur-prev)/(86400000));
-                if(diff===1) { streak++; cur=prev; } else break;
+        
+        // CORRIGIDO: Verificação correta de dias ativos
+        const isHabitActiveOnDate = (habit, dateStr) => {
+            if (!habit || !dateStr) return false;
+            
+            // Se não tem frequência definida, assume diário
+            if (!habit.frequency || habit.frequency.type === 'daily') return true;
+            
+            const date = new Date(dateStr + 'T00:00:00');
+            const dayOfWeek = date.getDay(); // 0 = Domingo
+            
+            if (habit.frequency.type === 'weekly') {
+                // Só ativo no dia da semana configurado
+                return habit.frequency.day === dayOfWeek;
             }
-            return streak;
+            
+            if (habit.frequency.type === 'custom') {
+                const interval = habit.frequency.interval || 2;
+                const startDate = habit.createdAt ? new Date(habit.createdAt.split('T')[0] + 'T00:00:00') : new Date('2024-01-01T00:00:00');
+                const diffTime = date.getTime() - startDate.getTime();
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                // Ativo se diffDays for múltiplo do intervalo
+                return diffDays >= 0 && diffDays % interval === 0;
+            }
+            
+            return true;
         };
-        const showToast = (msg) => {
+        
+        const calculateStreak = (dates, frequency = { type: 'daily' }) => {
+            if (!dates || dates.length === 0) return 0;
+            
+            const sorted = [...dates].sort((a,b) => b.localeCompare(a));
+            const today = getToday();
+            
+            if (frequency.type === 'daily') {
+                let streak = 0;
+                const checkDate = new Date(today + 'T00:00:00');
+                
+                // Verifica se hoje ou ontem tem conclusão
+                const todayCompleted = sorted.includes(today);
+                const yesterday = new Date(checkDate);
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                const yesterdayCompleted = sorted.includes(yesterdayStr);
+                
+                if (!todayCompleted && !yesterdayCompleted) return 0;
+                
+                let currentDate = todayCompleted ? new Date(today + 'T00:00:00') : yesterday;
+                
+                while (true) {
+                    const currentStr = currentDate.toISOString().split('T')[0];
+                    if (sorted.includes(currentStr)) {
+                        streak++;
+                        currentDate.setDate(currentDate.getDate() - 1);
+                    } else {
+                        break;
+                    }
+                }
+                return streak;
+            }
+            
+            if (frequency.type === 'weekly') {
+                const targetDay = frequency.day;
+                let streak = 0;
+                const now = new Date(today + 'T00:00:00');
+                
+                for (let i = 0; i < 52; i++) {
+                    const checkDate = new Date(now);
+                    checkDate.setDate(checkDate.getDate() - (i * 7));
+                    
+                    // Ajusta para o dia da semana alvo
+                    const currentDay = checkDate.getDay();
+                    checkDate.setDate(checkDate.getDate() - ((currentDay - targetDay + 7) % 7));
+                    
+                    if (checkDate > now) continue;
+                    
+                    const checkStr = checkDate.toISOString().split('T')[0];
+                    if (dates.includes(checkStr)) {
+                        streak++;
+                    } else if (i === 0) {
+                        // Pula se hoje não está completo (pode completar depois)
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
+                return streak;
+            }
+            
+            if (frequency.type === 'custom') {
+                const interval = frequency.interval || 2;
+                let streak = 0;
+                const now = new Date(today + 'T00:00:00');
+                const startDate = habit.createdAt ? new Date(habit.createdAt.split('T')[0] + 'T00:00:00') : new Date('2024-01-01T00:00:00');
+                
+                for (let i = 0; i < 100; i++) {
+                    const checkDate = new Date(startDate);
+                    checkDate.setDate(checkDate.getDate() + (i * interval));
+                    
+                    if (checkDate > now) break;
+                    
+                    const checkStr = checkDate.toISOString().split('T')[0];
+                    if (dates.includes(checkStr)) {
+                        streak++;
+                    }
+                }
+                return streak;
+            }
+            
+            return 0;
+        };
+        
+        const playCheckSound = () => {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(880, ctx.currentTime);
+                o.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
+                g.gain.setValueAtTime(0.15, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+                o.connect(g); g.connect(ctx.destination);
+                o.start(); o.stop(ctx.currentTime + 0.2);
+            } catch(e) {}
+        };
+        
+        const triggerConfetti = () => {
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#10b981', '#059669', '#34d399', '#fbbf24']
+                });
+            }
+        };
+        
+        const showToast = (msg, isErr = false) => {
             const el = document.createElement('div');
             el.className = 'toast';
+            el.style.background = isErr ? '#ef4444' : '#10b981';
             el.innerText = msg;
             document.body.appendChild(el);
-            setTimeout(()=>el.remove(), 2000);
+            setTimeout(() => el.remove(), 2000);
         };
         
-        // ---------- DADOS PADRÃO ----------
-        const defaultHabits = [
-            { title:'Elogiar o parceiro', description:'Diga algo positivo', icon:'❤️', tag:'amor', frequency:{type:'daily'}, points:10 },
-            { title:'Conversar sem celular', description:'Momento sem distrações', icon:'💬', tag:'comunicação', frequency:{type:'daily'}, points:15 },
-            { title:'Gratidão diária', description:'Agradecer a Deus', icon:'🙏', tag:'espiritual', frequency:{type:'daily'}, points:10 },
-            { title:'Oração juntos', description:'Orar em casal', icon:'✝️', tag:'espiritual', frequency:{type:'daily'}, points:15 },
-            { title:'Ler a Bíblia', description:'Devocional', icon:'📖', tag:'espiritual', frequency:{type:'daily'}, points:15 },
-        ];
-        
+        // ==================== CONSTANTES ====================
         const allEmojis = ['❤️','💬','🙏','✝️','📖','💌','💑','🧠','🏃','😴','🍽️','💰','🎯','🚶','🤝','💖','🎉','💪','🧘','🥗','⭐','✨','🌟','🌹','🕊️','⛪'];
         
-        // ---------- COMPONENTES ----------
-        const WeekCalendar = ({ selectedDate, onSelect, habits }) => {
+        const defaultCategories = ['amor','comunicação','espiritual','saúde','relacionamento'];
+        
+        const defaultHabits = [
+            { title:'Elogiar o parceiro', description:'Diga algo positivo', icon:'❤️', tag:'amor', frequency:{type:'daily'} },
+            { title:'Conversar sem celular', description:'Momento sem distrações', icon:'💬', tag:'comunicação', frequency:{type:'daily'} },
+            { title:'Gratidão diária', description:'Agradecer a Deus', icon:'🙏', tag:'espiritual', frequency:{type:'daily'} },
+            { title:'Oração juntos', description:'Orar em casal', icon:'✝️', tag:'espiritual', frequency:{type:'daily'} },
+            { title:'Ler a Bíblia', description:'Devocional', icon:'📖', tag:'espiritual', frequency:{type:'daily'} },
+        ];
+        
+        // ==================== COMPONENTES ====================
+        
+        // Barra de Progresso Diário
+        const DailyProgress = memo(({ habits, date }) => {
+            const dateStr = date.toISOString().split('T')[0];
+            const activeHabits = habits.filter(h => isHabitActiveOnDate(h, dateStr));
+            const completed = activeHabits.filter(h => h.completedDates?.includes(dateStr)).length;
+            const total = activeHabits.length;
+            const percent = total > 0 ? (completed / total) * 100 : 0;
+            
+            if (total === 0) return null;
+            
+            return (
+                <div className="bg-card p-3">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-secondary text-xs">Progresso do dia</span>
+                        <span className="text-primary font-semibold text-xs">{completed}/{total}</span>
+                    </div>
+                    <div className="progress-bar-bg">
+                        <div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
+                    </div>
+                </div>
+            );
+        });
+        
+        // Calendário Semanal
+        const WeekCalendar = memo(({ selectedDate, onSelect, habits }) => {
             const week = getWeekDays();
             const today = new Date();
-            const hasCompletion = (date) => habits.some(h => h.completedDates?.includes(date.toISOString().split('T')[0]));
+            
             return (
-                <div className="bg-card border border-primary rounded-2xl p-2">
+                <div className="bg-card p-2">
                     <div className="week-calendar">
-                        {week.map((day,idx)=>{
-                            const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
+                        {week.map((day, idx) => {
+                            const dateStr = day.toISOString().split('T')[0];
+                            const isSel = selectedDate && day.toDateString() === selectedDate.toDateString();
                             const isToday = day.toDateString() === today.toDateString();
+                            const hasActive = habits.some(h => isHabitActiveOnDate(h, dateStr));
+                            const hasCompleted = habits.some(h => h.completedDates?.includes(dateStr));
+                            
                             return (
-                                <div key={idx} onClick={()=>onSelect(day)} className={`week-day ${isSel?'week-day-selected':''} ${hasCompletion(day)?'week-day-completed':''}`}>
+                                <div key={idx} onClick={() => onSelect(day)} 
+                                    className={`week-day relative ${isSel ? 'week-day-selected' : ''}`}>
                                     <div className="text-xs font-medium">{formatDayName(day)}</div>
-                                    <div className={`text-lg font-bold ${isToday && !isSel ? 'text-green-400' : 'text-primary'}`}>{day.getDate()}</div>
+                                    <div className={`text-lg font-bold ${isToday && !isSel ? 'text-green-400' : ''}`}>
+                                        {day.getDate()}
+                                    </div>
+                                    {hasCompleted && <div className="week-day-dot" style={{background:'#10b981'}}></div>}
+                                    {hasActive && !hasCompleted && <div className="week-day-dot" style={{background:'#f59e0b'}}></div>}
                                 </div>
                             );
                         })}
                     </div>
                 </div>
             );
-        };
+        });
         
-        const HabitCard = ({ habit, onToggle, onEdit, onDelete, selectedDate, index }) => {
-            const dateCheck = selectedDate ? selectedDate.toISOString().split('T')[0] : getToday();
-            const completed = habit.completedDates?.includes(dateCheck) || false;
-            const [menu, setMenu] = React.useState(false);
-            const [pos, setPos] = React.useState({x:0,y:0});
-            const freqText = (()=>{
-                if(!habit.frequency) return '📅 Todo dia';
-                if(habit.frequency.type==='daily') return '📅 Todo dia';
-                if(habit.frequency.type==='weekly') return `📆 ${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][habit.frequency.day]}`;
-                if(habit.frequency.type==='custom') return `🔄 A cada ${habit.frequency.interval} dias`;
+        // Card de Hábito
+        const HabitCard = memo(({ habit, onToggle, onEdit, onDelete, dateStr, index }) => {
+            const completed = habit.completedDates?.includes(dateStr) || false;
+            const isActive = isHabitActiveOnDate(habit, dateStr);
+            const [flash, setFlash] = useState(false);
+            
+            const freqText = useMemo(() => {
+                const f = habit.frequency;
+                if (!f || f.type === 'daily') return '📅 Todo dia';
+                if (f.type === 'weekly') return `📆 ${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][f.day]}`;
+                if (f.type === 'custom') return `🔄 A cada ${f.interval} dias`;
                 return '📅 Todo dia';
-            })();
-            const tagColor = { amor:'bg-pink-500/20 text-pink-400', comunicação:'bg-blue-500/20 text-blue-400', espiritual:'bg-purple-500/20 text-purple-400', saúde:'bg-green-500/20 text-green-400', relacionamento:'bg-orange-500/20 text-orange-400' }[habit.tag] || 'bg-gray-500/20 text-gray-400';
+            }, [habit.frequency]);
+            
+            const tagColors = {
+                amor: 'bg-pink-500/20 text-pink-400',
+                comunicação: 'bg-blue-500/20 text-blue-400',
+                espiritual: 'bg-purple-500/20 text-purple-400',
+                saúde: 'bg-green-500/20 text-green-400',
+                relacionamento: 'bg-orange-500/20 text-orange-400'
+            };
+            const tagColor = tagColors[habit.tag] || 'bg-gray-500/20 text-gray-400';
+            
+            // CORRIGIDO: Só esconde hábitos inativos em datas passadas
+            const isToday = dateStr === getToday();
+            if (!isActive && !isToday) return null;
+            
+            const handleToggle = () => {
+                if (!isActive && isToday) {
+                    showToast('Este hábito não está ativo hoje', true);
+                    return;
+                }
+                if (!isActive) return;
+                
+                onToggle(habit.id, dateStr);
+                if (!completed) {
+                    setFlash(true);
+                    setTimeout(() => setFlash(false), 600);
+                }
+            };
+            
             return (
-                <div className="bg-card border border-primary rounded-2xl p-3 animate-fade-in-up transition-all hover:border-green-500/40" style={{animationDelay:`${index*0.05}s`}}>
+                <div className={`bg-card p-3 transition-all duration-300 ${flash ? 'ring-2 ring-green-500' : ''} ${!isActive ? 'opacity-40' : 'hover:border-green-500/40'}`}>
                     <div className="flex items-start gap-2">
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-2xl">{habit.icon}</span>
-                                <h3 className="text-primary font-semibold text-sm">{habit.title}</h3>
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${tagColor}`}>{habit.tag}</span>
+                                <span className="text-2xl flex-shrink-0">{habit.icon}</span>
+                                <h3 className="text-primary font-semibold text-sm truncate">{habit.title}</h3>
+                                <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${tagColor}`}>{habit.tag}</span>
+                                {!isActive && <span className="text-xs text-yellow-500 flex-shrink-0">⏳</span>}
                             </div>
-                            <div className="flex items-center gap-3 mt-1">
-                                <span className="text-xs text-orange-400">🔥 {habit.streak||0}</span>
-                                <span className="text-secondary text-xs">✅ {habit.completedDates?.length||0}</span>
+                            <div className="flex items-center gap-3 mt-1 flex-wrap">
+                                <span className="text-xs text-orange-400">🔥 {habit.streak || 0}</span>
+                                <span className="text-secondary text-xs">✅ {habit.completedDates?.length || 0}</span>
                                 <span className="text-secondary text-xs">{freqText}</span>
                             </div>
-                            {habit.description && <p className="text-secondary text-xs mt-1">{habit.description}</p>}
+                            {habit.description && <p className="text-secondary text-xs mt-1 truncate">{habit.description}</p>}
                         </div>
-                        <div className="flex flex-col items-center gap-1">
-                            <button onClick={(e)=>{ e.stopPropagation(); setPos({x:e.clientX,y:e.clientY}); setMenu(true); }} className="text-secondary text-xl">⋮</button>
-                            <button onClick={()=>onToggle(habit.id, dateCheck)} className={`check-button ${completed?'check-button-completed':'check-button-pending'}`} style={{width:42,height:42,fontSize:20}}>{completed?'✓':'○'}</button>
+                        <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                            <button onClick={() => onEdit(habit)} className="text-secondary text-lg hover:text-green-400 px-1">✏️</button>
+                            <button onClick={() => onDelete(habit.id)} className="text-secondary text-lg hover:text-red-400 px-1">🗑️</button>
+                            <button onClick={handleToggle} disabled={!isActive}
+                                className={`check-button ${completed ? 'check-button-completed' : 'check-button-pending'} ${!isActive ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                {completed ? '✓' : '○'}
+                            </button>
                         </div>
-                    </div>
-                    {menu && (
-                        <div className="context-menu" style={{top:pos.y-60, left:pos.x-130}}>
-                            <div className="context-menu-item" onClick={()=>{ onEdit(habit); setMenu(false); }}>✏️ Editar</div>
-                            <div className="context-menu-item delete" onClick={()=>{ if(confirm(`Deletar "${habit.title}"?`)) onDelete(habit.id); setMenu(false); }}>🗑️ Deletar</div>
-                        </div>
-                    )}
-                </div>
-            );
-        };
-        
-        // ---------- TELA DE LOGIN ----------
-        const LoginScreen = ({ onLogin }) => {
-            const [email, setEmail] = React.useState('');
-            const [pass, setPass] = React.useState('');
-            const [isReg, setIsReg] = React.useState(false);
-            const [loading, setLoading] = React.useState(false);
-            const [error, setError] = React.useState('');
-            const handleSubmit = async(e) => {
-                e.preventDefault();
-                setLoading(true); setError('');
-                try {
-                    if(isReg) await window.firebaseCreateUser(window.firebaseAuth, email, pass);
-                    else await window.firebaseSignIn(window.firebaseAuth, email, pass);
-                    showToast(isReg ? 'Conta criada! 🎉' : 'Bem-vindo! 👋');
-                    onLogin();
-                } catch(err) {
-                    let msg = err.message;
-                    if(msg.includes('invalid-email')) msg='Email inválido';
-                    else if(msg.includes('user-not-found')) msg='Usuário não encontrado';
-                    else if(msg.includes('wrong-password')) msg='Senha incorreta';
-                    else if(msg.includes('email-already-in-use')) msg='Email já cadastrado';
-                    setError(msg);
-                    showToast(msg,'error');
-                }
-                setLoading(false);
-            };
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] to-[#0f0f1a] flex items-center justify-center p-4">
-                    <div className="glass-effect rounded-3xl p-6 max-w-md w-full border border-primary animate-fade-in-up">
-                        <div className="text-center mb-5">
-                            <div className="text-6xl mb-2">💑</div>
-                            <h1 className="text-3xl font-bold couple-name-highlight">HabitFlow</h1>
-                            <p className="text-secondary text-sm">Fortaleça seu relacionamento</p>
-                        </div>
-                        <form onSubmit={handleSubmit} className="space-y-3">
-                            <input type="email" placeholder="seu@email.com" value={email} onChange={e=>setEmail(e.target.value)} className="w-full p-3 rounded-xl bg-[#2d2d44] text-primary placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-green-500" required />
-                            <input type="password" placeholder="••••••••" value={pass} onChange={e=>setPass(e.target.value)} className="w-full p-3 rounded-xl bg-[#2d2d44] text-primary placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-green-500" required />
-                            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-                            <button type="submit" disabled={loading} className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold transition hover:shadow-lg">{loading ? <div className="loading-spinner mx-auto"></div> : (isReg ? 'Criar Conta ✨' : 'Entrar 🚀')}</button>
-                            <p className="text-center text-secondary text-sm">{isReg ? 'Já tem conta?' : 'Não tem conta?'} <button type="button" onClick={()=>setIsReg(!isReg)} className="text-green-400">{isReg ? 'Fazer login' : 'Cadastre-se'}</button></p>
-                        </form>
                     </div>
                 </div>
             );
-        };
+        });
         
-        // ---------- MODAL DE CATEGORIAS ----------
-        const CategoryManager = ({ categories, setCategories, onClose }) => {
-            const [newCat, setNewCat] = React.useState('');
-            const [editing, setEditing] = React.useState(null);
-            const addCategory = () => {
-                if(newCat && !categories.includes(newCat)) {
-                    setCategories([...categories, newCat]);
-                    setNewCat('');
-                }
-            };
-            const editCategory = (oldName, newName) => {
-                if(newName && !categories.includes(newName)) {
-                    const idx = categories.indexOf(oldName);
-                    if(idx!==-1) {
-                        const updated = [...categories];
-                        updated[idx] = newName;
-                        setCategories(updated);
-                        setEditing(null);
+        // Modal de Criação/Edição de Hábito
+        const HabitFormModal = memo(({ isOpen, onClose, onSave, initial, categories }) => {
+            const [title, setTitle] = useState('');
+            const [desc, setDesc] = useState('');
+            const [icon, setIcon] = useState('❤️');
+            const [tag, setTag] = useState('amor');
+            const [freqType, setFreqType] = useState('daily');
+            const [weeklyDay, setWeeklyDay] = useState(0);
+            const [customInterval, setCustomInterval] = useState(2);
+            
+            useEffect(() => {
+                if (isOpen) {
+                    if (initial) {
+                        setTitle(initial.title || '');
+                        setDesc(initial.description || '');
+                        setIcon(initial.icon || '❤️');
+                        setTag(initial.tag || 'amor');
+                        const freq = initial.frequency || { type: 'daily' };
+                        setFreqType(freq.type || 'daily');
+                        setWeeklyDay(freq.day || 0);
+                        setCustomInterval(freq.interval || 2);
+                    } else {
+                        setTitle(''); setDesc(''); setIcon('❤️'); setTag('amor');
+                        setFreqType('daily'); setWeeklyDay(0); setCustomInterval(2);
                     }
                 }
-            };
-            const deleteCategory = (cat) => {
-                if(cat !== 'amor' && cat !== 'espiritual') { // evitar deletar categorias padrão importantes?
-                    setCategories(categories.filter(c=>c!==cat));
-                } else showToast('Categoria padrão não pode ser removida');
-            };
-            return (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="glass-effect rounded-2xl p-5 max-w-md w-full">
-                        <h3 className="text-xl font-bold text-primary mb-3">Gerenciar Categorias</h3>
-                        <div className="flex gap-2 mb-3">
-                            <input type="text" value={newCat} onChange={e=>setNewCat(e.target.value)} placeholder="Nova categoria" className="flex-1 p-2 rounded-xl bg-[#2d2d44] text-primary" />
-                            <button onClick={addCategory} className="px-4 py-2 bg-green-500 rounded-xl text-white">+ Adicionar</button>
-                        </div>
-                        <div className="space-y-2 max-h-60 overflow-y-auto">
-                            {categories.map(cat=>(
-                                <div key={cat} className="flex items-center justify-between bg-[#2d2d44] p-2 rounded-xl">
-                                    {editing === cat ? (
-                                        <input type="text" defaultValue={cat} onBlur={(e)=>editCategory(cat, e.target.value)} autoFocus className="flex-1 p-1 rounded bg-[#1a1a2e] text-white" />
-                                    ) : (
-                                        <span className="text-primary">{cat}</span>
-                                    )}
-                                    <div className="flex gap-2">
-                                        <button onClick={()=>setEditing(cat)} className="text-yellow-400">✏️</button>
-                                        <button onClick={()=>deleteCategory(cat)} className="text-red-400">🗑️</button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <button onClick={onClose} className="mt-4 w-full py-2 bg-[#2d2d44] rounded-xl text-white">Fechar</button>
-                    </div>
-                </div>
-            );
-        };
-        
-        // ---------- MODAL DE HÁBITO (CRIAR/EDITAR) ----------
-        const HabitFormModal = ({ isOpen, onClose, onSave, initial, personName }) => {
-            const [title, setTitle] = React.useState('');
-            const [desc, setDesc] = React.useState('');
-            const [icon, setIcon] = React.useState('❤️');
-            const [tag, setTag] = React.useState('amor');
-            const [freqType, setFreqType] = React.useState('daily');
-            const [weeklyDay, setWeeklyDay] = React.useState(0);
-            const [customInterval, setCustomInterval] = React.useState(2);
-            const [categories, setCategories] = React.useState(['amor','comunicação','espiritual','saúde','relacionamento']);
-            const [showCategoryManager, setShowCategoryManager] = React.useState(false);
+            }, [isOpen, initial]);
             
-            React.useEffect(()=>{
-                if(initial){
-                    setTitle(initial.title||'');
-                    setDesc(initial.description||'');
-                    setIcon(initial.icon||'❤️');
-                    setTag(initial.tag||'amor');
-                    if(initial.frequency){
-                        setFreqType(initial.frequency.type);
-                        if(initial.frequency.type==='weekly') setWeeklyDay(initial.frequency.day||0);
-                        if(initial.frequency.type==='custom') setCustomInterval(initial.frequency.interval||2);
-                    } else { setFreqType('daily'); }
-                } else {
-                    setTitle(''); setDesc(''); setIcon('❤️'); setTag('amor'); setFreqType('daily'); setWeeklyDay(0); setCustomInterval(2);
-                }
-            },[initial]);
+            if (!isOpen) return null;
             
-            if(!isOpen) return null;
             const handleSubmit = (e) => {
                 e.preventDefault();
-                let frequency = { type: freqType };
-                if(freqType==='weekly') frequency.day = weeklyDay;
-                if(freqType==='custom') frequency.interval = customInterval;
-                onSave({ ...(initial||{}), title, description:desc, icon, tag, frequency });
+                if (!title.trim()) {
+                    showToast('Nome do hábito é obrigatório', true);
+                    return;
+                }
+                
+                const frequency = { type: freqType };
+                if (freqType === 'weekly') frequency.day = weeklyDay;
+                if (freqType === 'custom') frequency.interval = customInterval;
+                
+                // CORRIGIDO: Garante que todos os campos sejam enviados
+                const habitData = {
+                    ...(initial || {}),
+                    title: title.trim(),
+                    description: desc.trim(),
+                    icon,
+                    tag,
+                    frequency
+                };
+                
+                onSave(habitData);
                 onClose();
             };
+            
             return (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-                    <div className="glass-effect rounded-2xl p-5 max-w-md w-full max-h-[90vh] overflow-y-auto">
-                        <h3 className="text-xl font-bold text-primary mb-3">{initial ? '✏️ Editar Hábito' : '✨ Novo Hábito'} para {personName}</h3>
-                        <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[300] p-4" onClick={onClose}>
+                    <div className="glass-effect p-5 max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-xl font-bold text-primary mb-4">
+                            {initial ? '✏️ Editar Hábito' : '✨ Novo Hábito'}
+                        </h3>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* Ícone */}
                             <div>
-                                <label className="text-secondary text-sm">Ícone (clique para selecionar)</label>
-                                <div className="emoji-grid mt-1">
+                                <label className="text-secondary text-sm mb-2 block">Ícone</label>
+                                <div className="emoji-grid">
                                     {allEmojis.map(em => (
-                                        <div key={em} onClick={()=>setIcon(em)} className={`emoji-btn ${icon===em ? 'selected' : ''}`}>{em}</div>
+                                        <div key={em} onClick={() => setIcon(em)} 
+                                            className={`emoji-btn ${icon === em ? 'selected' : ''}`}>
+                                            {em}
+                                        </div>
                                     ))}
                                 </div>
                             </div>
-                            <div><label className="text-secondary text-sm">Nome</label><input type="text" value={title} onChange={e=>setTitle(e.target.value)} className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary" required /></div>
-                            <div><label className="text-secondary text-sm">Descrição</label><textarea value={desc} onChange={e=>setDesc(e.target.value)} rows="2" className="w-full p-2 rounded-xl bg-[#2d2d44] text-primary"></textarea></div>
+                            
+                            {/* Nome */}
                             <div>
-                                <label className="text-secondary text-sm">Categoria</label>
-                                <div className="flex gap-2">
-                                    <select value={tag} onChange={e=>setTag(e.target.value)} className="flex-1 p-2 rounded-xl bg-[#2d2d44] text-primary">
-                                        {categories.map(c=> <option key={c} value={c}>{c}</option> )}
-                                    </select>
-                                    <button type="button" onClick={()=>setShowCategoryManager(true)} className="px-3 py-2 bg-blue-500 rounded-xl text-white text-sm">Editar</button>
-                                </div>
+                                <label className="text-secondary text-sm mb-1 block">Nome *</label>
+                                <input type="text" value={title} onChange={e => setTitle(e.target.value)}
+                                    className="w-full p-2 rounded-xl bg-input text-primary border border-primary" 
+                                    placeholder="Ex: Orar juntos" required />
                             </div>
+                            
+                            {/* Descrição */}
                             <div>
-                                <label className="text-secondary text-sm">Frequência</label>
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                    <button type="button" onClick={()=>setFreqType('daily')} className={`px-3 py-1.5 rounded-xl text-sm ${freqType==='daily' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>📅 Todo dia</button>
-                                    <button type="button" onClick={()=>setFreqType('weekly')} className={`px-3 py-1.5 rounded-xl text-sm ${freqType==='weekly' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>📆 Semanal</button>
-                                    <button type="button" onClick={()=>setFreqType('custom')} className={`px-3 py-1.5 rounded-xl text-sm ${freqType==='custom' ? 'bg-green-500 text-white' : 'bg-[#2d2d44] text-secondary'}`}>🔄 Personalizado</button>
+                                <label className="text-secondary text-sm mb-1 block">Descrição</label>
+                                <textarea value={desc} onChange={e => setDesc(e.target.value)} rows="2"
+                                    className="w-full p-2 rounded-xl bg-input text-primary border border-primary"
+                                    placeholder="Detalhes do hábito..."></textarea>
+                            </div>
+                            
+                            {/* Categoria */}
+                            <div>
+                                <label className="text-secondary text-sm mb-1 block">Categoria</label>
+                                <select value={tag} onChange={e => setTag(e.target.value)}
+                                    className="w-full p-2 rounded-xl bg-input text-primary border border-primary">
+                                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
+                            
+                            {/* Frequência */}
+                            <div>
+                                <label className="text-secondary text-sm mb-2 block">Frequência</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {[
+                                        { type: 'daily', label: '📅 Todo dia' },
+                                        { type: 'weekly', label: '📆 Semanal' },
+                                        { type: 'custom', label: '🔄 Personalizado' }
+                                    ].map(opt => (
+                                        <button key={opt.type} type="button" onClick={() => setFreqType(opt.type)}
+                                            className={`px-3 py-1.5 rounded-xl text-sm transition ${freqType === opt.type ? 'bg-green-500 text-white' : 'bg-input text-secondary'}`}>
+                                            {opt.label}
+                                        </button>
+                                    ))}
                                 </div>
-                                {freqType==='weekly' && (
-                                    <select value={weeklyDay} onChange={e=>setWeeklyDay(parseInt(e.target.value))} className="mt-2 w-full p-2 rounded-xl bg-[#2d2d44] text-primary">
-                                        {['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'].map((d,i)=> <option key={i} value={i}>{d}</option>)}
+                                
+                                {freqType === 'weekly' && (
+                                    <select value={weeklyDay} onChange={e => setWeeklyDay(parseInt(e.target.value))}
+                                        className="mt-2 w-full p-2 rounded-xl bg-input text-primary border border-primary">
+                                        {['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'].map((d,i) => (
+                                            <option key={i} value={i}>{d}</option>
+                                        ))}
                                     </select>
                                 )}
-                                {freqType==='custom' && (
-                                    <div className="flex items-center gap-2 mt-2 flex-wrap">
-                                        <span className="text-secondary">A cada</span>
-                                        <select value={customInterval} onChange={e=>setCustomInterval(parseInt(e.target.value))} className="p-2 rounded-xl bg-[#2d2d44] text-primary w-24">
-                                            <option value={2}>2 dias</option>
-                                            <option value={3}>3 dias</option>
-                                            <option value={5}>5 dias</option>
-                                            <option value={7}>7 dias</option>
-                                            <option value={10}>10 dias</option>
-                                            <option value={15}>15 dias</option>
-                                            <option value={30}>30 dias</option>
-                                        </select>
-                                        <input type="number" min="1" value={customInterval} onChange={e=>setCustomInterval(parseInt(e.target.value)||2)} className="p-2 rounded-xl bg-[#2d2d44] text-primary w-20" placeholder="outro" />
-                                        <span className="text-secondary">dias</span>
+                                
+                                {freqType === 'custom' && (
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className="text-secondary text-sm">A cada</span>
+                                        <input type="number" min="1" max="365" value={customInterval} 
+                                            onChange={e => setCustomInterval(Math.max(1, parseInt(e.target.value) || 2))}
+                                            className="p-2 rounded-xl bg-input text-primary border border-primary w-20 text-center" />
+                                        <span className="text-secondary text-sm">dias</span>
                                     </div>
                                 )}
                             </div>
+                            
+                            {/* Botões */}
                             <div className="flex gap-3 pt-2">
-                                <button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl bg-[#2d2d44] text-secondary">Cancelar</button>
-                                <button type="submit" className="flex-1 py-2 rounded-xl bg-green-500 text-white font-semibold">Salvar</button>
+                                <button type="button" onClick={onClose}
+                                    className="flex-1 py-2.5 rounded-xl bg-input text-secondary font-medium">
+                                    Cancelar
+                                </button>
+                                <button type="submit"
+                                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold">
+                                    {initial ? 'Salvar Alterações' : 'Criar Hábito'}
+                                </button>
                             </div>
                         </form>
-                        {showCategoryManager && <CategoryManager categories={categories} setCategories={setCategories} onClose={()=>setShowCategoryManager(false)} />}
                     </div>
                 </div>
             );
-        };
+        });
         
-        // ---------- ESTATÍSTICAS ----------
-        const StatisticsView = ({ habits, personName }) => {
-            const [period, setPeriod] = React.useState('week');
-            const total = habits.reduce((a,h)=>a+(h.completedDates?.length||0),0);
-            const streakTotal = habits.reduce((a,h)=>a+(h.streak||0),0);
-            const best = habits.reduce((b,h)=> (h.streak > (b?.streak||0) ? h : b), null);
-            const level = Math.floor(total/30)+1;
-            const nextLevel = (level*30)-total;
-            const dateRange = period==='week' ? getWeekDays().map(d=>d.toISOString().split('T')[0]) : (()=>{let d=[]; for(let i=29;i>=0;i--){let dt=new Date(); dt.setDate(dt.getDate()-i); d.push(dt.toISOString().split('T')[0]);} return d;})();
-            let periodTotal=0;
-            habits.forEach(h=>{ periodTotal += h.completedDates?.filter(d=>dateRange.includes(d)).length||0; });
-            const avg = dateRange.length ? (periodTotal/dateRange.length).toFixed(1) : 0;
-            return (
-                <div className="space-y-4 pb-20 animate-fade-in-up">
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-card border border-primary rounded-2xl p-3 text-center"><div className="text-2xl">📊</div><p className="text-2xl font-bold text-primary">{total}</p><p className="text-secondary text-xs">concluídos</p></div>
-                        <div className="bg-card border border-primary rounded-2xl p-3 text-center"><div className="text-2xl">🔥</div><p className="text-2xl font-bold text-primary">{streakTotal}</p><p className="text-secondary text-xs">streak total</p></div>
-                        <div className="bg-card border border-primary rounded-2xl p-3 text-center"><div className="text-2xl">🏆</div><p className="text-2xl font-bold text-primary">{level}</p><p className="text-secondary text-xs">nível</p></div>
-                        <div className="bg-card border border-primary rounded-2xl p-3 text-center"><div className="text-2xl">📈</div><p className="text-2xl font-bold text-primary">{avg}</p><p className="text-secondary text-xs">média/dia</p></div>
-                    </div>
-                    <div className="bg-card border border-primary rounded-2xl p-3"><div className="w-full bg-[#2d2d44] rounded-full h-2"><div className="bg-green-500 h-full rounded-full" style={{width:`${(total%30)*3.33}%`}}></div></div><p className="text-secondary text-xs text-center mt-1">{nextLevel>0? `Faltam ${nextLevel} para nível ${level+1}`:'Parabéns! Nível máximo'}</p></div>
-                    {best && <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-3 text-center border border-green-500/30"><p className="text-secondary text-xs">🏅 Melhor hábito</p><div className="flex justify-center items-center gap-2"><span className="text-2xl">{best.icon}</span><span className="text-primary font-semibold">{best.title}</span><span className="text-green-400">🔥{best.streak}</span></div></div>}
-                    <div className="flex gap-2"><button onClick={()=>setPeriod('week')} className={`flex-1 py-2 rounded-xl text-sm ${period==='week'?'bg-green-500 text-white':'bg-[#2d2d44] text-secondary'}`}>Esta semana</button><button onClick={()=>setPeriod('month')} className={`flex-1 py-2 rounded-xl text-sm ${period==='month'?'bg-green-500 text-white':'bg-[#2d2d44] text-secondary'}`}>Este mês</button></div>
-                    <div className="bg-card border border-primary rounded-2xl p-4 text-center"><p className="text-secondary text-xs">Média de hábitos/dia</p><p className="text-3xl font-bold text-primary">{avg}</p></div>
-                </div>
-            );
-        };
-        
-        // ---------- APP PRINCIPAL ----------
-        const App = () => {
-            const [user, setUser] = React.useState(null);
-            const [loading, setLoading] = React.useState(true);
-            const [activePerson, setActivePerson] = React.useState('josiel');
-            const [nav, setNav] = React.useState('habits');
-            const [theme, setTheme] = React.useState('dark');
-            const [names, setNames] = React.useState({ josiel:'Josiel', zipora:'Zipora' });
-            const [habitsData, setHabitsData] = React.useState({ josiel:[], zipora:[] });
-            const [selectedDate, setSelectedDate] = React.useState(new Date());
-            const [photo, setPhoto] = React.useState(null);
-            const [modalOpen, setModalOpen] = React.useState(false);
-            const [editingHabit, setEditingHabit] = React.useState(null);
+        // Tela de Login
+        const LoginScreen = ({ onLogin }) => {
+            const [email, setEmail] = useState('');
+            const [pass, setPass] = useState('');
+            const [isReg, setIsReg] = useState(false);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
             
-            React.useEffect(()=>{
-                const unsub = window.firebaseOnAuthStateChanged(window.firebaseAuth, async (authUser)=>{
-                    if(authUser){
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true); setError('');
+                try {
+                    if (isReg) await window.firebaseCreateUser(window.firebaseAuth, email, pass);
+                    else await window.firebaseSignIn(window.firebaseAuth, email, pass);
+                    showToast(isReg ? 'Conta criada! 🎉' : 'Bem-vindo! 👋');
+                } catch (err) {
+                    let msg = err.message;
+                    if (msg.includes('invalid-email')) msg = 'Email inválido';
+                    else if (msg.includes('user-not-found')) msg = 'Usuário não encontrado';
+                    else if (msg.includes('wrong-password')) msg = 'Senha incorreta';
+                    else if (msg.includes('email-already-in-use')) msg = 'Email já cadastrado';
+                    setError(msg); showToast(msg, true);
+                }
+                setLoading(false);
+            };
+            
+            return (
+                <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
+                    <div className="glass-effect p-6 max-w-md w-full">
+                        <div className="text-center mb-6">
+                            <div className="text-6xl mb-3">💑</div>
+                            <h1 className="text-3xl font-bold couple-name-highlight">HabitFlow</h1>
+                            <p className="text-secondary text-sm mt-1">Fortaleça seu relacionamento com Cristo</p>
+                        </div>
+                        <form onSubmit={handleSubmit} className="space-y-3">
+                            <input type="email" placeholder="seu@email.com" value={email} 
+                                onChange={e => setEmail(e.target.value)}
+                                className="w-full p-3 rounded-xl bg-input text-primary border border-primary focus:ring-2 focus:ring-green-500" required />
+                            <input type="password" placeholder="••••••••" value={pass} 
+                                onChange={e => setPass(e.target.value)}
+                                className="w-full p-3 rounded-xl bg-input text-primary border border-primary focus:ring-2 focus:ring-green-500" required />
+                            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+                            <button type="submit" disabled={loading}
+                                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg transition">
+                                {loading ? <div className="loading-spinner mx-auto"></div> : (isReg ? 'Criar Conta ✨' : 'Entrar 🚀')}
+                            </button>
+                            <p className="text-center text-secondary text-sm">
+                                {isReg ? 'Já tem conta?' : 'Não tem conta?'} 
+                                <button type="button" onClick={() => setIsReg(!isReg)} className="text-green-400 ml-1 font-medium">
+                                    {isReg ? 'Fazer login' : 'Cadastre-se'}
+                                </button>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+        
+        // ==================== APP PRINCIPAL ====================
+        const App = () => {
+            const [user, setUser] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [activePerson, setActivePerson] = useState('josiel');
+            const [nav, setNav] = useState('habits');
+            const [theme, setTheme] = useState('dark');
+            const [names, setNames] = useState({ josiel:'Josiel', zipora:'Zipora' });
+            const [habitsData, setHabitsData] = useState({ josiel:[], zipora:[] });
+            const [categories, setCategories] = useState(defaultCategories);
+            const [selectedDate, setSelectedDate] = useState(new Date());
+            const [modalOpen, setModalOpen] = useState(false);
+            const [editingHabit, setEditingHabit] = useState(null);
+            
+            // Listener Firebase
+            useEffect(() => {
+                const unsub = window.firebaseOnAuthStateChanged(window.firebaseAuth, (authUser) => {
+                    if (authUser) {
                         setUser(authUser);
                         const userRef = window.firebaseRef(window.firebaseDatabase, `users/${authUser.uid}`);
-                        window.firebaseOnValue(userRef, (snap)=>{
-                            if(snap.exists()){
+                        window.firebaseOnValue(userRef, (snap) => {
+                            if (snap.exists()) {
                                 const data = snap.val();
                                 setNames(data.names || { josiel:'Josiel', zipora:'Zipora' });
                                 setHabitsData(data.habits || { josiel:[], zipora:[] });
                                 setTheme(data.theme || 'dark');
-                                setPhoto(data.photo || null);
+                                setCategories(data.categories || defaultCategories);
                                 document.body.className = data.theme === 'light' ? 'light-mode' : '';
-                            } else {
-                                const init = {
-                                    josiel: defaultHabits.map((h,i)=>({...h, id:`josiel_${i}`, completedDates:[getToday()], streak:1, order:i})),
-                                    zipora: defaultHabits.map((h,i)=>({...h, id:`zipora_${i}`, completedDates:[getToday()], streak:1, order:i}))
-                                };
-                                setHabitsData(init);
-                                window.firebaseSet(userRef, { names, habits:init, theme:'dark', photo:null });
                             }
                         });
                         setLoading(false);
-                    } else { setUser(null); setLoading(false); }
+                    } else {
+                        setUser(null);
+                        setLoading(false);
+                    }
                 });
-                return ()=>unsub();
-            },[]);
+                return () => unsub();
+            }, []);
             
-            const updateFB = (data) => { if(user) window.firebaseUpdate(window.firebaseRef(window.firebaseDatabase, `users/${user.uid}`), data); };
-            const handleNameChange = (pid, newName) => { const n={...names, [pid]:newName}; setNames(n); updateFB({names:n}); showToast(`Nome atualizado`); };
-            const handleThemeChange = (t) => { setTheme(t); document.body.className = t==='light'?'light-mode':''; updateFB({theme:t}); };
-            const handlePhoto = (e) => { const file=e.target.files[0]; if(file){ const reader=new FileReader(); reader.onloadend=()=>{ setPhoto(reader.result); updateFB({photo:reader.result}); showToast('Foto atualizada'); }; reader.readAsDataURL(file); } };
+            // CORRIGIDO: updateFB agora usa set para criação inicial também
+            const updateFB = useCallback((data) => {
+                if (user) {
+                    const userRef = window.firebaseRef(window.firebaseDatabase, `users/${user.uid}`);
+                    window.firebaseUpdate(userRef, data).catch(err => {
+                        console.error('Firebase update error:', err);
+                        showToast('Erro ao salvar', true);
+                    });
+                }
+            }, [user]);
             
-            const addHabit = (habit) => {
-                const newHabit = { ...habit, id: `${activePerson}_${Date.now()}`, completedDates:[], streak:0, order: habitsData[activePerson].length };
-                const newData = { ...habitsData, [activePerson]: [...habitsData[activePerson], newHabit] };
+            // CRUD Operations
+            const addHabit = useCallback((habit) => {
+                const newHabit = {
+                    ...habit,
+                    id: `${activePerson}_${Date.now()}`,
+                    completedDates: [],
+                    streak: 0,
+                    order: habitsData[activePerson].length,
+                    createdAt: new Date().toISOString()
+                };
+                const newData = { 
+                    ...habitsData, 
+                    [activePerson]: [...habitsData[activePerson], newHabit] 
+                };
                 setHabitsData(newData);
-                updateFB({habits:newData});
-                showToast(`Hábito "${habit.title}" criado`);
-            };
-            const editHabit = (updated) => {
-                const newData = { ...habitsData, [activePerson]: habitsData[activePerson].map(h=> h.id===updated.id ? updated : h) };
+                updateFB({ habits: newData });
+                showToast(`"${habit.title}" criado! ✨`);
+            }, [activePerson, habitsData, updateFB]);
+            
+            const editHabit = useCallback((updated) => {
+                const newData = {
+                    ...habitsData,
+                    [activePerson]: habitsData[activePerson].map(h => 
+                        h.id === updated.id ? { ...h, ...updated } : h
+                    )
+                };
                 setHabitsData(newData);
-                updateFB({habits:newData});
-                showToast(`Hábito atualizado`);
-            };
-            const deleteHabit = (id) => {
-                const newData = { ...habitsData, [activePerson]: habitsData[activePerson].filter(h=> h.id!==id) };
+                updateFB({ habits: newData });
+                showToast(`"${updated.title}" atualizado! ✏️`);
+            }, [activePerson, habitsData, updateFB]);
+            
+            const deleteHabit = useCallback((id) => {
+                const habit = habitsData[activePerson].find(h => h.id === id);
+                if (!habit) return;
+                if (!confirm(`Deletar "${habit.title}"?`)) return;
+                
+                const newData = {
+                    ...habitsData,
+                    [activePerson]: habitsData[activePerson].filter(h => h.id !== id)
+                };
                 setHabitsData(newData);
-                updateFB({habits:newData});
-                showToast(`Hábito removido`);
-            };
-            const toggleHabit = (habitId, date) => {
-                const updated = habitsData[activePerson].map(h=>{
-                    if(h.id!==habitId) return h;
-                    const already = h.completedDates?.includes(date)||false;
-                    const newDates = already ? h.completedDates.filter(d=>d!==date) : [...(h.completedDates||[]), date];
-                    return {...h, completedDates:newDates, streak: calculateStreak(newDates) };
+                updateFB({ habits: newData });
+                showToast(`"${habit.title}" removido 🗑️`);
+            }, [activePerson, habitsData, updateFB]);
+            
+            const toggleHabit = useCallback((habitId, dateStr) => {
+                const newList = habitsData[activePerson].map(h => {
+                    if (h.id !== habitId) return h;
+                    const already = h.completedDates?.includes(dateStr) || false;
+                    const newDates = already 
+                        ? h.completedDates.filter(d => d !== dateStr) 
+                        : [...(h.completedDates || []), dateStr];
+                    const streak = calculateStreak(newDates, h.frequency);
+                    return { ...h, completedDates: newDates, streak };
                 });
-                const newData = { ...habitsData, [activePerson]: updated };
+                
+                const toggledHabit = newList.find(h => h.id === habitId);
+                const wasCompleted = habitsData[activePerson]
+                    .find(h => h.id === habitId)?.completedDates?.includes(dateStr);
+                const isNowCompleted = toggledHabit?.completedDates?.includes(dateStr);
+                
+                if (isNowCompleted && !wasCompleted) {
+                    playCheckSound();
+                    triggerConfetti();
+                }
+                
+                const newData = { ...habitsData, [activePerson]: newList };
                 setHabitsData(newData);
-                updateFB({habits:newData});
-                showToast(updated.find(h=>h.id===habitId).completedDates?.includes(date) ? '✅ Concluído!' : '⭕ Desmarcado');
-            };
-            const logout = async()=>{ await window.firebaseSignOut(window.firebaseAuth); setUser(null); showToast('Até logo!'); };
+                updateFB({ habits: newData });
+            }, [activePerson, habitsData, updateFB]);
             
-            if(loading) return <div className="min-h-screen flex items-center justify-center"><div className="loading-spinner"></div></div>;
-            if(!user) return <LoginScreen onLogin={()=>{}} />;
+            const handleThemeToggle = useCallback(() => {
+                const newTheme = theme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+                document.body.className = newTheme === 'light' ? 'light-mode' : '';
+                updateFB({ theme: newTheme });
+            }, [theme, updateFB]);
             
-            const stats = (pid)=>({ total: habitsData[pid].length, completed: habitsData[pid].filter(h=>h.completedDates?.includes(getToday())).length, streak: habitsData[pid].reduce((a,b)=>a+(b.streak||0),0) });
-            const sJosiel = stats('josiel'), sZipora = stats('zipora');
+            const logout = useCallback(async () => {
+                await window.firebaseSignOut(window.firebaseAuth);
+                setUser(null);
+                showToast('Até logo! 👋');
+            }, []);
+            
+            if (loading) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center">
+                        <div className="loading-spinner"></div>
+                    </div>
+                );
+            }
+            
+            if (!user) return <LoginScreen />;
+            
+            const currentHabits = habitsData[activePerson] || [];
+            const dateStr = selectedDate.toISOString().split('T')[0];
             const gradient = activePerson === 'josiel' ? 'from-blue-500 to-cyan-500' : 'from-pink-500 to-rose-500';
             
             return (
-                <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] to-[#0f0f1a] pb-24">
-                    <header className="border-b border-primary bg-[#0f0f1a]/80 backdrop-blur-xl sticky top-0 z-40">
+                <div className="min-h-screen bg-[var(--bg-primary)] pb-24">
+                    {/* Header */}
+                    <header className="border-b border-primary bg-[var(--bg-primary)]/80 backdrop-blur-xl sticky top-0 z-40">
                         <div className="px-4 py-3">
                             <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="avatar-container" onClick={()=>document.getElementById('photoUpload').click()}>
-                                        {photo ? <img src={photo} className="w-12 h-12 rounded-full object-cover border-2 border-green-500" /> : <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-2xl">💑</div>}
-                                        <div className="avatar-overlay">📷</div>
-                                        <input type="file" id="photoUpload" accept="image/*" className="hidden" onChange={handlePhoto} />
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-xl">💑</div>
+                                    <div>
+                                        <h1 className="text-xl font-bold couple-name-highlight">HabitFlow</h1>
+                                        <p className="text-secondary text-xs">Casal Cristão</p>
                                     </div>
-                                    <div><h1 className="text-2xl font-bold couple-name-highlight">HabitFlow</h1><p className="text-secondary text-xs">Casal Cristão</p></div>
                                 </div>
-                                <div className="flex gap-2">
-                                    <button onClick={()=>setActivePerson('josiel')} className={`px-3 py-2 rounded-xl text-sm font-bold ${activePerson==='josiel' ? 'tab-active text-white' : 'bg-[#2d2d44] text-secondary'}`}>💙 {names.josiel} 🔥{sJosiel.streak}</button>
-                                    <button onClick={()=>setActivePerson('zipora')} className={`px-3 py-2 rounded-xl text-sm font-bold ${activePerson==='zipora' ? 'tab-active text-white' : 'bg-[#2d2d44] text-secondary'}`}>💖 {names.zipora} 🔥{sZipora.streak}</button>
-                                    <button onClick={logout} className="px-3 py-2 rounded-xl bg-red-500/20 text-red-400 text-sm">🚪</button>
+                                <div className="flex gap-1.5 flex-wrap">
+                                    <button onClick={() => setActivePerson('josiel')} 
+                                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${activePerson === 'josiel' ? 'bg-green-500 text-white' : 'bg-input text-secondary'}`}>
+                                        💙 {names.josiel}
+                                    </button>
+                                    <button onClick={() => setActivePerson('zipora')} 
+                                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${activePerson === 'zipora' ? 'bg-green-500 text-white' : 'bg-input text-secondary'}`}>
+                                        💖 {names.zipora}
+                                    </button>
+                                    <button onClick={logout} className="px-3 py-1.5 rounded-xl bg-red-500/20 text-red-400 text-xs font-medium">
+                                        🚪
+                                    </button>
                                 </div>
                             </div>
-                            <WeekCalendar selectedDate={selectedDate} onSelect={setSelectedDate} habits={habitsData[activePerson]} />
+                            <WeekCalendar selectedDate={selectedDate} onSelect={setSelectedDate} habits={currentHabits} />
                         </div>
                     </header>
+                    
+                    {/* Main Content */}
                     <main className="px-4 py-4 max-w-2xl mx-auto">
-                        {nav==='habits' && (
-                            <div className="space-y-4">
+                        {nav === 'habits' && (
+                            <div className="space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <div><h2 className="text-lg font-semibold text-primary">Meus Hábitos</h2><p className="text-secondary text-xs">{formatDate(selectedDate)}</p></div>
-                                    <button onClick={()=>{ setEditingHabit(null); setModalOpen(true); }} className={`bg-gradient-to-r ${gradient} text-white px-3 py-1.5 rounded-xl text-sm font-semibold flex items-center gap-1`}>+ Novo</button>
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-primary">
+                                            Hábitos de {names[activePerson]}
+                                        </h2>
+                                        <p className="text-secondary text-xs">{formatDate(selectedDate)}</p>
+                                    </div>
+                                    <button onClick={() => { setEditingHabit(null); setModalOpen(true); }} 
+                                        className={`bg-gradient-to-r ${gradient} text-white px-3 py-1.5 rounded-xl text-sm font-semibold`}>
+                                        + Novo
+                                    </button>
                                 </div>
-                                {habitsData[activePerson].length===0 ? <div className="text-center py-12 bg-card rounded-2xl"><p className="text-secondary">Nenhum hábito</p></div> :
-                                    <div className="space-y-2">{habitsData[activePerson].sort((a,b)=>(a.order||0)-(b.order||0)).map((h,idx)=> <HabitCard key={h.id} habit={h} onToggle={toggleHabit} onEdit={(h)=>{ setEditingHabit(h); setModalOpen(true); }} onDelete={deleteHabit} selectedDate={selectedDate} index={idx} />)}</div>
-                                }
+                                
+                                <DailyProgress habits={currentHabits} date={selectedDate} />
+                                
+                                {currentHabits.length === 0 ? (
+                                    <div className="text-center py-12 bg-card">
+                                        <div className="text-4xl mb-3">🌱</div>
+                                        <p className="text-secondary">Nenhum hábito ainda</p>
+                                        <p className="text-secondary text-xs mt-1">Toque em "+ Novo" para começar</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {currentHabits
+                                            .sort((a, b) => (a.order || 0) - (b.order || 0))
+                                            .map((h, idx) => (
+                                                <HabitCard key={h.id} habit={h} 
+                                                    onToggle={toggleHabit}
+                                                    onEdit={(habit) => { setEditingHabit(habit); setModalOpen(true); }}
+                                                    onDelete={deleteHabit}
+                                                    dateStr={dateStr}
+                                                    index={idx} />
+                                            ))}
+                                    </div>
+                                )}
                             </div>
                         )}
-                        {nav==='stats' && <StatisticsView habits={habitsData[activePerson]} personName={names[activePerson]} />}
-                        {nav==='settings' && (
-                            <div className="space-y-4">
-                                <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold">👤 Perfil</h3><div className="flex gap-2 mt-2"><input type="text" value={names[activePerson]} onChange={e=>handleNameChange(activePerson, e.target.value)} className="flex-1 p-2 rounded-xl bg-[#2d2d44] text-primary" /><button onClick={()=>handleNameChange(activePerson, names[activePerson])} className="px-4 py-2 bg-green-500 rounded-xl text-white">Salvar</button></div></div>
-                                <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold">🎨 Tema</h3><div className="flex items-center justify-between mt-2"><span className="text-secondary">{theme==='dark'?'🌙 Escuro':'☀️ Claro'}</span><label className="switch"><input type="checkbox" checked={theme==='light'} onChange={()=>handleThemeChange(theme==='dark'?'light':'dark')} /><span className="slider"></span></label></div></div>
-                                <div className="bg-card border border-primary rounded-2xl p-4"><h3 className="text-primary font-semibold">ℹ️ Sobre</h3><p className="text-secondary text-sm">Versão 3.0 - Com categorias e frequências personalizadas</p></div>
-                                <div className="bg-card border border-red-500/30 rounded-2xl p-4"><button onClick={logout} className="w-full py-2 bg-red-500/20 rounded-xl text-red-400">Sair da conta</button></div>
+                        
+                        {nav === 'settings' && (
+                            <div className="space-y-4 pb-20">
+                                {/* Perfis */}
+                                <div className="bg-card p-4">
+                                    <h3 className="text-primary font-semibold mb-3">👤 Perfis do Casal</h3>
+                                    <div className="space-y-3">
+                                        {['josiel', 'zipora'].map(pid => (
+                                            <div key={pid} className="flex gap-2">
+                                                <input type="text" value={names[pid]} 
+                                                    onChange={e => setNames({ ...names, [pid]: e.target.value })}
+                                                    className="flex-1 p-2 rounded-xl bg-input text-primary border border-primary" />
+                                                <button onClick={() => updateFB({ names })}
+                                                    className="px-4 py-2 bg-green-500 rounded-xl text-white text-sm">Salvar</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                {/* Tema */}
+                                <div className="bg-card p-4">
+                                    <h3 className="text-primary font-semibold mb-3">🎨 Aparência</h3>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-secondary">{theme === 'dark' ? '🌙 Modo Escuro' : '☀️ Modo Claro'}</span>
+                                        <label className="switch">
+                                            <input type="checkbox" checked={theme === 'light'} onChange={handleThemeToggle} />
+                                            <span className="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                {/* Sobre */}
+                                <div className="bg-card p-4">
+                                    <h3 className="text-primary font-semibold mb-3">ℹ️ Sobre</h3>
+                                    <p className="text-secondary text-sm">HabitFlow v2.0</p>
+                                    <p className="text-secondary text-xs mt-1">Hábitos inteligentes para casais cristãos</p>
+                                    <p className="text-secondary text-xs">❤️ Feito com amor e fé</p>
+                                </div>
                             </div>
                         )}
                     </main>
+                    
+                    {/* Bottom Nav */}
                     <div className="bottom-nav">
-                        <div onClick={()=>setNav('habits')} className={`bottom-nav-item ${nav==='habits'?'bottom-nav-active':'bottom-nav-inactive'}`}><span className="text-2xl">📋</span><span>Hábitos</span></div>
-                        <div onClick={()=>setNav('stats')} className={`bottom-nav-item ${nav==='stats'?'bottom-nav-active':'bottom-nav-inactive'}`}><span className="text-2xl">📊</span><span>Stats</span></div>
-                        <div onClick={()=>setNav('settings')} className={`bottom-nav-item ${nav==='settings'?'bottom-nav-active':'bottom-nav-inactive'}`}><span className="text-2xl">⚙️</span><span>Config</span></div>
+                        <div onClick={() => setNav('habits')} className={`bottom-nav-item ${nav === 'habits' ? 'bottom-nav-active' : 'text-secondary'}`}>
+                            <span className="text-xl">📋</span>
+                            <span>Hábitos</span>
+                        </div>
+                        <div onClick={() => setNav('settings')} className={`bottom-nav-item ${nav === 'settings' ? 'bottom-nav-active' : 'text-secondary'}`}>
+                            <span className="text-xl">⚙️</span>
+                            <span>Ajustes</span>
+                        </div>
                     </div>
-                    <HabitFormModal isOpen={modalOpen} onClose={()=>{ setModalOpen(false); setEditingHabit(null); }} onSave={editingHabit ? editHabit : addHabit} initial={editingHabit} personName={names[activePerson]} />
+                    
+                    {/* Modal de Hábito */}
+                    <HabitFormModal 
+                        isOpen={modalOpen} 
+                        onClose={() => { setModalOpen(false); setEditingHabit(null); }}
+                        onSave={editingHabit ? editHabit : addHabit}
+                        initial={editingHabit}
+                        categories={categories} />
                 </div>
             );
         };
         
+        // ==================== RENDER ====================
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
-  
