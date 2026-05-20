@@ -4,15 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
     <meta name="theme-color" content="#10b981">
-    <title>HabitFlow Casal Cristão</title>
-    
+    <title>HabitFlow‑Casal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-        import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
-        
+        import { getDatabase, ref, set, update, onValue, push } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
         const firebaseConfig = {
             apiKey: "AIzaSyAFz57Ku9PqgZzLe9DF1CFKDGz740TvwjA",
             authDomain: "habitflow-casal-57723.firebaseapp.com",
@@ -22,968 +19,501 @@
             messagingSenderId: "205690500990",
             appId: "1:205690500990:web:4afcaeef3e297dc351a52f"
         };
-        
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
-        
-        window.firebaseAuth = auth;
-        window.firebaseDatabase = database;
+        window.firebaseAuth = getAuth(app);
+        window.firebaseDatabase = getDatabase(app);
         window.firebaseSignIn = signInWithEmailAndPassword;
         window.firebaseCreateUser = createUserWithEmailAndPassword;
         window.firebaseSignOut = signOut;
         window.firebaseOnAuthStateChanged = onAuthStateChanged;
         window.firebaseRef = ref;
         window.firebaseSet = set;
-        window.firebaseGet = get;
         window.firebaseUpdate = update;
-        window.firebaseRemove = remove;
         window.firebaseOnValue = onValue;
+        window.firebasePush = push;
     </script>
-
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --bg-primary: #0a0a0f;
-            --bg-card: rgba(20,20,35,0.8);
-            --text-primary: #e8e8f0;
-            --text-secondary: #9ca3af;
-            --border-primary: #2d2d44;
-            --bg-button: #2d2d44;
-            --bg-input: #2d2d44;
-            --green-gradient: linear-gradient(135deg, #10b981, #059669);
-            --green-shadow: rgba(16,185,129,0.5);
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg-primary:#0a0a0f;--bg-card:rgba(20,20,35,0.85);--text-primary:#e8e8f0;--text-secondary:#9ca3af;
+            --border-primary:#2d2d44;--bg-button:#2d2d44;--bg-input:#2d2d44;
+            --green-gradient:linear-gradient(135deg,#10b981,#059669);--green-shadow:rgba(16,185,129,0.5);
+            --gold:#fbbf24;--silver:#94a3b8;--bronze:#d97706;--legendary:#ec4899
         }
-        
-        body.light-mode {
-            --bg-primary: #f0f2f5;
-            --bg-card: #ffffff;
-            --text-primary: #1a1a2e;
-            --text-secondary: #6b6b7a;
-            --border-primary: #e4e6eb;
-            --bg-button: #e8e8f0;
-            --bg-input: #f0f2f5;
+        body.light-mode{
+            --bg-primary:#f0f2f5;--bg-card:#ffffff;--text-primary:#1a1a2e;--text-secondary:#6b6b7a;
+            --border-primary:#e4e6eb;--bg-button:#e8e8f0;--bg-input:#f0f2f5
         }
-        
-        body {
-            background: var(--bg-primary);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            transition: background 0.3s, color 0.3s;
-            color: var(--text-primary);
-        }
-        
-        .text-primary { color: var(--text-primary); }
-        .text-secondary { color: var(--text-secondary); }
-        .border-primary { border-color: var(--border-primary); }
-        .bg-card { background: var(--bg-card); backdrop-filter: blur(10px); border-radius: 1rem; border: 1px solid var(--border-primary); }
-        .bg-input { background: var(--bg-input); }
-        .glass-effect { background: var(--bg-card); backdrop-filter: blur(20px); border-radius: 1rem; border: 1px solid var(--border-primary); }
-        
-        .check-button {
-            width: 44px; height: 44px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px; font-weight: bold; border: none;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer; flex-shrink: 0;
-        }
-        .check-button-completed {
-            background: var(--green-gradient);
-            color: white;
-            box-shadow: 0 0 20px var(--green-shadow);
-        }
-        .check-button-pending {
-            background: var(--bg-button);
-            color: var(--text-secondary);
-            border: 2px solid var(--border-primary);
-        }
-        
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(15,15,25,0.98); backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border-primary);
-            padding: 8px 16px; z-index: 50;
-            display: flex; justify-content: center; gap: 32px;
-        }
-        body.light-mode .bottom-nav { background: rgba(255,255,255,0.98); }
-        
-        .bottom-nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            gap: 2px; padding: 6px 16px; border-radius: 20px;
-            transition: all 0.2s; cursor: pointer; font-size: 0.75rem;
-        }
-        .bottom-nav-active { background: rgba(16,185,129,0.15); color: #10b981; transform: translateY(-3px); }
-        
-        .week-calendar { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0; }
-        .week-day {
-            flex-shrink: 0; width: 50px; text-align: center;
-            padding: 8px 4px; border-radius: 16px;
-            transition: all 0.2s; cursor: pointer;
-        }
-        .week-day:hover { background: rgba(16,185,129,0.15); }
-        .week-day-selected { background: var(--green-gradient); color: white; }
-        .week-day-dot {
-            position: absolute; top: 2px; right: 4px;
-            width: 6px; height: 6px; border-radius: 50%;
-            background: #10b981;
-        }
-        
-        .couple-name-highlight {
-            background: linear-gradient(135deg, #10b981, #34d399);
-            -webkit-background-clip: text; background-clip: text;
-            color: transparent;
-        }
-        
-        .switch { position: relative; display: inline-block; width: 52px; height: 28px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-primary); transition: 0.3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: "🌙"; display: flex; align-items: center; justify-content: center; height: 24px; width: 24px; left: 2px; bottom: 2px; background-color: white; transition: 0.3s; border-radius: 50%; font-size: 12px; }
-        input:checked + .slider { background-color: #10b981; }
-        input:checked + .slider:before { transform: translateX(24px); content: "☀️"; }
-        
-        .toast {
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-            background: #10b981; color: white; padding: 8px 20px;
-            border-radius: 40px; font-size: 14px; z-index: 1000;
-            animation: fadeInUp 0.3s ease;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-        
-        .loading-spinner {
-            width: 32px; height: 32px; border: 3px solid var(--border-primary);
-            border-top-color: #10b981; border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .progress-bar-bg { width: 100%; height: 6px; background: var(--bg-button); border-radius: 10px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: var(--green-gradient); border-radius: 10px; transition: width 0.5s ease; }
-        
-        .emoji-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 8px; max-height: 160px; overflow-y: auto; padding: 8px; background: var(--bg-button); border-radius: 16px; }
-        .emoji-btn { font-size: 24px; padding: 6px; border-radius: 12px; background: var(--bg-input); text-align: center; cursor: pointer; transition: 0.2s; }
-        .emoji-btn:hover { transform: scale(1.1); background: #10b981; }
-        .emoji-btn.selected { background: #10b981; }
-        
-        @media (max-width: 640px) {
-            .week-day { width: 44px; padding: 6px 2px; }
-            .check-button { width: 40px; height: 40px; font-size: 20px; }
-        }
+        body{background:var(--bg-primary);font-family:'Inter',system-ui;transition:background .3s,color .3s;min-height:100vh}
+        .text-primary{color:var(--text-primary)}.text-secondary{color:var(--text-secondary)}
+        .border-primary{border-color:var(--border-primary)}.bg-card{background:var(--bg-card);backdrop-filter:blur(12px);border-radius:1rem;border:1px solid var(--border-primary)}
+        .bg-input{background:var(--bg-input)}.glass-effect{background:var(--bg-card);backdrop-filter:blur(20px)}
+        .check-button{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;border:none;transition:all .15s;cursor:pointer;transform:scale(1)}
+        .check-button:active{transform:scale(0.9)}
+        .check-button-completed{background:var(--green-gradient);color:white;box-shadow:0 0 20px var(--green-shadow)}
+        .check-button-pending{background:var(--bg-button);color:var(--text-secondary);border:2px solid var(--border-primary)}
+        .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,15,25,.98);backdrop-filter:blur(20px);border-top:1px solid var(--border-primary);padding:4px 2px;z-index:50;display:flex;justify-content:center;gap:1px}
+        body.light-mode .bottom-nav{background:rgba(255,255,255,.98)}
+        .bottom-nav-item{display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 4px;border-radius:16px;transition:.2s;cursor:pointer;font-size:.55rem;min-width:40px}
+        .bottom-nav-active{background:rgba(16,185,129,.15);color:#10b981;transform:translateY(-2px)}
+        .week-calendar{display:flex;gap:3px;overflow-x:auto;padding:4px 0}
+        .week-day{flex-shrink:0;width:40px;text-align:center;padding:5px 2px;border-radius:12px;transition:.2s;cursor:pointer;font-size:.7rem}
+        .week-day:hover{background:rgba(16,185,129,.15)}.week-day-selected{background:var(--green-gradient);color:white}
+        .couple-name-highlight{background:linear-gradient(135deg,#10b981,#34d399);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .switch{position:relative;display:inline-block;width:46px;height:24px}
+        .switch input{opacity:0;width:0;height:0}
+        .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:var(--border-primary);transition:.3s;border-radius:34px}
+        .slider:before{position:absolute;content:"🌙";display:flex;align-items:center;justify-content:center;height:20px;width:20px;left:2px;bottom:2px;background-color:white;transition:.3s;border-radius:50%;font-size:9px}
+        input:checked+.slider{background-color:#10b981}
+        input:checked+.slider:before{transform:translateX(22px);content:"☀️"}
+        .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:8px 20px;border-radius:40px;font-size:14px;z-index:1000;animation:fadeInUp .3s}
+        @keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+        .top-notification{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:9999;animation:slideDown .3s ease-out;pointer-events:none}
+        @keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+        .top-notification-content{background:rgba(16,185,129,.95);backdrop-filter:blur(10px);color:white;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.3);display:flex;align-items:center;gap:6px;max-width:90vw}
+        .loading-spinner{width:32px;height:32px;border:3px solid var(--border-primary);border-top-color:#10b981;border-radius:50%;animation:spin .6s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .progress-bar-bg{width:100%;height:8px;background:var(--bg-button);border-radius:10px;overflow:hidden}
+        .progress-bar-fill{height:100%;border-radius:10px;transition:width .5s}
+        .emoji-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:5px;max-height:130px;overflow-y:auto;padding:5px;background:var(--bg-button);border-radius:12px}
+        .emoji-btn{font-size:20px;padding:3px;border-radius:10px;background:var(--bg-input);text-align:center;cursor:pointer;transition:.2s}
+        .emoji-btn:hover{transform:scale(1.1);background:#10b981}.emoji-btn.selected{background:#10b981}
+        .photo-circle{width:44px;height:44px;border-radius:50%;overflow:hidden;cursor:pointer;position:relative;border:3px solid #10b981;transition:.3s;flex-shrink:0}
+        .photo-circle:hover{border-color:#34d399;box-shadow:0 0 20px rgba(16,185,129,.4);transform:scale(1.05)}
+        .photo-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:.3s;font-size:16px;color:white;border-radius:50%}
+        .photo-circle:hover .photo-overlay{opacity:1}
+        .mood-btn{transition:all .2s;cursor:pointer;padding:6px;border-radius:10px;font-size:1.3rem}
+        .mood-btn:hover{transform:scale(1.15)}.mood-btn.selected{background:rgba(16,185,129,.2);box-shadow:0 0 12px rgba(16,185,129,.3)}
+        .stat-card{transition:all .3s}.stat-card:hover{transform:translateY(-2px)}
+        .badge-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;margin:0 auto 5px}
+        .badge-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);box-shadow:0 0 12px rgba(251,191,36,.4)}
+        .badge-silver{background:linear-gradient(135deg,#94a3b8,#64748b)}
+        .badge-bronze{background:linear-gradient(135deg,#d97706,#b45309)}
+        .chart-wrapper{position:relative;width:100%;height:160px}
+        .notif-badge{position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;font-size:.6rem;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold}
+        .notif-panel{position:fixed;top:50px;right:10px;width:300px;max-height:70vh;background:var(--bg-card);backdrop-filter:blur(20px);border:1px solid var(--border-primary);border-radius:16px;z-index:999;overflow-y:auto;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+        .chest-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column}
+        .chest-box{width:110px;height:110px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:55px;cursor:pointer;transition:all .3s;animation:pulse 2s infinite}
+        .chest-box:hover{transform:scale(1.1)}@keyframes pulse{0%,100%{box-shadow:0 0 20px rgba(251,191,36,.4)}50%{box-shadow:0 0 60px rgba(251,191,36,.8)}}
+        .chest-bronze{background:linear-gradient(135deg,#d97706,#b45309)}
+        .chest-silver{background:linear-gradient(135deg,#94a3b8,#64748b)}
+        .chest-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b)}
+        .chest-legendary{background:linear-gradient(135deg,#ec4899,#8b5cf6);animation:pulse-legendary 1.5s infinite}
+        @keyframes pulse-legendary{0%,100%{box-shadow:0 0 40px rgba(236,72,153,.8)}50%{box-shadow:0 0 80px rgba(236,72,153,1),0 0 120px rgba(139,92,246,.6)}}
+        .task-check{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;border:none;transition:all .2s cubic-bezier(0.34,1.56,0.64,1);cursor:pointer;flex-shrink:0;position:relative}
+        .task-check:active{transform:scale(0.85)}
+        .task-check-done{background:linear-gradient(135deg,#10b981,#059669);color:white;box-shadow:0 0 14px rgba(16,185,129,0.45);animation:popIn .3s ease}
+        .task-check-todo{background:transparent;color:var(--text-secondary);border:2px solid #3d3d55}
+        .task-check-todo:hover{border-color:#10b981;color:#10b981;background:rgba(16,185,129,0.08)}
+        @keyframes popIn{0%{transform:scale(0.7)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+        @media(max-width:640px){.check-button{width:38px;height:38px;font-size:20px}.photo-circle{width:38px;height:38px}.chart-wrapper{height:140px}.notif-panel{width:90vw;right:5vw}.task-check{width:28px;height:28px;font-size:14px}}
     </style>
 </head>
 <body>
-    <div id="root"></div>
+<div id="root"></div>
+<script type="text/babel">
+if (!window.React || !window.ReactDOM) {
+    document.getElementById('root').innerHTML = '<div style="color:white;text-align:center;padding:50px;">Carregando...</div>';
+}
+const { useState, useEffect, useCallback, useMemo, memo, useRef } = React;
 
-    <script type="text/babel">
-        const { useState, useEffect, useCallback, useMemo, memo } = React;
-        
-        // ==================== UTILITÁRIOS ====================
-        const getToday = () => new Date().toISOString().split('T')[0];
-        const formatDate = (d) => new Date(d).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
-        const formatDayName = (d) => d.toLocaleDateString('pt-BR', { weekday:'short' }).replace('.','');
-        
-        const getWeekDays = () => {
-            const today = new Date();
-            const days = [];
-            for(let i=3;i>=0;i--) { const d=new Date(); d.setDate(today.getDate()-i); days.push(d); }
-            for(let i=1;i<=3;i++) { const d=new Date(); d.setDate(today.getDate()+i); days.push(d); }
-            return days.sort((a,b)=>a-b);
-        };
-        
-        // CORRIGIDO: Verificação correta de dias ativos
-        const isHabitActiveOnDate = (habit, dateStr) => {
-            if (!habit || !dateStr) return false;
-            
-            // Se não tem frequência definida, assume diário
-            if (!habit.frequency || habit.frequency.type === 'daily') return true;
-            
-            const date = new Date(dateStr + 'T00:00:00');
-            const dayOfWeek = date.getDay(); // 0 = Domingo
-            
-            if (habit.frequency.type === 'weekly') {
-                // Só ativo no dia da semana configurado
-                return habit.frequency.day === dayOfWeek;
-            }
-            
-            if (habit.frequency.type === 'custom') {
-                const interval = habit.frequency.interval || 2;
-                const startDate = habit.createdAt ? new Date(habit.createdAt.split('T')[0] + 'T00:00:00') : new Date('2024-01-01T00:00:00');
-                const diffTime = date.getTime() - startDate.getTime();
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                
-                // Ativo se diffDays for múltiplo do intervalo
-                return diffDays >= 0 && diffDays % interval === 0;
-            }
-            
-            return true;
-        };
-        
-        const calculateStreak = (dates, frequency = { type: 'daily' }) => {
-            if (!dates || dates.length === 0) return 0;
-            
-            const sorted = [...dates].sort((a,b) => b.localeCompare(a));
-            const today = getToday();
-            
-            if (frequency.type === 'daily') {
-                let streak = 0;
-                const checkDate = new Date(today + 'T00:00:00');
-                
-                // Verifica se hoje ou ontem tem conclusão
-                const todayCompleted = sorted.includes(today);
-                const yesterday = new Date(checkDate);
-                yesterday.setDate(yesterday.getDate() - 1);
-                const yesterdayStr = yesterday.toISOString().split('T')[0];
-                const yesterdayCompleted = sorted.includes(yesterdayStr);
-                
-                if (!todayCompleted && !yesterdayCompleted) return 0;
-                
-                let currentDate = todayCompleted ? new Date(today + 'T00:00:00') : yesterday;
-                
-                while (true) {
-                    const currentStr = currentDate.toISOString().split('T')[0];
-                    if (sorted.includes(currentStr)) {
-                        streak++;
-                        currentDate.setDate(currentDate.getDate() - 1);
-                    } else {
-                        break;
-                    }
-                }
-                return streak;
-            }
-            
-            if (frequency.type === 'weekly') {
-                const targetDay = frequency.day;
-                let streak = 0;
-                const now = new Date(today + 'T00:00:00');
-                
-                for (let i = 0; i < 52; i++) {
-                    const checkDate = new Date(now);
-                    checkDate.setDate(checkDate.getDate() - (i * 7));
-                    
-                    // Ajusta para o dia da semana alvo
-                    const currentDay = checkDate.getDay();
-                    checkDate.setDate(checkDate.getDate() - ((currentDay - targetDay + 7) % 7));
-                    
-                    if (checkDate > now) continue;
-                    
-                    const checkStr = checkDate.toISOString().split('T')[0];
-                    if (dates.includes(checkStr)) {
-                        streak++;
-                    } else if (i === 0) {
-                        // Pula se hoje não está completo (pode completar depois)
-                        continue;
-                    } else {
-                        break;
-                    }
-                }
-                return streak;
-            }
-            
-            if (frequency.type === 'custom') {
-                const interval = frequency.interval || 2;
-                let streak = 0;
-                const now = new Date(today + 'T00:00:00');
-                const startDate = habit.createdAt ? new Date(habit.createdAt.split('T')[0] + 'T00:00:00') : new Date('2024-01-01T00:00:00');
-                
-                for (let i = 0; i < 100; i++) {
-                    const checkDate = new Date(startDate);
-                    checkDate.setDate(checkDate.getDate() + (i * interval));
-                    
-                    if (checkDate > now) break;
-                    
-                    const checkStr = checkDate.toISOString().split('T')[0];
-                    if (dates.includes(checkStr)) {
-                        streak++;
-                    }
-                }
-                return streak;
-            }
-            
-            return 0;
-        };
-        
-        const playCheckSound = () => {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const o = ctx.createOscillator();
-                const g = ctx.createGain();
-                o.type = 'sine';
-                o.frequency.setValueAtTime(880, ctx.currentTime);
-                o.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
-                g.gain.setValueAtTime(0.15, ctx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-                o.connect(g); g.connect(ctx.destination);
-                o.start(); o.stop(ctx.currentTime + 0.2);
-            } catch(e) {}
-        };
-        
-        const triggerConfetti = () => {
-            if (typeof confetti !== 'undefined') {
-                confetti({
-                    particleCount: 80,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#10b981', '#059669', '#34d399', '#fbbf24']
-                });
-            }
-        };
-        
-        const showToast = (msg, isErr = false) => {
-            const el = document.createElement('div');
-            el.className = 'toast';
-            el.style.background = isErr ? '#ef4444' : '#10b981';
-            el.innerText = msg;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 2000);
-        };
-        
-        // ==================== CONSTANTES ====================
-        const allEmojis = ['❤️','💬','🙏','✝️','📖','💌','💑','🧠','🏃','😴','🍽️','💰','🎯','🚶','🤝','💖','🎉','💪','🧘','🥗','⭐','✨','🌟','🌹','🕊️','⛪'];
-        
-        const defaultCategories = ['amor','comunicação','espiritual','saúde','relacionamento'];
-        
-        const defaultHabits = [
-            { title:'Elogiar o parceiro', description:'Diga algo positivo', icon:'❤️', tag:'amor', frequency:{type:'daily'} },
-            { title:'Conversar sem celular', description:'Momento sem distrações', icon:'💬', tag:'comunicação', frequency:{type:'daily'} },
-            { title:'Gratidão diária', description:'Agradecer a Deus', icon:'🙏', tag:'espiritual', frequency:{type:'daily'} },
-            { title:'Oração juntos', description:'Orar em casal', icon:'✝️', tag:'espiritual', frequency:{type:'daily'} },
-            { title:'Ler a Bíblia', description:'Devocional', icon:'📖', tag:'espiritual', frequency:{type:'daily'} },
-        ];
-        
-        // ==================== COMPONENTES ====================
-        
-        // Barra de Progresso Diário
-        const DailyProgress = memo(({ habits, date }) => {
-            const dateStr = date.toISOString().split('T')[0];
-            const activeHabits = habits.filter(h => isHabitActiveOnDate(h, dateStr));
-            const completed = activeHabits.filter(h => h.completedDates?.includes(dateStr)).length;
-            const total = activeHabits.length;
-            const percent = total > 0 ? (completed / total) * 100 : 0;
-            
-            if (total === 0) return null;
-            
-            return (
-                <div className="bg-card p-3">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-secondary text-xs">Progresso do dia</span>
-                        <span className="text-primary font-semibold text-xs">{completed}/{total}</span>
-                    </div>
-                    <div className="progress-bar-bg">
-                        <div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
-                    </div>
-                </div>
-            );
-        });
-        
-        // Calendário Semanal
-        const WeekCalendar = memo(({ selectedDate, onSelect, habits }) => {
-            const week = getWeekDays();
-            const today = new Date();
-            
-            return (
-                <div className="bg-card p-2">
-                    <div className="week-calendar">
-                        {week.map((day, idx) => {
-                            const dateStr = day.toISOString().split('T')[0];
-                            const isSel = selectedDate && day.toDateString() === selectedDate.toDateString();
-                            const isToday = day.toDateString() === today.toDateString();
-                            const hasActive = habits.some(h => isHabitActiveOnDate(h, dateStr));
-                            const hasCompleted = habits.some(h => h.completedDates?.includes(dateStr));
-                            
-                            return (
-                                <div key={idx} onClick={() => onSelect(day)} 
-                                    className={`week-day relative ${isSel ? 'week-day-selected' : ''}`}>
-                                    <div className="text-xs font-medium">{formatDayName(day)}</div>
-                                    <div className={`text-lg font-bold ${isToday && !isSel ? 'text-green-400' : ''}`}>
-                                        {day.getDate()}
-                                    </div>
-                                    {hasCompleted && <div className="week-day-dot" style={{background:'#10b981'}}></div>}
-                                    {hasActive && !hasCompleted && <div className="week-day-dot" style={{background:'#f59e0b'}}></div>}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            );
-        });
-        
-        // Card de Hábito
-        const HabitCard = memo(({ habit, onToggle, onEdit, onDelete, dateStr, index }) => {
-            const completed = habit.completedDates?.includes(dateStr) || false;
-            const isActive = isHabitActiveOnDate(habit, dateStr);
-            const [flash, setFlash] = useState(false);
-            
-            const freqText = useMemo(() => {
-                const f = habit.frequency;
-                if (!f || f.type === 'daily') return '📅 Todo dia';
-                if (f.type === 'weekly') return `📆 ${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][f.day]}`;
-                if (f.type === 'custom') return `🔄 A cada ${f.interval} dias`;
-                return '📅 Todo dia';
-            }, [habit.frequency]);
-            
-            const tagColors = {
-                amor: 'bg-pink-500/20 text-pink-400',
-                comunicação: 'bg-blue-500/20 text-blue-400',
-                espiritual: 'bg-purple-500/20 text-purple-400',
-                saúde: 'bg-green-500/20 text-green-400',
-                relacionamento: 'bg-orange-500/20 text-orange-400'
-            };
-            const tagColor = tagColors[habit.tag] || 'bg-gray-500/20 text-gray-400';
-            
-            // CORRIGIDO: Só esconde hábitos inativos em datas passadas
-            const isToday = dateStr === getToday();
-            if (!isActive && !isToday) return null;
-            
-            const handleToggle = () => {
-                if (!isActive && isToday) {
-                    showToast('Este hábito não está ativo hoje', true);
-                    return;
-                }
-                if (!isActive) return;
-                
-                onToggle(habit.id, dateStr);
-                if (!completed) {
-                    setFlash(true);
-                    setTimeout(() => setFlash(false), 600);
-                }
-            };
-            
-            return (
-                <div className={`bg-card p-3 transition-all duration-300 ${flash ? 'ring-2 ring-green-500' : ''} ${!isActive ? 'opacity-40' : 'hover:border-green-500/40'}`}>
-                    <div className="flex items-start gap-2">
+// ===================== UTILITÁRIOS =====================
+const getToday = () => new Date().toISOString().split('T')[0];
+const formatDate = d => new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+const formatDayName = d => d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','');
+const getWeekDays = () => {
+    const today = new Date(); const days = [];
+    for(let i=3;i>=0;i--){const d=new Date();d.setDate(today.getDate()-i);days.push(d)}
+    for(let i=1;i<=3;i++){const d=new Date();d.setDate(today.getDate()+i);days.push(d)}
+    return days.sort((a,b)=>a-b);
+};
+const getWeekNumber = () => {const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+3-(d.getDay()+6)%7);const w1=new Date(d.getFullYear(),0,4);return Math.round(((d-w1)/86400000+1)/7)};
+const isSunday = () => new Date().getDay()===0;
+
+const isHabitActiveOnDate = (habit, dateStr) => {
+    if(!habit||!dateStr) return true;
+    if(!habit.frequency||habit.frequency.type==='daily') return true;
+    const date = new Date(dateStr+'T00:00:00');
+    if(habit.frequency.type==='weekly') return habit.frequency.day===date.getDay();
+    if(habit.frequency.type==='custom'){
+        const interval=habit.frequency.interval||2;
+        const start=habit.createdAt?new Date(habit.createdAt.split('T')[0]+'T00:00:00'):new Date('2024-01-01T00:00:00');
+        return Math.floor((date-start)/86400000)%interval===0;
+    }
+    return true;
+};
+const calculateStreak = (dates, frequency) => {
+    if(!dates||dates.length===0) return 0;
+    const sorted=[...dates].sort((a,b)=>b.localeCompare(a));
+    const today=getToday();
+    if(!frequency||frequency.type==='daily'){
+        let streak=0;const check=new Date(today+'T00:00:00');
+        const todayOk=sorted.includes(today);
+        const yesterday=new Date(check);yesterday.setDate(yesterday.getDate()-1);
+        if(!todayOk&&!sorted.includes(yesterday.toISOString().split('T')[0])) return 0;
+        let cur=todayOk?new Date(today+'T00:00:00'):yesterday;
+        while(sorted.includes(cur.toISOString().split('T')[0])){streak++;cur.setDate(cur.getDate()-1);}
+        return streak;
+    }
+    return 0;
+};
+const playSound = (type='complete') => {try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator();const g=ctx.createGain();o.type='sine';if(type==='chest'){o.frequency.setValueAtTime(523,ctx.currentTime);o.frequency.setValueAtTime(659,ctx.currentTime+.15);o.frequency.setValueAtTime(784,ctx.currentTime+.3);g.gain.setValueAtTime(.2,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.5);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.5)}else if(type==='legendary'){o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.setValueAtTime(880,ctx.currentTime+.1);o.frequency.setValueAtTime(1100,ctx.currentTime+.2);o.frequency.setValueAtTime(1320,ctx.currentTime+.3);g.gain.setValueAtTime(.25,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.6);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.6)}else{o.frequency.setValueAtTime(880,ctx.currentTime);g.gain.setValueAtTime(.15,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.2);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.2)}}catch(e){}}
+const triggerConfetti = (type='default') => {if(typeof confetti!=='undefined'){const colors=type==='legendary'?['#ec4899','#8b5cf6','#fbbf24','#f59e0b']:type==='gold'?['#fbbf24','#f59e0b']:['#10b981','#059669','#34d399'];confetti({particleCount:type==='legendary'?200:type==='gold'?150:80,spread:70,origin:{y:.5},colors})}}
+const vibrate = (p='short') => {if(navigator.vibrate){const patterns={short:50,chest:[100,80,100,80,200]};navigator.vibrate(patterns[p]||50)}}
+const showToast = (msg, err=false) => {const el=document.createElement('div');el.className='toast';el.style.background=err?'#ef4444':'#10b981';el.innerText=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2000)}
+let topTimer=null;
+const showTopNotification = (msg, icon='🔔') => {
+    const old=document.querySelector('.top-notification');if(old)old.remove();if(topTimer)clearTimeout(topTimer);
+    const el=document.createElement('div');el.className='top-notification';
+    el.innerHTML=`<div class="top-notification-content"><span>${icon}</span><span>${msg}</span></div>`;
+    document.body.appendChild(el);
+    topTimer=setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(-50%) translateY(-20px)';setTimeout(()=>el.remove(),300)},2500)
+};
+const ensureArray = val => Array.isArray(val)?val:(val&&typeof val==='object'?Object.values(val):[]);
+const normalizeHabits = habitsObj => {
+    const result={josiel:[],zipora:[]};
+    if(!habitsObj) return result;
+    for(const person of['josiel','zipora']){
+        const raw=habitsObj[person];
+        const list=Array.isArray(raw)?raw:(raw&&typeof raw==='object'?Object.values(raw):[]);
+        result[person]=list.map(h=>({...h,completedDates:ensureArray(h?.completedDates)}));
+    }
+    return result;
+};
+const compressImage = file => new Promise(resolve=>{
+    const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');let w=img.width,h=img.height;const max=300;if(w>max||h>max){if(w>h){h=(h/w)*max;w=max}else{w=(w/h)*max;h=max}}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',0.5))};img.src=e.target.result};reader.readAsDataURL(file)
+});
+const getWeekCompletion = (habitsData) => {
+    const today=new Date(getToday()+'T00:00:00');const weekStart=new Date(today);weekStart.setDate(weekStart.getDate()-weekStart.getDay());
+    let total=0,done=0;
+    for(const habits of Object.values(habitsData)){
+        for(let d=0;d<7;d++){const cd=new Date(weekStart);cd.setDate(cd.getDate()+d);const ds=cd.toISOString().split('T')[0];const active=habits.filter(h=>isHabitActiveOnDate(h,ds));total+=active.length;done+=active.filter(h=>h.completedDates?.includes(ds)).length}
+    }
+    return total>0?Math.round((done/total)*100):0;
+};
+
+const ALL_EMOJIS = ['❤️','💬','🙏','✝️','📖','💌','💑','🧠','🏃','😴','🍽️','💰','🎯','🚶','🤝','💖','🎉','💪','🧘','🥗','⭐','✨','🌟'];
+const TASK_EMOJIS = ['📋','🗓️','🛒','💊','🚗','📞','💰','🎯','📝','🏠','❤️','🙏'];
+const BADGES = [
+    {id:'streak_7',name:'Fogo Santo',icon:'🔥',cond:s=>s.maxStreak>=7,color:'silver'},
+    {id:'streak_30',name:'Inquebrável',icon:'💎',cond:s=>s.maxStreak>=30,color:'gold'},
+    {id:'completed_50',name:'Dedicado',icon:'🎯',cond:s=>s.totalCompleted>=50,color:'silver'},
+    {id:'completed_100',name:'Guerreiro',icon:'⚔️',cond:s=>s.totalCompleted>=100,color:'gold'},
+    {id:'perfect_week',name:'Semana Perfeita',icon:'🌟',cond:s=>s.perfectWeeks>0,color:'gold'},
+    {id:'couple_sync',name:'Casal Sincronizado',icon:'💑',cond:s=>s.coupleSyncDays>0,color:'gold'},
+];
+const REWARDS = {
+    bronze:['☕ Café especial','🍫 Chocolate premium','🎬 Escolher filme','💆 Massagem','🛡️ Proteção streak'],
+    silver:['🍕 Pizza juntos','🎵 Playlist casal','📖 Livro novo','🌅 Passeio parque','💌 Carta amor'],
+    gold:['🍽️ Jantar especial','🎁 Presente surpresa','🏨 Noite romântica','💎 Joia simbólica','✈️ Passeio fim de semana'],
+    legendary:['🛍️ Shopee livre','💍 Aliança nova','🌴 Viagem curta','🎸 Show/evento','🏆 Experiência inesquecível']
+};
+
+// ===================== COMPONENTES =====================
+const HomePage = ({onStart}) => (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-emerald-600 rounded-3xl flex items-center justify-center text-5xl mb-6 shadow-xl">💑</div>
+        <h1 className="text-4xl font-bold mb-2"><span className="couple-name-highlight">HabitFlow‑Casal</span></h1>
+        <p className="text-secondary mb-8">Hábitos e Tarefas para Casais Cristãos</p>
+        <button onClick={onStart} className="px-10 py-4 bg-green-500 text-white rounded-2xl font-bold text-lg shadow-lg active:scale-95 transition">✨ Começar</button>
+    </div>
+);
+
+const DailyProgress = memo(({habits, date}) => {
+    const ds=date.toISOString().split('T')[0];const active=habits.filter(h=>isHabitActiveOnDate(h,ds));
+    const done=active.filter(h=>h.completedDates?.includes(ds)).length;
+    if(!active.length) return null;
+    const pct=(done/active.length)*100;
+    return <div className="bg-card p-3 mb-3"><div className="flex justify-between mb-1"><span className="text-secondary text-xs">Progresso</span><span className="text-primary text-xs font-semibold">{done}/{active.length}{pct===100?' 🎉':''}</span></div><div className="progress-bar-bg"><div className="progress-bar-fill" style={{width:`${pct}%`,background:pct===100?'linear-gradient(135deg,#fbbf24,#f59e0b)':'var(--green-gradient)'}}></div></div></div>
+});
+
+const WeekCalendar = memo(({selectedDate, onSelect, habits}) => {
+    const week=getWeekDays();const today=new Date();
+    return <div className="bg-card p-2"><div className="week-calendar">{week.map((day,idx)=>{const ds=day.toISOString().split('T')[0];const sel=selectedDate?.toDateString()===day.toDateString();const active=habits.filter(h=>isHabitActiveOnDate(h,ds));const done=active.filter(h=>h.completedDates?.includes(ds)).length;const total=active.length;let bg='';if(total>0){if(done===total)bg='bg-green-500/20';else if(done>0)bg='bg-yellow-500/20'}return <div key={idx} onClick={()=>onSelect(day)} className={`week-day ${bg} ${sel?'week-day-selected':''}`}><div className="text-xs">{formatDayName(day)}</div><div className={`font-bold ${day.toDateString()===today.toDateString()&&!sel?'text-green-400':''}`}>{day.getDate()}</div>{done>0&&<div className="text-xs text-green-400">{done}/{total}</div>}</div>})}</div></div>
+});
+
+const HabitCard = memo(({habit, onToggle, onEdit, onDelete, onMoveUp, onMoveDown, dateStr, isFirst, isLast}) => {
+    const dates=ensureArray(habit.completedDates);const completed=dates.includes(dateStr);const active=isHabitActiveOnDate(habit,dateStr);
+    const [flash,setFlash]=useState(false);
+    const freqText=useMemo(()=>{const f=habit.frequency||{type:'daily'};if(f.type==='weekly')return `📆 ${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][f.day]}`;if(f.type==='custom')return `🔄 A cada ${f.interval} dias`;return '📅 Todo dia'},[habit.frequency]);
+    const tagColor={amor:'bg-pink-500/20 text-pink-400',comunicação:'bg-blue-500/20 text-blue-400',espiritual:'bg-purple-500/20 text-purple-400',saúde:'bg-green-500/20 text-green-400',relacionamento:'bg-orange-500/20 text-orange-400'}[habit.tag]||'bg-gray-500/20';
+    const today=getToday();if(!active&&dateStr!==today) return null;
+    const handleToggle=()=>{if(!active){if(dateStr===today)showToast('Não está ativo hoje',true);return}onToggle(habit.id,dateStr);if(!completed){setFlash(true);setTimeout(()=>setFlash(false),600);vibrate()}};
+    return <div className={`bg-card p-3 transition-all duration-300 ${flash?'ring-2 ring-green-500 scale-[1.02]':''} ${!active?'opacity-40':''}`}><div className="flex items-start gap-2"><div className="flex-1 min-w-0"><div className="flex items-center gap-2 flex-wrap"><span className="text-2xl flex-shrink-0">{habit.icon}</span><h3 className="text-primary font-semibold text-sm truncate">{habit.title}</h3><span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${tagColor}`}>{habit.tag}</span></div><div className="flex items-center gap-3 mt-1 flex-wrap"><span className="text-xs text-orange-400 font-medium">🔥{habit.streak||0}</span><span className="text-xs text-secondary">✅{dates.length}</span><span className="text-xs text-secondary">{freqText}</span></div></div><div className="flex flex-col items-center gap-1 flex-shrink-0"><div className="flex gap-1">{!isFirst&&<button onClick={onMoveUp} className="text-xs px-1 py-0.5 rounded bg-[var(--bg-button)] text-secondary hover:text-green-400">▲</button>}{!isLast&&<button onClick={onMoveDown} className="text-xs px-1 py-0.5 rounded bg-[var(--bg-button)] text-secondary hover:text-green-400">▼</button>}</div><button onClick={()=>onEdit(habit)} className="text-secondary text-lg hover:text-green-400 px-1">✏️</button><button onClick={()=>onDelete(habit.id)} className="text-secondary text-lg hover:text-red-400 px-1">🗑️</button><button onClick={handleToggle} disabled={!active} className={`check-button ${completed?'check-button-completed':'check-button-pending'} ${!active?'opacity-50':''}`}>{completed?'✓':'○'}</button></div></div></div>
+});
+
+const TaskCard = memo(({task, onToggle, onEdit, onDelete, onReact, currentUser, names}) => {
+    const isCompleted = task.completedBy?.[currentUser] || false;
+    const priorityColor = task.priority==='high'?'#ef4444':task.priority==='medium'?'#f59e0b':'#10b981';
+    const isOverdue = task.dueDate && !isCompleted && new Date(task.dueDate) < new Date(getToday());
+    const [animating, setAnimating] = useState(false);
+    const handleToggle = () => {if(!isCompleted){setAnimating(true);setTimeout(()=>setAnimating(false),400);vibrate()}onToggle(task.id)};
+    const assignedName = task.assignedTo==='josiel'?names.josiel:task.assignedTo==='zipora'?names.zipora:'Ambos';
+    return (<div className={`bg-card p-2 transition-all flex items-center gap-2 border-l-[3px] ${isCompleted?'opacity-50':''}`} style={{borderLeftColor:priorityColor}}>
+        <button onClick={handleToggle} className={`task-check ${isCompleted?'task-check-done':'task-check-todo'} ${animating?'task-check-done':''}`}>{(isCompleted||animating)?'✓':''}</button>
+        <div className="flex-1 min-w-0"><div className="flex items-center gap-1.5 flex-wrap"><span className="text-sm flex-shrink-0">{task.icon}</span><h3 className={`text-primary font-medium text-xs truncate ${isCompleted?'line-through':''}`}>{task.title}</h3>{isOverdue&&<span className="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded-full flex-shrink-0">Atrasada</span>}</div><div className="flex items-center gap-2 mt-0.5"><span className="text-[10px] text-secondary">👤 {assignedName}</span>{task.dueDate&&<span className="text-[10px] text-secondary">📅 {formatDate(new Date(task.dueDate+'T00:00:00'))}</span>}{isCompleted&&<div className="flex gap-1 ml-auto">{['❤️','🔥','🙏','👏'].map(r=><button key={r} onClick={()=>onReact(task.id,r)} className="text-xs hover:scale-125 transition active:scale-90">{r}</button>)}</div>}</div></div>
+        <div className="flex items-center gap-0.5 flex-shrink-0"><button onClick={()=>onEdit(task)} className="text-secondary text-xs hover:text-green-400 px-1">✏️</button><button onClick={()=>onDelete(task.id)} className="text-secondary text-xs hover:text-red-400 px-1">🗑️</button></div>
+    </div>)
+});
+
+const TasksView = memo(({tasks, onToggle, onEdit, onDelete, onReact, onAdd, currentUser, names}) => {
+    const filteredTasks = useMemo(()=>tasks.filter(t=>t.assignedTo===currentUser||t.assignedTo==='both'),[tasks,currentUser]);
+    const sorted = [...filteredTasks].sort((a,b)=>(a.completedBy?.[currentUser]?1:0)-(b.completedBy?.[currentUser]?1:0));
+    return (<div className="space-y-3"><div className="flex justify-between items-center"><h2 className="text-base font-semibold text-primary">📋 Tarefas de {names[currentUser]}</h2><button onClick={onAdd} className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold">+ Nova</button></div>{sorted.length===0?<div className="text-center py-10 bg-card"><div className="text-3xl mb-2">📋</div><p className="text-secondary text-xs">Nenhuma tarefa para {names[currentUser]}</p></div>:<div className="space-y-1.5">{sorted.map(t=><TaskCard key={t.id} task={t} onToggle={onToggle} onEdit={onEdit} onDelete={onDelete} onReact={onReact} currentUser={currentUser} names={names}/>)}</div>}</div>)
+});
+
+// ===================== PAINEL DE NOTIFICAÇÕES (FILTRADO POR HOJE) =====================
+const NotificationPanel = memo(({notifications, onMarkRead, onClose}) => {
+    const todayNotifications = useMemo(() => {
+        const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+        return (notifications||[]).filter(n => new Date(n.timestamp) >= todayStart);
+    }, [notifications]);
+    const unread = todayNotifications.filter(n => !n.read).length;
+    return (
+        <div className="notif-panel p-4">
+            <div className="flex justify-between items-center mb-3">
+                <h3 className="text-primary font-semibold">🔔 Notificações de hoje {unread>0&&`(${unread})`}</h3>
+                <button onClick={onClose} className="text-secondary hover:text-red-400">✕</button>
+            </div>
+            {todayNotifications.length===0 ? (
+                <p className="text-secondary text-sm text-center py-4">Nenhuma notificação hoje</p>
+            ) : (
+                todayNotifications.slice(0,20).map((n,i)=>(
+                    <div key={i} onClick={()=>onMarkRead(n.id)} className={`flex items-start gap-2 py-2 border-b border-primary/20 last:border-0 cursor-pointer ${!n.read?'bg-green-500/5 -mx-2 px-2 rounded':''}`}>
+                        <span className="text-lg flex-shrink-0">{n.icon||'🔔'}</span>
                         <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-2xl flex-shrink-0">{habit.icon}</span>
-                                <h3 className="text-primary font-semibold text-sm truncate">{habit.title}</h3>
-                                <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${tagColor}`}>{habit.tag}</span>
-                                {!isActive && <span className="text-xs text-yellow-500 flex-shrink-0">⏳</span>}
-                            </div>
-                            <div className="flex items-center gap-3 mt-1 flex-wrap">
-                                <span className="text-xs text-orange-400">🔥 {habit.streak || 0}</span>
-                                <span className="text-secondary text-xs">✅ {habit.completedDates?.length || 0}</span>
-                                <span className="text-secondary text-xs">{freqText}</span>
-                            </div>
-                            {habit.description && <p className="text-secondary text-xs mt-1 truncate">{habit.description}</p>}
+                            <p className="text-primary text-xs">{n.message}</p>
+                            <p className="text-secondary text-xs mt-0.5">{new Date(n.timestamp).toLocaleTimeString()}</p>
                         </div>
-                        <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                            <button onClick={() => onEdit(habit)} className="text-secondary text-lg hover:text-green-400 px-1">✏️</button>
-                            <button onClick={() => onDelete(habit.id)} className="text-secondary text-lg hover:text-red-400 px-1">🗑️</button>
-                            <button onClick={handleToggle} disabled={!isActive}
-                                className={`check-button ${completed ? 'check-button-completed' : 'check-button-pending'} ${!isActive ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                {completed ? '✓' : '○'}
+                        {!n.read && <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>}
+                    </div>
+                ))
+            )}
+        </div>
+    );
+});
+
+const ChestModal = memo(({isOpen, onClose, weekPct}) => {
+    const [opened,setOpened]=useState(false);const [reward,setReward]=useState(null);const [chestType,setChestType]=useState('bronze');
+    useEffect(()=>{if(isOpen){setOpened(false);setReward(null);if(weekPct>=100)setChestType('legendary');else if(weekPct>=85)setChestType('gold');else if(weekPct>=70)setChestType('silver');else setChestType('bronze')}},[isOpen,weekPct]);
+    if(!isOpen) return null;
+    const openChest=()=>{if(opened)return;setOpened(true);const rewards=REWARDS[chestType];setReward(rewards[Math.floor(Math.random()*rewards.length)]);playSound(chestType==='legendary'?'legendary':'chest');triggerConfetti(chestType);vibrate('chest')};
+    return <div className="chest-modal" onClick={opened?onClose:undefined}><div className="text-center p-6"><h2 className="text-2xl font-bold text-white mb-2">🎰 Recompensa Semanal</h2><p className="text-secondary text-sm mb-6">{weekPct}% • {chestType==='legendary'?'Caixa Lendária':chestType==='gold'?'Caixa Ouro':chestType==='silver'?'Caixa Prata':'Caixa Bronze'}</p><div onClick={openChest} className={`chest-box ${chestType==='legendary'?'chest-legendary':chestType==='gold'?'chest-gold':chestType==='silver'?'chest-silver':'chest-bronze'} ${opened?'scale-125':''}`}>{opened?'🎉':chestType==='legendary'?'👑':chestType==='gold'?'✨':chestType==='silver'?'🎁':'📦'}</div>{opened&&reward&&<div className="mt-6"><p className="text-2xl font-bold text-white mb-2">{reward}</p><button onClick={onClose} className="mt-4 px-6 py-2 bg-green-500 text-white rounded-xl">Receber!</button></div>}</div></div>
+});
+
+const StatsDashboard = memo(({habits, allHabits, names, userXP, tasks}) => {
+    const weeklyChartRef=useRef(null);const weeklyChartInstance=useRef(null);
+    const xp=userXP||0;const level=Math.floor(xp/100)+1;const xpProgress=xp%100;
+    const stats=useMemo(()=>{
+        const totalCompleted=habits.reduce((a,h)=>a+(h.completedDates?.length||0),0);
+        const maxStreak=Math.max(...habits.map(h=>h.streak||0),0);
+        const today=getToday();const now=new Date(today+'T00:00:00');
+        let perfectWeeks=0;for(let w=0;w<52;w++){const ws=new Date(now);ws.setDate(ws.getDate()-w*7);let allOk=true;for(let d=0;d<7;d++){const cd=new Date(ws);cd.setDate(cd.getDate()-d);const ds=cd.toISOString().split('T')[0];const act=habits.filter(h=>isHabitActiveOnDate(h,ds));if(!act.length||!act.every(h=>h.completedDates?.includes(ds))){allOk=false;break}}if(allOk)perfectWeeks++}
+        let coupleSyncDays=0;if(allHabits){const j=allHabits.josiel||[],z=allHabits.zipora||[];for(let d=0;d<90;d++){const cd=new Date(now);cd.setDate(cd.getDate()-d);const ds=cd.toISOString().split('T')[0];const ja=j.filter(h=>isHabitActiveOnDate(h,ds));const za=z.filter(h=>isHabitActiveOnDate(h,ds));if(ja.length&&za.length&&ja.every(h=>h.completedDates?.includes(ds))&&za.every(h=>h.completedDates?.includes(ds)))coupleSyncDays++}}
+        let possible=0,actual=0;for(let d=0;d<30;d++){const cd=new Date(now);cd.setDate(cd.getDate()-d);const ds=cd.toISOString().split('T')[0];const act=habits.filter(h=>isHabitActiveOnDate(h,ds));possible+=act.length;actual+=act.filter(h=>h.completedDates?.includes(ds)).length}const rate=possible>0?Math.round((actual/possible)*100):0;
+        const tasksCompleted=tasks?.filter(t=>t.completedBy?.['josiel']||t.completedBy?.['zipora'])?.length||0;
+        return {totalCompleted,maxStreak,totalCreated:habits.length,perfectWeeks,coupleSyncDays,completionRate:rate,tasksCompleted};
+    },[habits,allHabits,tasks]);
+    const unlockedBadges=useMemo(()=>BADGES.filter(b=>b.cond(stats)),[stats]);
+    const weeklyData=useMemo(()=>{const labels=[],data=[];const today=new Date(getToday()+'T00:00:00');for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);labels.push(formatDayName(d));data.push(habits.filter(h=>h.completedDates?.includes(d.toISOString().split('T')[0])).length)}return{labels,data}},[habits]);
+    useEffect(()=>{if(weeklyChartRef.current&&typeof Chart!=='undefined'){if(weeklyChartInstance.current)weeklyChartInstance.current.destroy();weeklyChartInstance.current=new Chart(weeklyChartRef.current,{type:'bar',data:{labels:weeklyData.labels,datasets:[{data:weeklyData.data,backgroundColor:'rgba(16,185,129,0.5)',borderColor:'#10b981',borderWidth:2,borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:'#9ca3af'}},x:{ticks:{color:'#9ca3af'}}}}})}return ()=>{if(weeklyChartInstance.current)weeklyChartInstance.current.destroy()}},[weeklyData]);
+    return <div className="space-y-4 pb-20"><h2 className="text-xl font-bold text-primary">📊 Dashboard</h2><div className="bg-card p-4 stat-card"><div className="flex items-center justify-between mb-3"><div><h3 className="text-primary font-semibold">Nível {level}</h3><p className="text-secondary text-xs">{xp} XP</p></div><div className="w-14 h-14 rounded-full bg-gradient-to-r from-yellow-500 to-amber-600 flex items-center justify-center text-2xl">⭐</div></div><div className="progress-bar-bg"><div className="progress-bar-fill" style={{width:`${xpProgress}%`,background:'linear-gradient(135deg,#fbbf24,#f59e0b)'}}></div></div></div><div className="grid grid-cols-2 gap-3">{[{icon:'✅',v:stats.totalCompleted,l:'concluídos'},{icon:'📋',v:stats.tasksCompleted,l:'tarefas'},{icon:'🔥',v:stats.maxStreak,l:'streak'},{icon:'📊',v:`${stats.completionRate}%`,l:'taxa (30d)'},{icon:'💑',v:stats.coupleSyncDays,l:'dias juntos'},{icon:'🌟',v:stats.perfectWeeks,l:'sem. perfeitas'}].map((c,i)=><div key={i} className="bg-card p-3 text-center stat-card"><div className="text-2xl mb-1">{c.icon}</div><p className="text-xl font-bold text-green-400">{c.v}</p><p className="text-secondary text-xs">{c.l}</p></div>)}</div><div className="bg-card p-4"><h3 className="text-primary font-semibold mb-3">📈 Últimos 7 Dias</h3><div className="chart-wrapper"><canvas ref={weeklyChartRef}></canvas></div></div><div className="bg-card p-4"><h3 className="text-primary font-semibold mb-3">🏆 Conquistas ({unlockedBadges.length}/{BADGES.length})</h3><div className="grid grid-cols-2 gap-2">{BADGES.map(b=>{const u=unlockedBadges.includes(b);return <div key={b.id} className={`p-3 rounded-xl text-center ${u?'bg-[var(--bg-button)]':'opacity-40 bg-[var(--bg-button)]'}`}><div className={`badge-icon ${u?`badge-${b.color}`:'bg-gray-600'}`}>{u?b.icon:'🔒'}</div><p className="text-primary font-semibold text-xs">{b.name}</p></div>})}</div></div></div>
+});
+
+const HabitFormModal = memo(({isOpen,onClose,onSave,initial,categories}) => {
+    const [title,setTitle]=useState('');const [icon,setIcon]=useState('❤️');const [tag,setTag]=useState('amor');const [freqType,setFreqType]=useState('daily');const [weeklyDay,setWeeklyDay]=useState(0);const [customInterval,setCustomInterval]=useState(2);
+    useEffect(()=>{if(isOpen){if(initial){setTitle(initial.title||'');setIcon(initial.icon||'❤️');setTag(initial.tag||'amor');const f=initial.frequency||{type:'daily'};setFreqType(f.type||'daily');setWeeklyDay(f.day||0);setCustomInterval(f.interval||2)}else{setTitle('');setIcon('❤️');setTag('amor');setFreqType('daily');setWeeklyDay(0);setCustomInterval(2)}}},[isOpen,initial]);
+    if(!isOpen) return null;
+    return <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[300] p-4" onClick={onClose}><div className="glass-effect p-5 max-w-md w-full" onClick={e=>e.stopPropagation()}><h3 className="text-xl font-bold mb-4">{initial?'Editar':'Novo'} Hábito</h3><form onSubmit={e=>{e.preventDefault();if(!title.trim()){showToast('Nome obrigatório',true);return}onSave({...(initial||{}),title:title.trim(),icon,tag,frequency:freqType==='weekly'?{type:'weekly',day:weeklyDay}:freqType==='custom'?{type:'custom',interval:customInterval}:{type:'daily'}});onClose()}} className="space-y-4"><div className="emoji-grid">{ALL_EMOJIS.map(e=><div key={e} onClick={()=>setIcon(e)} className={`emoji-btn ${icon===e?'selected':''}`}>{e}</div>)}</div><input value={title} onChange={e=>setTitle(e.target.value)} className="w-full p-2 rounded-xl bg-input text-primary border border-primary" placeholder="Nome" required/><select value={tag} onChange={e=>setTag(e.target.value)} className="w-full p-2 rounded-xl bg-input text-primary">{categories.map(c=><option key={c} value={c}>{c}</option>)}</select><div className="flex gap-2">{['daily','weekly','custom'].map(t=><button key={t} type="button" onClick={()=>setFreqType(t)} className={`px-3 py-1.5 rounded-xl text-xs ${freqType===t?'bg-green-500 text-white':'bg-input text-secondary'}`}>{t==='daily'?'📅 Diário':t==='weekly'?'📆 Semanal':'🔄 Pers.'}</button>)}</div>{freqType==='weekly'&&<select value={weeklyDay} onChange={e=>setWeeklyDay(+e.target.value)} className="w-full p-2 rounded-xl bg-input text-primary">{['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map((d,i)=><option key={i} value={i}>{d}</option>)}</select>}{freqType==='custom'&&<div className="flex items-center gap-2"><input type="number" min="1" value={customInterval} onChange={e=>setCustomInterval(Math.max(1,+e.target.value||2))} className="p-2 rounded-xl bg-input text-primary w-16"/> dias</div>}<div className="flex gap-3"><button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl bg-input text-secondary">Cancelar</button><button type="submit" className="flex-1 py-2 rounded-xl bg-green-500 text-white">{initial?'Salvar':'Criar'}</button></div></form></div></div>
+});
+
+const TaskFormModal = memo(({isOpen,onClose,onSave,initial,names,activePerson}) => {
+    const [title,setTitle]=useState('');const [icon,setIcon]=useState('📋');const [priority,setPriority]=useState('medium');const [assignedTo,setAssignedTo]=useState(activePerson);const [dueDate,setDueDate]=useState('');
+    useEffect(()=>{if(isOpen){if(initial){setTitle(initial.title||'');setIcon(initial.icon||'📋');setPriority(initial.priority||'medium');setAssignedTo(initial.assignedTo||activePerson);setDueDate(initial.dueDate||'')}else{setTitle('');setIcon('📋');setPriority('medium');setAssignedTo(activePerson);setDueDate('')}}},[isOpen,initial,activePerson]);
+    if(!isOpen) return null;
+    return <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[300] p-4" onClick={onClose}><div className="glass-effect p-4 max-w-sm w-full" onClick={e=>e.stopPropagation()}><h3 className="text-lg font-bold mb-3">{initial?'Editar':'Nova'} Tarefa</h3><form onSubmit={e=>{e.preventDefault();if(!title.trim()){showToast('Título obrigatório',true);return};onSave({...(initial||{}),title:title.trim(),icon,priority,assignedTo,dueDate:dueDate||null});onClose()}} className="space-y-3"><div className="emoji-grid" style={{maxHeight:'100px'}}>{TASK_EMOJIS.map(e=><div key={e} onClick={()=>setIcon(e)} className={`emoji-btn ${icon===e?'selected':''}`}>{e}</div>)}</div><input value={title} onChange={e=>setTitle(e.target.value)} className="w-full p-1.5 rounded-lg bg-input text-primary border border-primary text-sm" placeholder="Título" required/><div className="flex gap-2">{['high','medium','low'].map(p=><button key={p} type="button" onClick={()=>setPriority(p)} className={`px-2 py-1 rounded-lg text-[11px] font-medium ${priority===p?(p==='high'?'bg-red-500 text-white':p==='medium'?'bg-yellow-500 text-black':'bg-green-500 text-white'):'bg-input text-secondary'}`}>{p==='high'?'🔴 Alta':p==='medium'?'🟡 Média':'🟢 Baixa'}</button>)}</div><select value={assignedTo} onChange={e=>setAssignedTo(e.target.value)} className="w-full p-1.5 rounded-lg bg-input text-primary text-sm"><option value="josiel">{names.josiel}</option><option value="zipora">{names.zipora}</option><option value="both">Ambos</option></select><input type="date" value={dueDate} onChange={e=>setDueDate(e.target.value)} className="w-full p-1.5 rounded-lg bg-input text-primary text-sm"/><div className="flex gap-2"><button type="button" onClick={onClose} className="flex-1 py-1.5 rounded-lg bg-input text-secondary text-sm">Cancelar</button><button type="submit" className="flex-1 py-1.5 rounded-lg bg-green-500 text-white text-sm">{initial?'Salvar':'Criar'}</button></div></form></div></div>
+});
+
+const LoginScreen = ({onBack}) => {
+    const [email,setEmail]=useState('');const [pass,setPass]=useState('');const [isReg,setIsReg]=useState(false);const [loading,setLoading]=useState(false);const [error,setError]=useState('');
+    const submit=async e=>{e.preventDefault();setLoading(true);setError('');try{isReg?await window.firebaseCreateUser(window.firebaseAuth,email,pass):await window.firebaseSignIn(window.firebaseAuth,email,pass);showToast(isReg?'Conta criada!':'Bem-vindo!')}catch(err){let m=err.message;if(m.includes('invalid-email'))m='Email inválido';setError(m);showToast(m,true)}setLoading(false)};
+    return <div className="min-h-screen flex items-center justify-center p-4"><div className="glass-effect p-6 max-w-md w-full"><div className="text-center mb-6"><div className="text-6xl mb-3">💑</div><h1 className="text-3xl font-bold couple-name-highlight">HabitFlow‑Casal</h1></div><form onSubmit={submit} className="space-y-3"><input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full p-3 rounded-xl bg-input text-primary border border-primary" required/><input type="password" placeholder="Senha" value={pass} onChange={e=>setPass(e.target.value)} className="w-full p-3 rounded-xl bg-input text-primary border border-primary" required/>{error&&<p className="text-red-400 text-sm">{error}</p>}<button type="submit" disabled={loading} className="w-full py-3 bg-green-500 text-white rounded-xl font-semibold">{loading?<div className="loading-spinner mx-auto"></div>:(isReg?'Criar Conta ✨':'Entrar 🚀')}</button><p className="text-center text-secondary text-sm">{isReg?'Já tem conta?':'Não tem conta?'} <button type="button" onClick={()=>setIsReg(!isReg)} className="text-green-400">{isReg?'Login':'Cadastre-se'}</button></p></form>{onBack&&<button onClick={onBack} className="w-full mt-4 text-secondary text-sm">← Voltar</button>}</div></div>
+};
+
+// ===================== APP PRINCIPAL =====================
+const App = () => {
+    const [user,setUser]=useState(null);const [loading,setLoading]=useState(true);const [showHome,setShowHome]=useState(true);
+    const [activePerson,setActivePerson]=useState('josiel');const [nav,setNav]=useState('habits');
+    const [theme,setTheme]=useState(()=>window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+    const [names,setNames]=useState({josiel:'Josiel',zipora:'Zipora'});
+    const [habitsData,setHabitsData]=useState({josiel:[],zipora:[]});
+    const [tasksData,setTasksData]=useState([]);
+    const [selectedDate,setSelectedDate]=useState(new Date());
+    const [modalOpen,setModalOpen]=useState(false);const [editingHabit,setEditingHabit]=useState(null);
+    const [taskModalOpen,setTaskModalOpen]=useState(false);const [editingTask,setEditingTask]=useState(null);
+    const [couplePhoto,setCouplePhoto]=useState(null);
+    const [coupleXP,setCoupleXP]=useState(0);
+    const [mood,setMood]=useState(null);
+    const [notifications,setNotifications]=useState([]);
+    const [showNotif,setShowNotif]=useState(false);
+    const [chestOpen,setChestOpen]=useState(false);
+    const [weekPct,setWeekPct]=useState(0);
+    const [lastChestWeek,setLastChestWeek]=useState(null);
+    const [wishlist,setWishlist]=useState([]);
+    const [categories]=useState(['amor','comunicação','espiritual','saúde','relacionamento']);
+    const localUpdateFlag=useRef(false);
+
+    useEffect(()=>{document.body.className=theme==='light'?'light-mode':''},[theme]);
+
+    useEffect(()=>{
+        const unsubAuth=window.firebaseOnAuthStateChanged(window.firebaseAuth,authUser=>{
+            if(authUser){setUser(authUser);setShowHome(false);
+                const userRef=window.firebaseRef(window.firebaseDatabase,`users/${authUser.uid}`);
+                const unsubData=window.firebaseOnValue(userRef,snap=>{if(localUpdateFlag.current){localUpdateFlag.current=false;return}if(snap.exists()){const d=snap.val();setNames(d.names||{josiel:'Josiel',zipora:'Zipora'});setHabitsData(normalizeHabits(d.habits));setTheme(d.theme||theme);setCouplePhoto(d.couplePhoto||null);setCoupleXP(d.coupleXP||0);setMood(d.mood||null);if(d.tasks)setTasksData(Array.isArray(d.tasks)?d.tasks:Object.values(d.tasks||{}));setWishlist(d.wishlist||[]);setLastChestWeek(d.lastChestWeek||null);setNotifications(d.notifications||[])}else{const init={names:{josiel:'Josiel',zipora:'Zipora'},habits:{josiel:[],zipora:[]},tasks:[],theme:'dark',coupleXP:0,couplePhoto:null,mood:null,wishlist:[],notifications:[],lastChestWeek:null};window.firebaseSet(userRef,init)}});
+                setLoading(false);return ()=>unsubData();
+            }else{setUser(null);setLoading(false)}
+        });return ()=>unsubAuth();
+    },[]);
+
+    useEffect(()=>{setSelectedDate(new Date())},[]);
+    useEffect(()=>{if(user&&isSunday()){const pct=getWeekCompletion(habitsData);setWeekPct(pct);const cw=getWeekNumber();if(lastChestWeek!==cw)setChestOpen(true)}},[user,habitsData,lastChestWeek]);
+
+    const updateFB=useCallback(data=>{if(!user)return;localUpdateFlag.current=true;window.firebaseUpdate(window.firebaseRef(window.firebaseDatabase,`users/${user.uid}`),data).catch(err=>console.error('Firebase update error:',err))},[user]);
+
+    const addNotification = useCallback((icon, message, refId) => {
+        const notif = { id: `notif_${Date.now()}`, icon, message, timestamp: Date.now(), read: false, refId };
+        const nd = [notif, ...(notifications||[])].slice(0, 50);
+        setNotifications(nd);
+        updateFB({ notifications: nd });
+        showTopNotification(message, icon);
+    }, [notifications, updateFB]);
+
+    const removeNotificationByRef = useCallback((refId) => {
+        if (!refId) return;
+        const nd = (notifications||[]).filter(n => n.refId !== refId);
+        setNotifications(nd);
+        updateFB({ notifications: nd });
+    }, [notifications, updateFB]);
+
+    const markNotifRead=useCallback(id=>{const nd=notifications.map(n=>n.id===id?{...n,read:true}:n);setNotifications(nd);updateFB({notifications:nd})},[notifications,updateFB]);
+
+    const handlePhoto=useCallback(async e=>{const f=e.target.files[0];if(!f)return;try{const c=await compressImage(f);setCouplePhoto(c);updateFB({couplePhoto:c});showToast('Foto atualizada!')}catch{showToast('Erro',true)}},[updateFB]);
+    const handleMood=useCallback(m=>{setMood(m);updateFB({mood:m});addNotification('😊',`${names[activePerson]} está se sentindo ${m}`, `mood_${activePerson}_${getToday()}`)},[updateFB,activePerson,names,addNotification]);
+    const handleChestClose=useCallback(()=>{setChestOpen(false);const cw=getWeekNumber();setLastChestWeek(cw);updateFB({lastChestWeek:cw})},[updateFB]);
+
+    const addWish=useCallback(item=>{if(!item.trim())return;const nd=[...wishlist,{id:`wish_${Date.now()}`,text:item.trim(),addedBy:activePerson}];setWishlist(nd);updateFB({wishlist:nd});showToast('Desejo adicionado!')},[wishlist,activePerson,updateFB]);
+    const removeWish=useCallback(id=>{const nd=wishlist.filter(w=>w.id!==id);setWishlist(nd);updateFB({wishlist:nd})},[wishlist,updateFB]);
+
+    const moveHabit=useCallback((id,dir)=>{const list=[...habitsData[activePerson]].sort((a,b)=>(a.order||0)-(b.order||0));const idx=list.findIndex(h=>h.id===id);if(idx===-1)return;if(dir==='up'&&idx>0)[list[idx],list[idx-1]]=[list[idx-1],list[idx]];else if(dir==='down'&&idx<list.length-1)[list[idx],list[idx+1]]=[list[idx+1],list[idx]];const reordered=list.map((h,i)=>({...h,order:i}));const nd={...habitsData,[activePerson]:reordered};setHabitsData(nd);updateFB({habits:nd})},[activePerson,habitsData,updateFB]);
+    const addHabit=useCallback(h=>{const nh={...h,id:`${activePerson}_${Date.now()}`,completedDates:[],streak:0,order:habitsData[activePerson].length,createdAt:new Date().toISOString()};const nd={...habitsData,[activePerson]:[...habitsData[activePerson],nh]};setHabitsData(nd);updateFB({habits:nd});showToast(`"${h.title}" criado!`);addNotification('🔥',`${names[activePerson]} criou "${h.title}"`, `habit_create_${activePerson}_${nh.id}`)},[activePerson,habitsData,updateFB,names,addNotification]);
+    const editHabit=useCallback(u=>{const nd={...habitsData,[activePerson]:habitsData[activePerson].map(h=>h.id===u.id?{...h,...u}:h)};setHabitsData(nd);updateFB({habits:nd});showToast('Hábito atualizado!')},[activePerson,habitsData,updateFB]);
+    const deleteHabit=useCallback(id=>{if(!confirm('Deletar?'))return;const nd={...habitsData,[activePerson]:habitsData[activePerson].filter(h=>h.id!==id)};setHabitsData(nd);updateFB({habits:nd})},[activePerson,habitsData,updateFB]);
+    
+    // Toggle de hábito COM PRESERVAÇÃO TOTAL DO HISTÓRICO
+    const toggleHabit=useCallback((hid,ds)=>{setHabitsData(prev=>{const ph=prev[activePerson]||[];const nl=ph.map(h=>{if(h.id!==hid)return h;const curDates=ensureArray(h.completedDates);const already=curDates.includes(ds);const newDates=already?curDates.filter(d=>d!==ds):[...curDates,ds];const streak=calculateStreak(newDates,h.frequency||{type:'daily'});return{...h,completedDates:newDates,streak}});const toggled=nl.find(h=>h.id===hid);const wasCompleted=ensureArray(ph.find(h=>h.id===hid)?.completedDates).includes(ds);const isNowCompleted=toggled?.completedDates?.includes(ds);
+        const refId = `habit_${activePerson}_${hid}_${ds}`;
+        if(isNowCompleted&&!wasCompleted){playSound();triggerConfetti();vibrate();showTopNotification(`✓ ${toggled.title} concluído!`,'🎉');const newXP=coupleXP+10+(toggled.tag==='espiritual'?5:0);setCoupleXP(newXP);addNotification(toggled.icon,`${names[activePerson]} concluiu "${toggled.title}"`, refId);const nd={...prev,[activePerson]:nl};updateFB({habits:nd,coupleXP:newXP});return nd}
+        else if(!isNowCompleted&&wasCompleted){removeNotificationByRef(refId);const nd={...prev,[activePerson]:nl};updateFB({habits:nd});return nd}
+        const nd={...prev,[activePerson]:nl};updateFB({habits:nd});return nd})},[activePerson,coupleXP,updateFB,names,addNotification,removeNotificationByRef]);
+
+    const addTask=useCallback(t=>{const nt={...t,id:`task_${Date.now()}`,completedBy:{},createdAt:Date.now()};const nd=[...tasksData,nt];setTasksData(nd);updateFB({tasks:nd});showToast(`Tarefa "${t.title}" criada!`);addNotification('📋',`${names[activePerson]} criou "${t.title}"`, `task_create_${activePerson}_${nt.id}`)},[tasksData,updateFB,names,addNotification]);
+    const editTask=useCallback(t=>{const nd=tasksData.map(x=>x.id===t.id?{...x,...t}:x);setTasksData(nd);updateFB({tasks:nd})},[tasksData,updateFB]);
+    const deleteTask=useCallback(id=>{if(!confirm('Deletar?'))return;const nd=tasksData.filter(t=>t.id!==id);setTasksData(nd);updateFB({tasks:nd})},[tasksData,updateFB]);
+    
+    // Toggle de tarefa COM PRESERVAÇÃO DO HISTÓRICO
+    const toggleTask=useCallback(tid=>{const nd=tasksData.map(t=>{if(t.id!==tid)return t;const cb={...(t.completedBy||{})};const wasCompleted = !!cb[activePerson];
+        if(wasCompleted){delete cb[activePerson];removeNotificationByRef(`task_${activePerson}_${tid}`)}
+        else{cb[activePerson]=true;playSound();vibrate();addNotification(t.icon,`${names[activePerson]} concluiu "${t.title}"`, `task_${activePerson}_${tid}`)}
+        return{...t,completedBy:cb}});setTasksData(nd);updateFB({tasks:nd})},[tasksData,activePerson,names,updateFB,addNotification,removeNotificationByRef]);
+    const reactTask=useCallback((tid,reaction)=>{addNotification(reaction,`${names[activePerson]} reagiu com ${reaction}`, `react_${activePerson}_${tid}_${Date.now()}`)},[names,activePerson,addNotification]);
+
+    const toggleTheme=useCallback(()=>{const t=theme==='dark'?'light':'dark';setTheme(t);document.body.className=t==='light'?'light-mode':'';updateFB({theme:t})},[theme,updateFB]);
+    const logout=useCallback(async()=>{await window.firebaseSignOut(window.firebaseAuth);setUser(null);setShowHome(true)},[]);
+
+    if(loading)return<div className="min-h-screen flex items-center justify-center"><div className="loading-spinner"></div></div>;
+    if(!user&&showHome)return<HomePage onStart={()=>setShowHome(false)}/>;
+    if(!user&&!showHome)return<LoginScreen onBack={()=>setShowHome(true)}/>;
+
+    const currentHabits=habitsData[activePerson]||[];
+    const dateStr=selectedDate.toISOString().split('T')[0];
+    const gradient=activePerson==='josiel'?'from-blue-500 to-cyan-500':'from-pink-500 to-rose-500';
+    const sortedHabits=[...currentHabits].sort((a,b)=>(a.order||0)-(b.order||0));
+    const level=Math.floor((coupleXP||0)/100)+1;
+    const levelTitle=level>=50?'Inabaláveis':level>=25?'Alinhados':level>=10?'Constantes':'Iniciantes';
+    const todayDone=Object.values(habitsData).flat().filter(h=>h.completedDates?.includes(getToday())).length;
+    const totalActive=Object.values(habitsData).flat().filter(h=>isHabitActiveOnDate(h,getToday())).length;
+    const energyPct=totalActive>0?Math.round((todayDone/totalActive)*100):0;
+    // Badge de notificações não lidas baseado apenas nas de hoje
+    const todayNotes = useMemo(() => {
+        const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+        return notifications.filter(n => new Date(n.timestamp) >= todayStart);
+    }, [notifications]);
+    const unreadNotif = todayNotes.filter(n => !n.read).length;
+
+    return (
+        <div className="min-h-screen bg-[var(--bg-primary)] pb-24">
+            <header className="border-b border-primary bg-[var(--bg-primary)]/80 backdrop-blur-xl sticky top-0 z-40 p-3">
+                <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+                    <div className="flex items-center gap-2">
+                        <div className="photo-circle" onClick={()=>document.getElementById('photoInput').click()}>
+                            {couplePhoto?<img src={couplePhoto} className="w-full h-full object-cover" alt="Foto"/>:<div className="w-full h-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-xl">💑</div>}
+                            <div className="photo-overlay">📷</div>
+                        </div>
+                        <input type="file" id="photoInput" accept="image/*" className="hidden" onChange={handlePhoto}/>
+                        <div><h1 className="text-lg font-bold couple-name-highlight">HabitFlow‑Casal</h1><p className="text-xs text-secondary">Nível {level} • {levelTitle}</p></div>
+                    </div>
+                    <div className="flex gap-1 items-center">
+                        <div className="relative mr-1">
+                            <button onClick={()=>setShowNotif(!showNotif)} className="text-xl relative">
+                                🔔{unreadNotif>0&&<span className="notif-badge">{unreadNotif}</span>}
                             </button>
+                            {showNotif&&<><div className="fixed inset-0 z-[998]" onClick={()=>setShowNotif(false)}></div><NotificationPanel notifications={notifications} onMarkRead={markNotifRead} onClose={()=>setShowNotif(false)}/></>}
                         </div>
+                        <button onClick={()=>setActivePerson('josiel')} className={`px-2 py-1 rounded-lg text-xs font-semibold transition ${activePerson==='josiel'?'bg-green-500 text-white':'bg-input text-secondary'}`}>💙{names.josiel}</button>
+                        <button onClick={()=>setActivePerson('zipora')} className={`px-2 py-1 rounded-lg text-xs font-semibold transition ${activePerson==='zipora'?'bg-green-500 text-white':'bg-input text-secondary'}`}>💖{names.zipora}</button>
+                        <button onClick={logout} className="px-2 py-1 rounded-lg bg-red-500/20 text-red-400 text-xs">🚪</button>
                     </div>
                 </div>
-            );
-        });
-        
-        // Modal de Criação/Edição de Hábito
-        const HabitFormModal = memo(({ isOpen, onClose, onSave, initial, categories }) => {
-            const [title, setTitle] = useState('');
-            const [desc, setDesc] = useState('');
-            const [icon, setIcon] = useState('❤️');
-            const [tag, setTag] = useState('amor');
-            const [freqType, setFreqType] = useState('daily');
-            const [weeklyDay, setWeeklyDay] = useState(0);
-            const [customInterval, setCustomInterval] = useState(2);
-            
-            useEffect(() => {
-                if (isOpen) {
-                    if (initial) {
-                        setTitle(initial.title || '');
-                        setDesc(initial.description || '');
-                        setIcon(initial.icon || '❤️');
-                        setTag(initial.tag || 'amor');
-                        const freq = initial.frequency || { type: 'daily' };
-                        setFreqType(freq.type || 'daily');
-                        setWeeklyDay(freq.day || 0);
-                        setCustomInterval(freq.interval || 2);
-                    } else {
-                        setTitle(''); setDesc(''); setIcon('❤️'); setTag('amor');
-                        setFreqType('daily'); setWeeklyDay(0); setCustomInterval(2);
-                    }
-                }
-            }, [isOpen, initial]);
-            
-            if (!isOpen) return null;
-            
-            const handleSubmit = (e) => {
-                e.preventDefault();
-                if (!title.trim()) {
-                    showToast('Nome do hábito é obrigatório', true);
-                    return;
-                }
-                
-                const frequency = { type: freqType };
-                if (freqType === 'weekly') frequency.day = weeklyDay;
-                if (freqType === 'custom') frequency.interval = customInterval;
-                
-                // CORRIGIDO: Garante que todos os campos sejam enviados
-                const habitData = {
-                    ...(initial || {}),
-                    title: title.trim(),
-                    description: desc.trim(),
-                    icon,
-                    tag,
-                    frequency
-                };
-                
-                onSave(habitData);
-                onClose();
-            };
-            
-            return (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[300] p-4" onClick={onClose}>
-                    <div className="glass-effect p-5 max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                        <h3 className="text-xl font-bold text-primary mb-4">
-                            {initial ? '✏️ Editar Hábito' : '✨ Novo Hábito'}
-                        </h3>
-                        
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Ícone */}
-                            <div>
-                                <label className="text-secondary text-sm mb-2 block">Ícone</label>
-                                <div className="emoji-grid">
-                                    {allEmojis.map(em => (
-                                        <div key={em} onClick={() => setIcon(em)} 
-                                            className={`emoji-btn ${icon === em ? 'selected' : ''}`}>
-                                            {em}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                            
-                            {/* Nome */}
-                            <div>
-                                <label className="text-secondary text-sm mb-1 block">Nome *</label>
-                                <input type="text" value={title} onChange={e => setTitle(e.target.value)}
-                                    className="w-full p-2 rounded-xl bg-input text-primary border border-primary" 
-                                    placeholder="Ex: Orar juntos" required />
-                            </div>
-                            
-                            {/* Descrição */}
-                            <div>
-                                <label className="text-secondary text-sm mb-1 block">Descrição</label>
-                                <textarea value={desc} onChange={e => setDesc(e.target.value)} rows="2"
-                                    className="w-full p-2 rounded-xl bg-input text-primary border border-primary"
-                                    placeholder="Detalhes do hábito..."></textarea>
-                            </div>
-                            
-                            {/* Categoria */}
-                            <div>
-                                <label className="text-secondary text-sm mb-1 block">Categoria</label>
-                                <select value={tag} onChange={e => setTag(e.target.value)}
-                                    className="w-full p-2 rounded-xl bg-input text-primary border border-primary">
-                                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-                            </div>
-                            
-                            {/* Frequência */}
-                            <div>
-                                <label className="text-secondary text-sm mb-2 block">Frequência</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {[
-                                        { type: 'daily', label: '📅 Todo dia' },
-                                        { type: 'weekly', label: '📆 Semanal' },
-                                        { type: 'custom', label: '🔄 Personalizado' }
-                                    ].map(opt => (
-                                        <button key={opt.type} type="button" onClick={() => setFreqType(opt.type)}
-                                            className={`px-3 py-1.5 rounded-xl text-sm transition ${freqType === opt.type ? 'bg-green-500 text-white' : 'bg-input text-secondary'}`}>
-                                            {opt.label}
-                                        </button>
-                                    ))}
-                                </div>
-                                
-                                {freqType === 'weekly' && (
-                                    <select value={weeklyDay} onChange={e => setWeeklyDay(parseInt(e.target.value))}
-                                        className="mt-2 w-full p-2 rounded-xl bg-input text-primary border border-primary">
-                                        {['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'].map((d,i) => (
-                                            <option key={i} value={i}>{d}</option>
-                                        ))}
-                                    </select>
-                                )}
-                                
-                                {freqType === 'custom' && (
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <span className="text-secondary text-sm">A cada</span>
-                                        <input type="number" min="1" max="365" value={customInterval} 
-                                            onChange={e => setCustomInterval(Math.max(1, parseInt(e.target.value) || 2))}
-                                            className="p-2 rounded-xl bg-input text-primary border border-primary w-20 text-center" />
-                                        <span className="text-secondary text-sm">dias</span>
-                                    </div>
-                                )}
-                            </div>
-                            
-                            {/* Botões */}
-                            <div className="flex gap-3 pt-2">
-                                <button type="button" onClick={onClose}
-                                    className="flex-1 py-2.5 rounded-xl bg-input text-secondary font-medium">
-                                    Cancelar
-                                </button>
-                                <button type="submit"
-                                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold">
-                                    {initial ? 'Salvar Alterações' : 'Criar Hábito'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            );
-        });
-        
-        // Tela de Login
-        const LoginScreen = ({ onLogin }) => {
-            const [email, setEmail] = useState('');
-            const [pass, setPass] = useState('');
-            const [isReg, setIsReg] = useState(false);
-            const [loading, setLoading] = useState(false);
-            const [error, setError] = useState('');
-            
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                setLoading(true); setError('');
-                try {
-                    if (isReg) await window.firebaseCreateUser(window.firebaseAuth, email, pass);
-                    else await window.firebaseSignIn(window.firebaseAuth, email, pass);
-                    showToast(isReg ? 'Conta criada! 🎉' : 'Bem-vindo! 👋');
-                } catch (err) {
-                    let msg = err.message;
-                    if (msg.includes('invalid-email')) msg = 'Email inválido';
-                    else if (msg.includes('user-not-found')) msg = 'Usuário não encontrado';
-                    else if (msg.includes('wrong-password')) msg = 'Senha incorreta';
-                    else if (msg.includes('email-already-in-use')) msg = 'Email já cadastrado';
-                    setError(msg); showToast(msg, true);
-                }
-                setLoading(false);
-            };
-            
-            return (
-                <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
-                    <div className="glass-effect p-6 max-w-md w-full">
-                        <div className="text-center mb-6">
-                            <div className="text-6xl mb-3">💑</div>
-                            <h1 className="text-3xl font-bold couple-name-highlight">HabitFlow</h1>
-                            <p className="text-secondary text-sm mt-1">Fortaleça seu relacionamento com Cristo</p>
-                        </div>
-                        <form onSubmit={handleSubmit} className="space-y-3">
-                            <input type="email" placeholder="seu@email.com" value={email} 
-                                onChange={e => setEmail(e.target.value)}
-                                className="w-full p-3 rounded-xl bg-input text-primary border border-primary focus:ring-2 focus:ring-green-500" required />
-                            <input type="password" placeholder="••••••••" value={pass} 
-                                onChange={e => setPass(e.target.value)}
-                                className="w-full p-3 rounded-xl bg-input text-primary border border-primary focus:ring-2 focus:ring-green-500" required />
-                            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-                            <button type="submit" disabled={loading}
-                                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg transition">
-                                {loading ? <div className="loading-spinner mx-auto"></div> : (isReg ? 'Criar Conta ✨' : 'Entrar 🚀')}
-                            </button>
-                            <p className="text-center text-secondary text-sm">
-                                {isReg ? 'Já tem conta?' : 'Não tem conta?'} 
-                                <button type="button" onClick={() => setIsReg(!isReg)} className="text-green-400 ml-1 font-medium">
-                                    {isReg ? 'Fazer login' : 'Cadastre-se'}
-                                </button>
-                            </p>
-                        </form>
-                    </div>
-                </div>
-            );
-        };
-        
-        // ==================== APP PRINCIPAL ====================
-        const App = () => {
-            const [user, setUser] = useState(null);
-            const [loading, setLoading] = useState(true);
-            const [activePerson, setActivePerson] = useState('josiel');
-            const [nav, setNav] = useState('habits');
-            const [theme, setTheme] = useState('dark');
-            const [names, setNames] = useState({ josiel:'Josiel', zipora:'Zipora' });
-            const [habitsData, setHabitsData] = useState({ josiel:[], zipora:[] });
-            const [categories, setCategories] = useState(defaultCategories);
-            const [selectedDate, setSelectedDate] = useState(new Date());
-            const [modalOpen, setModalOpen] = useState(false);
-            const [editingHabit, setEditingHabit] = useState(null);
-            
-            // Listener Firebase
-            useEffect(() => {
-                const unsub = window.firebaseOnAuthStateChanged(window.firebaseAuth, (authUser) => {
-                    if (authUser) {
-                        setUser(authUser);
-                        const userRef = window.firebaseRef(window.firebaseDatabase, `users/${authUser.uid}`);
-                        window.firebaseOnValue(userRef, (snap) => {
-                            if (snap.exists()) {
-                                const data = snap.val();
-                                setNames(data.names || { josiel:'Josiel', zipora:'Zipora' });
-                                setHabitsData(data.habits || { josiel:[], zipora:[] });
-                                setTheme(data.theme || 'dark');
-                                setCategories(data.categories || defaultCategories);
-                                document.body.className = data.theme === 'light' ? 'light-mode' : '';
-                            }
-                        });
-                        setLoading(false);
-                    } else {
-                        setUser(null);
-                        setLoading(false);
-                    }
-                });
-                return () => unsub();
-            }, []);
-            
-            // CORRIGIDO: updateFB agora usa set para criação inicial também
-            const updateFB = useCallback((data) => {
-                if (user) {
-                    const userRef = window.firebaseRef(window.firebaseDatabase, `users/${user.uid}`);
-                    window.firebaseUpdate(userRef, data).catch(err => {
-                        console.error('Firebase update error:', err);
-                        showToast('Erro ao salvar', true);
-                    });
-                }
-            }, [user]);
-            
-            // CRUD Operations
-            const addHabit = useCallback((habit) => {
-                const newHabit = {
-                    ...habit,
-                    id: `${activePerson}_${Date.now()}`,
-                    completedDates: [],
-                    streak: 0,
-                    order: habitsData[activePerson].length,
-                    createdAt: new Date().toISOString()
-                };
-                const newData = { 
-                    ...habitsData, 
-                    [activePerson]: [...habitsData[activePerson], newHabit] 
-                };
-                setHabitsData(newData);
-                updateFB({ habits: newData });
-                showToast(`"${habit.title}" criado! ✨`);
-            }, [activePerson, habitsData, updateFB]);
-            
-            const editHabit = useCallback((updated) => {
-                const newData = {
-                    ...habitsData,
-                    [activePerson]: habitsData[activePerson].map(h => 
-                        h.id === updated.id ? { ...h, ...updated } : h
-                    )
-                };
-                setHabitsData(newData);
-                updateFB({ habits: newData });
-                showToast(`"${updated.title}" atualizado! ✏️`);
-            }, [activePerson, habitsData, updateFB]);
-            
-            const deleteHabit = useCallback((id) => {
-                const habit = habitsData[activePerson].find(h => h.id === id);
-                if (!habit) return;
-                if (!confirm(`Deletar "${habit.title}"?`)) return;
-                
-                const newData = {
-                    ...habitsData,
-                    [activePerson]: habitsData[activePerson].filter(h => h.id !== id)
-                };
-                setHabitsData(newData);
-                updateFB({ habits: newData });
-                showToast(`"${habit.title}" removido 🗑️`);
-            }, [activePerson, habitsData, updateFB]);
-            
-            const toggleHabit = useCallback((habitId, dateStr) => {
-                const newList = habitsData[activePerson].map(h => {
-                    if (h.id !== habitId) return h;
-                    const already = h.completedDates?.includes(dateStr) || false;
-                    const newDates = already 
-                        ? h.completedDates.filter(d => d !== dateStr) 
-                        : [...(h.completedDates || []), dateStr];
-                    const streak = calculateStreak(newDates, h.frequency);
-                    return { ...h, completedDates: newDates, streak };
-                });
-                
-                const toggledHabit = newList.find(h => h.id === habitId);
-                const wasCompleted = habitsData[activePerson]
-                    .find(h => h.id === habitId)?.completedDates?.includes(dateStr);
-                const isNowCompleted = toggledHabit?.completedDates?.includes(dateStr);
-                
-                if (isNowCompleted && !wasCompleted) {
-                    playCheckSound();
-                    triggerConfetti();
-                }
-                
-                const newData = { ...habitsData, [activePerson]: newList };
-                setHabitsData(newData);
-                updateFB({ habits: newData });
-            }, [activePerson, habitsData, updateFB]);
-            
-            const handleThemeToggle = useCallback(() => {
-                const newTheme = theme === 'dark' ? 'light' : 'dark';
-                setTheme(newTheme);
-                document.body.className = newTheme === 'light' ? 'light-mode' : '';
-                updateFB({ theme: newTheme });
-            }, [theme, updateFB]);
-            
-            const logout = useCallback(async () => {
-                await window.firebaseSignOut(window.firebaseAuth);
-                setUser(null);
-                showToast('Até logo! 👋');
-            }, []);
-            
-            if (loading) {
-                return (
-                    <div className="min-h-screen flex items-center justify-center">
-                        <div className="loading-spinner"></div>
-                    </div>
-                );
-            }
-            
-            if (!user) return <LoginScreen />;
-            
-            const currentHabits = habitsData[activePerson] || [];
-            const dateStr = selectedDate.toISOString().split('T')[0];
-            const gradient = activePerson === 'josiel' ? 'from-blue-500 to-cyan-500' : 'from-pink-500 to-rose-500';
-            
-            return (
-                <div className="min-h-screen bg-[var(--bg-primary)] pb-24">
-                    {/* Header */}
-                    <header className="border-b border-primary bg-[var(--bg-primary)]/80 backdrop-blur-xl sticky top-0 z-40">
-                        <div className="px-4 py-3">
-                            <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-xl">💑</div>
-                                    <div>
-                                        <h1 className="text-xl font-bold couple-name-highlight">HabitFlow</h1>
-                                        <p className="text-secondary text-xs">Casal Cristão</p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-1.5 flex-wrap">
-                                    <button onClick={() => setActivePerson('josiel')} 
-                                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${activePerson === 'josiel' ? 'bg-green-500 text-white' : 'bg-input text-secondary'}`}>
-                                        💙 {names.josiel}
-                                    </button>
-                                    <button onClick={() => setActivePerson('zipora')} 
-                                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${activePerson === 'zipora' ? 'bg-green-500 text-white' : 'bg-input text-secondary'}`}>
-                                        💖 {names.zipora}
-                                    </button>
-                                    <button onClick={logout} className="px-3 py-1.5 rounded-xl bg-red-500/20 text-red-400 text-xs font-medium">
-                                        🚪
-                                    </button>
-                                </div>
-                            </div>
-                            <WeekCalendar selectedDate={selectedDate} onSelect={setSelectedDate} habits={currentHabits} />
-                        </div>
-                    </header>
-                    
-                    {/* Main Content */}
-                    <main className="px-4 py-4 max-w-2xl mx-auto">
-                        {nav === 'habits' && (
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <h2 className="text-lg font-semibold text-primary">
-                                            Hábitos de {names[activePerson]}
-                                        </h2>
-                                        <p className="text-secondary text-xs">{formatDate(selectedDate)}</p>
-                                    </div>
-                                    <button onClick={() => { setEditingHabit(null); setModalOpen(true); }} 
-                                        className={`bg-gradient-to-r ${gradient} text-white px-3 py-1.5 rounded-xl text-sm font-semibold`}>
-                                        + Novo
-                                    </button>
-                                </div>
-                                
-                                <DailyProgress habits={currentHabits} date={selectedDate} />
-                                
-                                {currentHabits.length === 0 ? (
-                                    <div className="text-center py-12 bg-card">
-                                        <div className="text-4xl mb-3">🌱</div>
-                                        <p className="text-secondary">Nenhum hábito ainda</p>
-                                        <p className="text-secondary text-xs mt-1">Toque em "+ Novo" para começar</p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2">
-                                        {currentHabits
-                                            .sort((a, b) => (a.order || 0) - (b.order || 0))
-                                            .map((h, idx) => (
-                                                <HabitCard key={h.id} habit={h} 
-                                                    onToggle={toggleHabit}
-                                                    onEdit={(habit) => { setEditingHabit(habit); setModalOpen(true); }}
-                                                    onDelete={deleteHabit}
-                                                    dateStr={dateStr}
-                                                    index={idx} />
-                                            ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                        
-                        {nav === 'settings' && (
-                            <div className="space-y-4 pb-20">
-                                {/* Perfis */}
-                                <div className="bg-card p-4">
-                                    <h3 className="text-primary font-semibold mb-3">👤 Perfis do Casal</h3>
-                                    <div className="space-y-3">
-                                        {['josiel', 'zipora'].map(pid => (
-                                            <div key={pid} className="flex gap-2">
-                                                <input type="text" value={names[pid]} 
-                                                    onChange={e => setNames({ ...names, [pid]: e.target.value })}
-                                                    className="flex-1 p-2 rounded-xl bg-input text-primary border border-primary" />
-                                                <button onClick={() => updateFB({ names })}
-                                                    className="px-4 py-2 bg-green-500 rounded-xl text-white text-sm">Salvar</button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                
-                                {/* Tema */}
-                                <div className="bg-card p-4">
-                                    <h3 className="text-primary font-semibold mb-3">🎨 Aparência</h3>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-secondary">{theme === 'dark' ? '🌙 Modo Escuro' : '☀️ Modo Claro'}</span>
-                                        <label className="switch">
-                                            <input type="checkbox" checked={theme === 'light'} onChange={handleThemeToggle} />
-                                            <span className="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                {/* Sobre */}
-                                <div className="bg-card p-4">
-                                    <h3 className="text-primary font-semibold mb-3">ℹ️ Sobre</h3>
-                                    <p className="text-secondary text-sm">HabitFlow v2.0</p>
-                                    <p className="text-secondary text-xs mt-1">Hábitos inteligentes para casais cristãos</p>
-                                    <p className="text-secondary text-xs">❤️ Feito com amor e fé</p>
-                                </div>
-                            </div>
-                        )}
-                    </main>
-                    
-                    {/* Bottom Nav */}
-                    <div className="bottom-nav">
-                        <div onClick={() => setNav('habits')} className={`bottom-nav-item ${nav === 'habits' ? 'bottom-nav-active' : 'text-secondary'}`}>
-                            <span className="text-xl">📋</span>
-                            <span>Hábitos</span>
-                        </div>
-                        <div onClick={() => setNav('settings')} className={`bottom-nav-item ${nav === 'settings' ? 'bottom-nav-active' : 'text-secondary'}`}>
-                            <span className="text-xl">⚙️</span>
-                            <span>Ajustes</span>
-                        </div>
-                    </div>
-                    
-                    {/* Modal de Hábito */}
-                    <HabitFormModal 
-                        isOpen={modalOpen} 
-                        onClose={() => { setModalOpen(false); setEditingHabit(null); }}
-                        onSave={editingHabit ? editHabit : addHabit}
-                        initial={editingHabit}
-                        categories={categories} />
-                </div>
-            );
-        };
-        
-        // ==================== RENDER ====================
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-    </script>
+                <div className="mb-2"><div className="flex justify-between text-xs mb-1"><span className="text-secondary">🔋 Energia do Casal</span><span className="text-primary font-semibold">{energyPct}%</span></div><div className="progress-bar-bg"><div className="progress-bar-fill" style={{width:`${energyPct}%`,background:energyPct>=100?'linear-gradient(135deg,#ec4899,#8b5cf6)':energyPct>=70?'linear-gradient(135deg,#fbbf24,#f59e0b)':'var(--green-gradient)'}}></div></div></div>
+                {energyPct>=100&&<p className="text-xs text-center text-fuchsia-400 mb-1">⚡ Energia máxima! Bônus de XP ativo!</p>}
+                <WeekCalendar selectedDate={selectedDate} onSelect={setSelectedDate} habits={currentHabits}/>
+            </header>
+            <main className="p-3 max-w-2xl mx-auto">
+                {nav==='habits'&&<>
+                    <div className="flex justify-between items-center mb-3"><h2 className="text-lg font-semibold">{names[activePerson]}</h2><button onClick={()=>{setEditingHabit(null);setModalOpen(true)}} className={`bg-gradient-to-r ${gradient} text-white px-3 py-1.5 rounded-xl text-xs font-semibold`}>+ Novo</button></div>
+                    <DailyProgress habits={currentHabits} date={selectedDate}/>
+                    <div className="bg-card p-3 mb-3"><p className="text-secondary text-xs mb-2">😊 Como você está hoje?</p><div className="flex gap-3">{['😊','😐','😔','🙏','🔥'].map(m=><div key={m} onClick={()=>handleMood(m)} className={`mood-btn ${mood===m?'selected':''}`}>{m}</div>)}</div></div>
+                    <div className="space-y-2">{sortedHabits.map((h,idx)=><HabitCard key={h.id} habit={h} onToggle={toggleHabit} onEdit={h=>{setEditingHabit(h);setModalOpen(true)}} onDelete={deleteHabit} onMoveUp={()=>moveHabit(h.id,'up')} onMoveDown={()=>moveHabit(h.id,'down')} dateStr={dateStr} isFirst={idx===0} isLast={idx===sortedHabits.length-1}/>)}{sortedHabits.length===0&&<div className="text-center py-12 bg-card"><div className="text-4xl mb-3">🌱</div><p className="text-secondary">Nenhum hábito ainda</p></div>}</div>
+                </>}
+                {nav==='tasks'&&<TasksView tasks={tasksData} onToggle={toggleTask} onEdit={t=>{setEditingTask(t);setTaskModalOpen(true)}} onDelete={deleteTask} onReact={reactTask} onAdd={()=>{setEditingTask(null);setTaskModalOpen(true)}} currentUser={activePerson} names={names}/>}
+                {nav==='stats'&&<StatsDashboard habits={currentHabits} allHabits={habitsData} names={names} userXP={coupleXP} tasks={tasksData}/>}
+                {nav==='couple'&&<div className="space-y-4"><h2 className="text-lg font-semibold text-primary">❤️ Modo Casal</h2><div className="bg-card p-4 text-center"><div className="text-4xl mb-3">💑</div><p className="text-primary font-semibold">{names.josiel} & {names.zipora}</p><p className="text-secondary text-sm">Nível {level} • {levelTitle}</p><div className="mt-3"><div className="flex justify-between text-xs mb-1"><span>Progresso do nível</span><span>{coupleXP} XP</span></div><div className="progress-bar-bg"><div className="progress-bar-fill" style={{width:`${(coupleXP%100)}%`,background:'linear-gradient(135deg,#fbbf24,#f59e0b)'}}></div></div></div></div><div className="bg-card p-4"><h3 className="text-primary font-semibold mb-3">🎰 Baú Semanal</h3><p className="text-secondary text-sm mb-3">Concluam hábitos para abrir o baú no domingo!</p><div className="text-center text-5xl">{isSunday()?'🎁':'🔒'}</div><p className="text-secondary text-xs mt-2">{isSunday()?'Domingo! Abram seu baú!':'Voltem no domingo'}</p></div><div className="bg-card p-4"><h3 className="text-primary font-semibold mb-3">🎁 Lista de Desejos</h3><div className="flex gap-2 mb-3"><input id="wishInput" className="flex-1 p-2 rounded-xl bg-input text-primary border border-primary text-xs" placeholder="Adicionar desejo..."/><button onClick={()=>{const inp=document.getElementById('wishInput');addWish(inp.value);inp.value=''}} className="px-3 py-2 bg-pink-500 text-white rounded-xl text-xs">+</button></div>{wishlist.length===0?<p className="text-secondary text-xs text-center">Nenhum desejo ainda</p>:wishlist.map(w=><div key={w.id} className="flex justify-between items-center py-1 text-sm"><span className="text-primary">{w.text}</span><button onClick={()=>removeWish(w.id)} className="text-red-400 text-xs">✕</button></div>)}</div></div>}
+                {nav==='settings'&&<div className="space-y-4 pb-20">
+                    <div className="bg-card p-4"><h3 className="text-primary font-semibold mb-3">📸 Foto</h3><div className="flex justify-center"><div className="photo-circle" style={{width:'80px',height:'80px'}} onClick={()=>document.getElementById('photoInput2').click()}>{couplePhoto?<img src={couplePhoto} className="w-full h-full object-cover" alt="Foto"/>:<div className="w-full h-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-3xl">💑</div>}</div><input type="file" id="photoInput2" accept="image/*" className="hidden" onChange={handlePhoto}/></div></div>
+                    <div className="bg-card p-4"><h3 className="text-primary font-semibold mb-3">👤 Nomes</h3>{['josiel','zipora'].map(p=><div key={p} className="flex gap-2 mb-2"><input value={names[p]} onChange={e=>setNames(n=>({...n,[p]:e.target.value}))} className="flex-1 p-2 rounded-xl bg-input text-primary"/><button onClick={()=>updateFB({names})} className="px-3 py-2 bg-green-500 text-white text-xs rounded-xl">Salvar</button></div>)}</div>
+                    <div className="bg-card p-4"><h3 className="text-primary font-semibold mb-3">🎨 Tema</h3><div className="flex justify-between"><span>{theme==='dark'?'🌙 Escuro':'☀️ Claro'}</span><label className="switch"><input type="checkbox" checked={theme==='light'} onChange={toggleTheme}/><span className="slider"></span></label></div></div>
+                    <div className="bg-card p-4"><h3 className="text-primary font-semibold mb-3">ℹ️ Sobre</h3><p className="text-secondary text-xs">HabitFlow‑Casal v4.5 • Notificações diárias</p></div>
+                </div>}
+            </main>
+            <div className="bottom-nav">
+                {[{id:'habits',icon:'🔥',label:'Hábitos'},{id:'tasks',icon:'✅',label:'Tarefas'},{id:'stats',icon:'📊',label:'Stats'},{id:'couple',icon:'❤️',label:'Casal'},{id:'settings',icon:'⚙️',label:'Ajustes'}].map(item=>(
+                    <div key={item.id} onClick={()=>setNav(item.id)} className={`bottom-nav-item ${nav===item.id?'bottom-nav-active':'text-secondary'}`}><span className="text-base">{item.icon}</span><span>{item.label}</span></div>
+                ))}
+            </div>
+            <HabitFormModal isOpen={modalOpen} onClose={()=>{setModalOpen(false);setEditingHabit(null)}} onSave={editingHabit?editHabit:addHabit} initial={editingHabit} categories={categories}/>
+            <TaskFormModal isOpen={taskModalOpen} onClose={()=>{setTaskModalOpen(false);setEditingTask(null)}} onSave={editingTask?editTask:addTask} initial={editingTask} names={names} activePerson={activePerson}/>
+            <ChestModal isOpen={chestOpen} onClose={handleChestClose} weekPct={weekPct}/>
+        </div>
+    );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
 </body>
 </html>
